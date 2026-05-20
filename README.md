@@ -1,16 +1,55 @@
-# React + Vite
+# EMVIAL Geo
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema georreferenciado de gestión de activos urbanos para EMVIAL (Ente Municipal de Vialidad y Alumbrado de General Pueyrredon).
 
-Currently, two official plugins are available:
+## Estado del proyecto
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+🚧 Proyecto actualmente en desarrollo.
 
-## React Compiler
+Este sistema busca centralizar y visualizar activos urbanos sobre un mapa interactivo, permitiendo:
+- registrar activos manualmente,
+- georreferenciarlos,
+- visualizar barrios,
+- administrar estados e intervenciones,
+- y evolucionar hacia una plataforma integral de infraestructura urbana.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tecnologías utilizadas
 
-## Expanding the ESLint configuration
+- Electron
+- React
+- Vite
+- Leaflet
+- OpenStreetMap
+- GeoJSON
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Funcionalidades actuales
+
+✅ Gestión local de activos  
+✅ Mapa interactivo  
+✅ Georreferenciación mediante búsqueda o selección en mapa  
+✅ Visualización de barrios de Mar del Plata  
+✅ Persistencia local de datos  
+✅ Interfaz de escritorio multiplataforma
+
+## Funcionalidades planificadas
+
+- Importación desde Excel
+- Exportación de datos
+- Historial de intervenciones
+- Gestión de imágenes
+- Filtros avanzados
+- Estadísticas territoriales
+- Base de datos local SQLite
+- Integración futura con Google Maps / GIS
+
+## Instalación
+
+```bash
+npm install
+npm run start
+
+Autor
+
+Desarrollado por Agustín Saavedra.
+
+Proyecto privado — uso interno / prototipo
