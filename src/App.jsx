@@ -7,7 +7,7 @@ import AssetsPanel from './components/AssetsPanel'
 import { exportarKml } from './utils/exportKML.js'
 
 function App() {
-const [intervenciones, setIntervenciones] = useState([])
+  const [intervenciones, setIntervenciones] = useState([])
 
   const [intervencionEditandoId, setIntervencionEditandoId] = useState(null)
   const [busqueda, setBusqueda] = useState('')
@@ -16,6 +16,8 @@ const [intervenciones, setIntervenciones] = useState([])
   const [puntoSeleccionado, setPuntoSeleccionado] = useState(null)
   const [barrioSeleccionado, setBarrioSeleccionado] = useState('')
   const [mostrarBarrios, setMostrarBarrios] = useState(true)
+const [menuAbierto, setMenuAbierto] = useState(false)
+
 
   const formInicial = {
     nombre: '',
@@ -41,13 +43,13 @@ const [intervenciones, setIntervenciones] = useState([])
   const [form, setForm] = useState(formInicial)
 
   useEffect(() => {
-  async function cargarIntervenciones() {
-    const datos = await window.api.obtenerIntervenciones()
-    setIntervenciones(datos)
-  }
+    async function cargarIntervenciones() {
+      const datos = await window.api.obtenerIntervenciones()
+      setIntervenciones(datos)
+    }
 
-  cargarIntervenciones()
-}, [])
+    cargarIntervenciones()
+  }, [])
 
   const intervencionesFiltradas = intervenciones.filter((intervencion) => {
     const texto = `
@@ -156,63 +158,89 @@ const [intervenciones, setIntervenciones] = useState([])
     }))
   }
 
- async function guardarIntervencion(e) {
-  e.preventDefault()
+  async function guardarIntervencion(e) {
+    e.preventDefault()
 
-  if (form.geometriaTipo === 'Punto' && (!form.latitud || !form.longitud)) {
-    alert('Primero seleccioná una ubicación en el mapa o buscá una dirección.')
-    return
+    if (form.geometriaTipo === 'Punto' && (!form.latitud || !form.longitud)) {
+      alert('Primero seleccioná una ubicación en el mapa o buscá una dirección.')
+      return
+    }
+
+    if (form.geometriaTipo === 'Línea' && form.geometria.length < 2) {
+      alert('Para una línea necesitás marcar al menos 2 puntos en el mapa.')
+      return
+    }
+
+    if (form.geometriaTipo === 'Polígono' && form.geometria.length < 3) {
+      alert('Para un polígono necesitás marcar al menos 3 puntos en el mapa.')
+      return
+    }
+
+    if (intervencionEditandoId) {
+      const actualizada = await window.api.guardarIntervencion({
+        id: intervencionEditandoId,
+        ...form,
+      })
+
+      setIntervenciones((prev) =>
+        prev.map((intervencion) =>
+          intervencion.id === intervencionEditandoId
+            ? actualizada
+            : intervencion
+        )
+      )
+
+      setIntervencionEditandoId(null)
+    } else {
+      const nueva = await window.api.guardarIntervencion({
+        id: Date.now(),
+        ...form,
+      })
+
+      setIntervenciones((prev) => [nueva, ...prev])
+    }
+
+    setForm(formInicial)
+    setPuntoSeleccionado(null)
   }
 
-  if (form.geometriaTipo === 'Línea' && form.geometria.length < 2) {
-    alert('Para una línea necesitás marcar al menos 2 puntos en el mapa.')
-    return
-  }
+  async function eliminarIntervencion(id) {
+    const confirmar = confirm('¿Seguro que querés eliminar esta intervención?')
 
-  if (form.geometriaTipo === 'Polígono' && form.geometria.length < 3) {
-    alert('Para un polígono necesitás marcar al menos 3 puntos en el mapa.')
-    return
-  }
+    if (!confirmar) return
 
-  if (intervencionEditandoId) {
-    const actualizada = await window.api.guardarIntervencion({
-      id: intervencionEditandoId,
-      ...form,
-    })
+    await window.api.eliminarIntervencion(id)
 
     setIntervenciones((prev) =>
-      prev.map((intervencion) =>
-        intervencion.id === intervencionEditandoId
-          ? actualizada
-          : intervencion
-      )
+      prev.filter((intervencion) => intervencion.id !== id)
     )
-
-    setIntervencionEditandoId(null)
-  } else {
-    const nueva = await window.api.guardarIntervencion({
-      id: Date.now(),
-      ...form,
-    })
-
-    setIntervenciones((prev) => [nueva, ...prev])
   }
 
-  setForm(formInicial)
-  setPuntoSeleccionado(null)
-}
+  async function crearBackup() {
+    const resultado = await window.api.crearBackupManual()
 
-async function eliminarIntervencion(id) {
-  const confirmar = confirm('¿Seguro que querés eliminar esta intervención?')
+    if (resultado.ok) {
+      alert('Backup creado correctamente.')
+    }
+  }
 
-  if (!confirmar) return
+  async function restaurarBackup() {
+    const confirmar = confirm(
+      'Esto reemplazará la base actual por el backup seleccionado. ¿Continuar?'
+    )
 
-  await window.api.eliminarIntervencion(id)
+    if (!confirmar) return
 
-  setIntervenciones((prev) =>
-    prev.filter((intervencion) => intervencion.id !== id)
-  )
-}
+    const resultado = await window.api.restaurarBackupManual()
+
+    if (!resultado.ok) return
+
+    const datos = await window.api.obtenerIntervenciones()
+
+    setIntervenciones(datos)
+
+    alert('Backup restaurado correctamente.')
+  }
 
   function editarIntervencion(intervencion) {
     setIntervencionEditandoId(intervencion.id)
@@ -265,21 +293,67 @@ async function eliminarIntervencion(id) {
             <span>Mar del Plata / Partido de General Pueyrredon</span>
           </div>
 
-          <div className="topbar-actions">
-            <input
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              placeholder="Buscar por obra, barrio, estado o ubicación..."
-            />
+         <div className="topbar-actions">
+  <input
+    value={busqueda}
+    onChange={(e) => setBusqueda(e.target.value)}
+    placeholder="Buscar por obra, barrio, estado o ubicación..."
+  />
 
-            <button
-              type="button"
-              className="export-btn"
-              onClick={() => exportarKml(intervencionesFiltradas)}
-            >
-              Exportar KML
-            </button>
-          </div>
+  <div className="menu-wrapper">
+    <button
+      type="button"
+      className="menu-btn"
+      onClick={() => setMenuAbierto((prev) => !prev)}
+    >
+      ☰
+    </button>
+
+    {menuAbierto && (
+      <div className="dropdown-menu">
+        <button
+          type="button"
+          onClick={() => {
+            exportarKml(intervencionesFiltradas)
+            setMenuAbierto(false)
+          }}
+        >
+          Exportar KML
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            crearBackup()
+            setMenuAbierto(false)
+          }}
+        >
+          Crear backup
+        </button>
+
+        <button
+          type="button"
+          className="danger"
+          onClick={() => {
+            restaurarBackup()
+            setMenuAbierto(false)
+          }}
+        >
+          Restaurar backup
+        </button>
+        <button
+  type="button"
+  onClick={() => {
+    window.api.abrirCarpetaBackups()
+    setMenuAbierto(false)
+  }}
+>
+  Abrir carpeta de backups
+</button>
+      </div>
+    )}
+  </div>
+</div>
         </header>
 
         <section className="content">
