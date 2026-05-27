@@ -6,38 +6,53 @@ import MapView from './components/MapView'
 import AssetsPanel from './components/AssetsPanel'
 
 function App() {
-  const [activos, setActivos] = useState(() => {
-    const guardados = localStorage.getItem('emvial_activos')
-    return guardados ? JSON.parse(guardados) : []
+  const [intervenciones, setIntervenciones] = useState(() => {
+    const guardadas = localStorage.getItem('emvial_intervenciones')
+    return guardadas ? JSON.parse(guardadas) : []
   })
 
-  const [barrioSeleccionado, setBarrioSeleccionado] = useState('')
-
-  const [activoEditandoId, setActivoEditandoId] = useState(null)
-
+  const [intervencionEditandoId, setIntervencionEditandoId] = useState(null)
   const [busqueda, setBusqueda] = useState('')
-
   const [sugerencias, setSugerencias] = useState([])
   const [buscandoDireccion, setBuscandoDireccion] = useState(false)
-
   const [puntoSeleccionado, setPuntoSeleccionado] = useState(null)
+  const [barrioSeleccionado, setBarrioSeleccionado] = useState('')
 
   const [form, setForm] = useState({
-    tipo: 'Luminaria',
+    area: 'Vialidad',
+    fecha: '',
+    barrio: '',
+    tipoIntervencion: 'Mantenimiento',
+    subtipo: '',
+    estado: 'Pendiente',
+    fuente: 'Carga manual',
     direccion: '',
     latitud: '',
     longitud: '',
-    estado: 'Pendiente',
     descripcion: '',
+    unidad: 'cuadras',
+    cantidad: '',
+    geometriaTipo: 'Punto',
   })
 
   useEffect(() => {
-    localStorage.setItem('emvial_activos', JSON.stringify(activos))
-  }, [activos])
+    localStorage.setItem(
+      'emvial_intervenciones',
+      JSON.stringify(intervenciones)
+    )
+  }, [intervenciones])
 
-  const activosFiltrados = activos.filter((activo) => {
-    const texto =
-      `${activo.tipo} ${activo.direccion} ${activo.estado}`.toLowerCase()
+  const intervencionesFiltradas = intervenciones.filter((intervencion) => {
+    const texto = `
+      ${intervencion.area}
+      ${intervencion.barrio}
+      ${intervencion.tipoIntervencion}
+      ${intervencion.subtipo}
+      ${intervencion.estado}
+      ${intervencion.fuente}
+      ${intervencion.direccion}
+      ${intervencion.descripcion}
+    `.toLowerCase()
 
     return texto.includes(busqueda.toLowerCase())
   })
@@ -69,9 +84,6 @@ function App() {
 
     try {
       const datos = await window.api.buscarDireccion(valor)
-
-      console.log('Sugerencias recibidas:', datos)
-
       setSugerencias(datos || [])
     } catch (error) {
       console.error('Error buscando sugerencias:', error)
@@ -95,7 +107,6 @@ function App() {
       setPuntoSeleccionado(null)
       setSugerencias([])
       setBuscandoDireccion(false)
-
       return
     }
 
@@ -140,7 +151,7 @@ function App() {
     }))
   }
 
-  function guardarActivo(e) {
+  function guardarIntervencion(e) {
     e.preventDefault()
 
     if (!form.latitud || !form.longitud) {
@@ -150,63 +161,84 @@ function App() {
       return
     }
 
-    if (activoEditandoId) {
-      setActivos(
-        activos.map((activo) =>
-          activo.id === activoEditandoId
-            ? { ...activo, ...form }
-            : activo
+    if (intervencionEditandoId) {
+      setIntervenciones(
+        intervenciones.map((intervencion) =>
+          intervencion.id === intervencionEditandoId
+            ? { ...intervencion, ...form }
+            : intervencion
         )
       )
 
-      setActivoEditandoId(null)
+      setIntervencionEditandoId(null)
     } else {
-      const nuevoActivo = {
+      const nuevaIntervencion = {
         id: Date.now(),
         ...form,
       }
 
-      setActivos([...activos, nuevoActivo])
+      setIntervenciones([...intervenciones, nuevaIntervencion])
     }
 
     setForm({
-      tipo: 'Luminaria',
+      area: 'Vialidad',
+      fecha: '',
+      barrio: '',
+      tipoIntervencion: 'Mantenimiento',
+      subtipo: '',
+      estado: 'Pendiente',
+      fuente: 'Carga manual',
       direccion: '',
       latitud: '',
       longitud: '',
-      estado: 'Pendiente',
       descripcion: '',
+      unidad: 'cuadras',
+      cantidad: '',
+      geometriaTipo: 'Punto',
     })
 
     setPuntoSeleccionado(null)
   }
 
-  function eliminarActivo(id) {
+  function eliminarIntervencion(id) {
     const confirmar = confirm(
-      '¿Seguro que querés eliminar este activo?'
+      '¿Seguro que querés eliminar esta intervención?'
     )
 
     if (!confirmar) return
 
-    setActivos(activos.filter((activo) => activo.id !== id))
+    setIntervenciones(
+      intervenciones.filter((intervencion) => intervencion.id !== id)
+    )
   }
 
-  function editarActivo(activo) {
-    setActivoEditandoId(activo.id)
+  function editarIntervencion(intervencion) {
+    setIntervencionEditandoId(intervencion.id)
 
     setForm({
-      tipo: activo.tipo,
-      direccion: activo.direccion,
-      latitud: activo.latitud,
-      longitud: activo.longitud,
-      estado: activo.estado,
-      descripcion: activo.descripcion || '',
+      area: intervencion.area || 'Vialidad',
+      fecha: intervencion.fecha || '',
+      barrio: intervencion.barrio || '',
+      tipoIntervencion:
+        intervencion.tipoIntervencion || 'Mantenimiento',
+      subtipo: intervencion.subtipo || '',
+      estado: intervencion.estado || 'Pendiente',
+      fuente: intervencion.fuente || 'Carga manual',
+      direccion: intervencion.direccion || '',
+      latitud: intervencion.latitud || '',
+      longitud: intervencion.longitud || '',
+      descripcion: intervencion.descripcion || '',
+      unidad: intervencion.unidad || 'cuadras',
+      cantidad: intervencion.cantidad || '',
+      geometriaTipo: intervencion.geometriaTipo || 'Punto',
     })
 
-    setPuntoSeleccionado([
-      parseFloat(activo.latitud),
-      parseFloat(activo.longitud),
-    ])
+    if (intervencion.latitud && intervencion.longitud) {
+      setPuntoSeleccionado([
+        parseFloat(intervencion.latitud),
+        parseFloat(intervencion.longitud),
+      ])
+    }
   }
 
   return (
@@ -214,31 +246,31 @@ function App() {
       <Sidebar
         form={form}
         manejarCambio={manejarCambio}
-        guardarActivo={guardarActivo}
+        guardarIntervencion={guardarIntervencion}
         buscarDireccion={buscarDireccion}
         sugerencias={sugerencias}
         buscandoDireccion={buscandoDireccion}
         seleccionarSugerencia={seleccionarSugerencia}
-        activoEditandoId={activoEditandoId}
+        activoEditandoId={intervencionEditandoId}
       />
 
       <main className="main">
         <header className="topbar">
           <div>
-            <h2>Mapa de activos</h2>
-            <span>Mar del Plata</span>
+            <h2>Mapa de intervenciones</h2>
+            <span>Mar del Plata / Partido de General Pueyrredon</span>
           </div>
 
           <input
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            placeholder="Buscar por dirección, tipo o estado..."
+            placeholder="Buscar por área, barrio, tipo, estado o dirección..."
           />
         </header>
 
         <section className="content">
           <MapView
-            activosFiltrados={activosFiltrados}
+            intervencionesFiltradas={intervencionesFiltradas}
             puntoSeleccionado={puntoSeleccionado}
             setPuntoSeleccionado={setPuntoSeleccionado}
             setForm={setForm}
@@ -248,9 +280,9 @@ function App() {
           />
 
           <AssetsPanel
-            activosFiltrados={activosFiltrados}
-            editarActivo={editarActivo}
-            eliminarActivo={eliminarActivo}
+            intervencionesFiltradas={intervencionesFiltradas}
+            editarIntervencion={editarIntervencion}
+            eliminarIntervencion={eliminarIntervencion}
           />
         </section>
       </main>

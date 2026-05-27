@@ -313,10 +313,6 @@ textarea {
 
 
 .map-control {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 1000;
   background: white;
   padding: 8px;
   border-radius: 10px;
@@ -324,8 +320,19 @@ textarea {
 }
 
 .map-control select {
-  width: 220px;
+  width: 260px;
   padding: 9px;
   border-radius: 8px;
   border: 1px solid #d1d5db;
+}
+
+.card-subtitle {
+  display: block;
+  margin-top: 4px;
+  color: #6b7280;
+}
+
+.card-actions {
+  display: flex;
+  gap: 6px;
 }

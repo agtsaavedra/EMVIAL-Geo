@@ -1,37 +1,90 @@
-function AssetsPanel({ activosFiltrados, editarActivo, eliminarActivo }) {
+function AssetsPanel({
+  intervencionesFiltradas = [],
+  editarIntervencion,
+  eliminarIntervencion,
+}) {
   return (
     <div className="panel">
-      <h3>Activos cargados</h3>
+      <h3>Intervenciones cargadas</h3>
 
-      {activosFiltrados.length === 0 ? (
-        <p className="empty">Todavía no hay activos cargados.</p>
+      {intervencionesFiltradas.length === 0 ? (
+        <p className="empty">Todavía no hay intervenciones cargadas.</p>
       ) : (
-        activosFiltrados.map((activo) => (
-          <div className="card" key={activo.id}>
+        intervencionesFiltradas.map((intervencion) => (
+          <div className="card" key={intervencion.id}>
             <div className="card-header">
-              <strong>{activo.tipo}</strong>
+              <div>
+                <strong>
+                  {intervencion.area} — {intervencion.tipoIntervencion}
+                </strong>
+                {intervencion.subtipo && (
+                  <small className="card-subtitle">
+                    {intervencion.subtipo}
+                  </small>
+                )}
+              </div>
 
-              <button
-                type="button"
-                className="edit-btn"
-                onClick={() => editarActivo(activo)}
-              >
-                Editar
-              </button>
+              <div className="card-actions">
+                <button
+                  type="button"
+                  className="edit-btn"
+                  onClick={() => editarIntervencion(intervencion)}
+                >
+                  Editar
+                </button>
 
-              <button
-                type="button"
-                className="delete-btn"
-                onClick={() => eliminarActivo(activo.id)}
-              >
-                Eliminar
-              </button>
+                <button
+                  type="button"
+                  className="delete-btn"
+                  onClick={() => eliminarIntervencion(intervencion.id)}
+                >
+                  Eliminar
+                </button>
+              </div>
             </div>
 
-            <span>{activo.estado}</span>
-            <p>{activo.direccion}</p>
+            <span>{intervencion.estado}</span>
+
+            <p>
+              {intervencion.barrio && (
+                <>
+                  <strong>Barrio:</strong> {intervencion.barrio}
+                  <br />
+                </>
+              )}
+
+              {intervencion.direccion && (
+                <>
+                  <strong>Referencia:</strong> {intervencion.direccion}
+                  <br />
+                </>
+              )}
+
+              {intervencion.fecha && (
+                <>
+                  <strong>Fecha:</strong> {intervencion.fecha}
+                  <br />
+                </>
+              )}
+
+              {intervencion.cantidad && (
+                <>
+                  <strong>Cantidad:</strong> {intervencion.cantidad}{' '}
+                  {intervencion.unidad}
+                  <br />
+                </>
+              )}
+
+              {intervencion.fuente && (
+                <>
+                  <strong>Fuente:</strong> {intervencion.fuente}
+                </>
+              )}
+            </p>
+
             <small>
-              {activo.latitud}, {activo.longitud}
+              {intervencion.geometriaTipo || 'Punto'} —{' '}
+              {intervencion.latitud}, {intervencion.longitud}
             </small>
           </div>
         ))
