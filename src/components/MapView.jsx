@@ -4,29 +4,48 @@ import {
   Marker,
   Popup,
   GeoJSON,
+  Polyline,
+  Polygon,
   useMapEvents,
   useMap,
 } from 'react-leaflet'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import 'leaflet/dist/leaflet.css'
 import '../utils/mapIcons'
 import L from 'leaflet'
+import * as turf from '@turf/turf'
 import barriosGeojsonRaw from '../data/barrios.geojson?raw'
 
 const barriosGeojson = JSON.parse(barriosGeojsonRaw)
 const centroMarDelPlata = [-38.0055, -57.5426]
 
 function obtenerNombreBarrio(feature) {
-  if (!feature || !feature.properties) return 'Sin nombre'
+  return feature?.properties?.soc_fomen || 'Sin nombre'
+}
 
-  return (
-    feature.properties.soc_fomen ||
-    feature.properties.nombre ||
-    feature.properties.NOMBRE ||
-    feature.properties.BARRIO ||
-    feature.properties.barrio ||
-    'Sin nombre'
+function detectarBarrio(lat, lon) {
+  const punto = turf.point([lon, lat])
+
+  const barrio = barriosGeojson.features.find((feature) =>
+    turf.booleanPointInPolygon(punto, feature)
   )
+
+  return barrio ? obtenerNombreBarrio(barrio) : ''
+}
+
+function obtenerColorIntervencion(intervencion) {
+  const texto = `${intervencion.obra || ''} ${intervencion.descripcion || ''}`.toUpperCase()
+
+  if (texto.includes('MICROBACHEO')) return '#dc2626'
+  if (texto.includes('BACHEO')) return '#7c3f2c'
+  if (texto.includes('TJ')) return '#9333ea'
+  if (texto.includes('GRANZA')) return '#16a34a'
+  if (texto.includes('PAVIMENT')) return '#2563eb'
+  if (texto.includes('RECAPADO')) return '#ea580c'
+  if (texto.includes('CORDON') || texto.includes('CORDÓN')) return '#0891b2'
+  if (texto.includes('LED') || texto.includes('ALUMBRADO')) return '#facc15'
+
+  return '#9333ea'
 }
 
 function estiloBarrio(feature, barrioSeleccionado) {
@@ -38,7 +57,7 @@ function estiloBarrio(feature, barrioSeleccionado) {
     color: seleccionado ? '#111827' : color,
     weight: seleccionado ? 4 : 2,
     fillColor: color,
-    fillOpacity: seleccionado ? 0.42 : 0.14,
+    fillOpacity: seleccionado ? 0.42 : 0.12,
   }
 }
 
@@ -49,31 +68,53 @@ function configurarBarrio(feature, layer) {
     permanent: false,
     direction: 'center',
   })
-
-  layer.on({
-    mouseover: () => {
-      layer.setStyle({
-        weight: 3,
-        fillOpacity: 0.35,
-      })
-    },
-    mouseout: () => {
-      layer.setStyle(estiloBarrio(feature, null))
-    },
-  })
 }
 
-function ClickMapa({ setForm, setPuntoSeleccionado, obtenerDireccion }) {
+function ClickMapa({
+  form,
+  setForm,
+  setPuntoSeleccionado,
+  obtenerDireccion,
+  setCursorLinea,
+}) {
   useMapEvents({
+    mousemove(e) {
+      if (!['Línea', 'Polígono'].includes(form.geometriaTipo)) return
+      if (!form.geometria || form.geometria.length === 0) return
+
+      setCursorLinea([e.latlng.lat, e.latlng.lng])
+    },
+
+    mouseout() {
+      setCursorLinea(null)
+    },
+
     async click(e) {
       const originalTarget = e.originalEvent?.target
 
-      if (originalTarget?.closest?.('.leaflet-control')) {
-        return
-      }
+      if (originalTarget?.closest?.('.leaflet-control')) return
 
       const lat = e.latlng.lat
       const lon = e.latlng.lng
+      const barrioDetectado = detectarBarrio(lat, lon)
+
+      if (form.geometriaTipo === 'Línea' || form.geometriaTipo === 'Polígono') {
+        setForm((prev) => {
+          const geometriaActual = prev.geometria || []
+          const esPrimerPunto = geometriaActual.length === 0
+
+          return {
+            ...prev,
+            barrio: esPrimerPunto ? barrioDetectado : prev.barrio,
+            latitud: esPrimerPunto ? lat.toFixed(6) : prev.latitud,
+            longitud: esPrimerPunto ? lon.toFixed(6) : prev.longitud,
+            geometria: [...geometriaActual, [lat, lon]],
+          }
+        })
+
+        setPuntoSeleccionado([lat, lon])
+        return
+      }
 
       setPuntoSeleccionado([lat, lon])
 
@@ -81,9 +122,11 @@ function ClickMapa({ setForm, setPuntoSeleccionado, obtenerDireccion }) {
 
       setForm((prev) => ({
         ...prev,
+        barrio: barrioDetectado,
         direccion,
         latitud: lat.toFixed(6),
         longitud: lon.toFixed(6),
+        geometria: [[lat, lon]],
       }))
     },
   })
@@ -100,11 +143,7 @@ function ControlBarrio({
 
   useEffect(() => {
     const barriosOrdenados = [
-      ...new Set(
-        barriosGeojson.features.map((feature) =>
-          obtenerNombreBarrio(feature)
-        )
-      ),
+      ...new Set(barriosGeojson.features.map(obtenerNombreBarrio)),
     ].sort()
 
     const control = L.control({ position: 'topright' })
@@ -113,10 +152,10 @@ function ControlBarrio({
       const container = L.DomUtil.create('div', 'map-control leaflet-bar')
       const select = L.DomUtil.create('select', '', container)
 
-      const opcionTodos = document.createElement('option')
-      opcionTodos.value = ''
-      opcionTodos.textContent = 'Ver todos los barrios'
-      select.appendChild(opcionTodos)
+      const optionAll = document.createElement('option')
+      optionAll.value = ''
+      optionAll.textContent = 'Ver todos los barrios'
+      select.appendChild(optionAll)
 
       barriosOrdenados.forEach((barrio) => {
         const option = document.createElement('option')
@@ -135,7 +174,6 @@ function ControlBarrio({
         event.stopPropagation()
 
         const barrio = event.target.value
-
         setBarrioSeleccionado(barrio)
         setPuntoSeleccionado(null)
 
@@ -158,36 +196,39 @@ function ControlBarrio({
     }
 
     control.addTo(map)
-
-    return () => {
-      control.remove()
-    }
+    return () => control.remove()
   }, [map, barrioSeleccionado, setBarrioSeleccionado, setPuntoSeleccionado])
 
   return null
 }
 
-function CentrarMapa({ punto }) {
+function CentrarMapa({ punto, geometriaTipo }) {
   const map = useMap()
 
   useEffect(() => {
-    if (punto) {
+    if (punto && geometriaTipo === 'Punto') {
       map.setView(punto, 16)
     }
-  }, [map, punto])
+  }, [map, punto, geometriaTipo])
 
   return null
 }
 
 function MapView({
+  form,
   intervencionesFiltradas = [],
+  intervencionEditandoId,
   puntoSeleccionado,
   setPuntoSeleccionado,
   setForm,
   obtenerDireccion,
   barrioSeleccionado,
   setBarrioSeleccionado,
+  mostrarBarrios,
+  setMostrarBarrios,
 }) {
+  const [cursorLinea, setCursorLinea] = useState(null)
+
   const barriosFiltrados = {
     ...barriosGeojson,
     features: barrioSeleccionado
@@ -197,100 +238,258 @@ function MapView({
       : barriosGeojson.features,
   }
 
+  const intervencionesVisibles = intervencionesFiltradas.filter(
+    (intervencion) => intervencion.id !== intervencionEditandoId
+  )
+
+  const colorFormulario = obtenerColorIntervencion(form)
+
+  const previewLinea =
+    ['Línea', 'Polígono'].includes(form.geometriaTipo) &&
+    form.geometria?.length > 0 &&
+    cursorLinea
+      ? [form.geometria[form.geometria.length - 1], cursorLinea]
+      : null
+
+  const cierrePoligono =
+    form.geometriaTipo === 'Polígono' &&
+    form.geometria?.length > 1 &&
+    cursorLinea
+      ? [cursorLinea, form.geometria[0]]
+      : null
+
+  function deshacerPunto() {
+    let nuevoUltimoPunto = null
+
+    setForm((prev) => {
+      const nuevaGeometria = (prev.geometria || []).slice(0, -1)
+      nuevoUltimoPunto = nuevaGeometria[nuevaGeometria.length - 1] || null
+
+      return {
+        ...prev,
+        geometria: nuevaGeometria,
+        latitud: nuevoUltimoPunto ? nuevoUltimoPunto[0].toFixed(6) : '',
+        longitud: nuevoUltimoPunto ? nuevoUltimoPunto[1].toFixed(6) : '',
+        barrio: nuevaGeometria.length === 0 ? '' : prev.barrio,
+      }
+    })
+
+    setPuntoSeleccionado(nuevoUltimoPunto)
+    setCursorLinea(null)
+  }
+
+  function limpiarGeometria() {
+    setForm((prev) => ({
+      ...prev,
+      geometria: [],
+      latitud: '',
+      longitud: '',
+      barrio: '',
+    }))
+
+    setPuntoSeleccionado(null)
+    setCursorLinea(null)
+  }
+
   return (
-    <div className="map-real">
-      <MapContainer
-        center={centroMarDelPlata}
-        zoom={13}
-        style={{ height: '100%', width: '100%' }}
-      >
-        <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+    <div className="map-area">
+      <div className="map-real">
+        <MapContainer
+          center={centroMarDelPlata}
+          zoom={13}
+          style={{ height: '100%', width: '100%' }}
+        >
+          <TileLayer
+            attribution="&copy; OpenStreetMap contributors"
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
 
-        <GeoJSON
-          key={barrioSeleccionado || 'todos-los-barrios'}
-          data={barriosFiltrados}
-          style={(feature) => estiloBarrio(feature, barrioSeleccionado)}
-          onEachFeature={configurarBarrio}
-        />
+          {mostrarBarrios && (
+            <GeoJSON
+              key={barrioSeleccionado || 'todos-los-barrios'}
+              data={barriosFiltrados}
+              style={(feature) => estiloBarrio(feature, barrioSeleccionado)}
+              onEachFeature={configurarBarrio}
+            />
+          )}
 
-        <ControlBarrio
-          barrioSeleccionado={barrioSeleccionado}
-          setBarrioSeleccionado={setBarrioSeleccionado}
-          setPuntoSeleccionado={setPuntoSeleccionado}
-        />
+          <ControlBarrio
+            barrioSeleccionado={barrioSeleccionado}
+            setBarrioSeleccionado={setBarrioSeleccionado}
+            setPuntoSeleccionado={setPuntoSeleccionado}
+          />
 
-        <ClickMapa
-          setForm={setForm}
-          setPuntoSeleccionado={setPuntoSeleccionado}
-          obtenerDireccion={obtenerDireccion}
-        />
+          <ClickMapa
+            form={form}
+            setForm={setForm}
+            setPuntoSeleccionado={setPuntoSeleccionado}
+            obtenerDireccion={obtenerDireccion}
+            setCursorLinea={setCursorLinea}
+          />
 
-        <CentrarMapa punto={puntoSeleccionado} />
+          <CentrarMapa
+            punto={puntoSeleccionado}
+            geometriaTipo={form.geometriaTipo}
+          />
 
-        {puntoSeleccionado && (
-          <Marker position={puntoSeleccionado}>
-            <Popup>Ubicación seleccionada</Popup>
-          </Marker>
-        )}
+          {form.geometriaTipo === 'Línea' && form.geometria?.length > 0 && (
+            <Polyline
+              positions={form.geometria}
+              pathOptions={{ color: colorFormulario, weight: 5 }}
+            />
+          )}
 
-        {intervencionesFiltradas
-          .filter(
-            (intervencion) =>
-              intervencion.latitud && intervencion.longitud
-          )
-          .map((intervencion) => (
-            <Marker
-              key={intervencion.id}
-              position={[
-                parseFloat(intervencion.latitud),
-                parseFloat(intervencion.longitud),
-              ]}
-            >
-              <Popup>
-                <strong>
-                  {intervencion.area} — {intervencion.tipoIntervencion}
-                </strong>
-                <br />
+          {form.geometriaTipo === 'Polígono' && form.geometria?.length > 2 && (
+            <Polygon
+              positions={form.geometria}
+              pathOptions={{
+                color: colorFormulario,
+                weight: 4,
+                fillColor: colorFormulario,
+                fillOpacity: 0.25,
+              }}
+            />
+          )}
 
-                {intervencion.subtipo && (
-                  <>
-                    {intervencion.subtipo}
-                    <br />
-                  </>
-                )}
+          {previewLinea && (
+            <Polyline
+              positions={previewLinea}
+              pathOptions={{
+                color: colorFormulario,
+                weight: 4,
+                dashArray: '8 8',
+                opacity: 0.7,
+              }}
+            />
+          )}
 
-                Estado: {intervencion.estado}
-                <br />
+          {cierrePoligono && (
+            <Polyline
+              positions={cierrePoligono}
+              pathOptions={{
+                color: colorFormulario,
+                weight: 3,
+                dashArray: '4 8',
+                opacity: 0.55,
+              }}
+            />
+          )}
 
-                {intervencion.barrio && (
-                  <>
-                    Barrio: {intervencion.barrio}
-                    <br />
-                  </>
-                )}
-
-                {intervencion.fecha && (
-                  <>
-                    Fecha: {intervencion.fecha}
-                    <br />
-                  </>
-                )}
-
-                {intervencion.cantidad && (
-                  <>
-                    Cantidad: {intervencion.cantidad} {intervencion.unidad}
-                    <br />
-                  </>
-                )}
-
-                {intervencion.direccion}
-              </Popup>
+          {puntoSeleccionado && form.geometriaTipo === 'Punto' && (
+            <Marker position={puntoSeleccionado}>
+              <Popup>Ubicación seleccionada</Popup>
             </Marker>
-          ))}
-      </MapContainer>
+          )}
+
+          {intervencionesVisibles.map((intervencion) => {
+            const color = obtenerColorIntervencion(intervencion)
+
+            if (
+              intervencion.geometriaTipo === 'Línea' &&
+              intervencion.geometria?.length > 1
+            ) {
+              return (
+                <Polyline
+                  key={intervencion.id}
+                  positions={intervencion.geometria}
+                  pathOptions={{ color, weight: 5 }}
+                >
+                  <Popup>
+                    <strong>{intervencion.obra}</strong>
+                    <br />
+                    {intervencion.nombre}
+                    <br />
+                    {intervencion.ubicacion}
+                  </Popup>
+                </Polyline>
+              )
+            }
+
+            if (
+              intervencion.geometriaTipo === 'Polígono' &&
+              intervencion.geometria?.length > 2
+            ) {
+              return (
+                <Polygon
+                  key={intervencion.id}
+                  positions={intervencion.geometria}
+                  pathOptions={{
+                    color,
+                    weight: 4,
+                    fillColor: color,
+                    fillOpacity: 0.25,
+                  }}
+                >
+                  <Popup>
+                    <strong>{intervencion.obra}</strong>
+                    <br />
+                    {intervencion.nombre}
+                    <br />
+                    {intervencion.ubicacion}
+                  </Popup>
+                </Polygon>
+              )
+            }
+
+            if (intervencion.latitud && intervencion.longitud) {
+              return (
+                <Marker
+                  key={intervencion.id}
+                  position={[
+                    parseFloat(intervencion.latitud),
+                    parseFloat(intervencion.longitud),
+                  ]}
+                >
+                  <Popup>
+                    <strong>{intervencion.obra}</strong>
+                    <br />
+                    {intervencion.nombre}
+                    <br />
+                    {intervencion.ubicacion}
+                  </Popup>
+                </Marker>
+              )
+            }
+
+            return null
+          })}
+        </MapContainer>
+      </div>
+
+      <div className="map-actions">
+        <label className="layer-toggle external">
+          <input
+            type="checkbox"
+            checked={mostrarBarrios}
+            onChange={(e) => setMostrarBarrios(e.target.checked)}
+          />
+          <span>Mostrar barrios</span>
+        </label>
+
+        {['Línea', 'Polígono'].includes(form.geometriaTipo) && (
+          <>
+            <button
+              type="button"
+              className="map-action-btn"
+              onClick={deshacerPunto}
+            >
+              ↶ Deshacer punto
+            </button>
+
+            <button
+              type="button"
+              className="map-action-btn danger"
+              onClick={limpiarGeometria}
+            >
+              🗑 Limpiar geometría
+            </button>
+
+            <span className="map-action-info">
+              Puntos marcados: {form.geometria?.length || 0}
+            </span>
+          </>
+        )}
+      </div>
     </div>
   )
 }

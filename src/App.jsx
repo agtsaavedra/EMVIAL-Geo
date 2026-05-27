@@ -4,6 +4,7 @@ import './App.css'
 import Sidebar from './components/Sidebar.jsx'
 import MapView from './components/MapView'
 import AssetsPanel from './components/AssetsPanel'
+import { exportarKml } from './utils/exportKML.js'
 
 function App() {
   const [intervenciones, setIntervenciones] = useState(() => {
@@ -17,23 +18,30 @@ function App() {
   const [buscandoDireccion, setBuscandoDireccion] = useState(false)
   const [puntoSeleccionado, setPuntoSeleccionado] = useState(null)
   const [barrioSeleccionado, setBarrioSeleccionado] = useState('')
+  const [mostrarBarrios, setMostrarBarrios] = useState(true)
 
-  const [form, setForm] = useState({
-    area: 'Vialidad',
-    fecha: '',
+  const formInicial = {
+    nombre: '',
+    mesTerminacion: '',
+    obra: 'MICROBACHEO',
+    ubicacion: '',
     barrio: '',
-    tipoIntervencion: 'Mantenimiento',
-    subtipo: '',
     estado: 'Pendiente',
     fuente: 'Carga manual',
+    inspector: '',
+    realizo: '',
+    cuadras: '',
+    metrosLineales: '',
+    metrosCuadrados: '',
+    descripcion: '',
     direccion: '',
     latitud: '',
     longitud: '',
-    descripcion: '',
-    unidad: 'cuadras',
-    cantidad: '',
     geometriaTipo: 'Punto',
-  })
+    geometria: [],
+  }
+
+  const [form, setForm] = useState(formInicial)
 
   useEffect(() => {
     localStorage.setItem(
@@ -44,16 +52,16 @@ function App() {
 
   const intervencionesFiltradas = intervenciones.filter((intervencion) => {
     const texto = `
-      ${intervencion.area}
-      ${intervencion.barrio}
-      ${intervencion.tipoIntervencion}
-      ${intervencion.subtipo}
-      ${intervencion.estado}
-      ${intervencion.fuente}
-      ${intervencion.direccion}
-      ${intervencion.descripcion}
-    `.toLowerCase()
-
+  ${intervencion.nombre}
+  ${intervencion.obra}
+  ${intervencion.ubicacion}
+  ${intervencion.barrio}
+  ${intervencion.estado}
+  ${intervencion.fuente}
+  ${intervencion.inspector}
+  ${intervencion.realizo}
+  ${intervencion.descripcion}
+`.toLowerCase()
     return texto.includes(busqueda.toLowerCase())
   })
 
@@ -70,26 +78,6 @@ function App() {
       latitud: parseFloat(datos[0].lat),
       longitud: parseFloat(datos[0].lon),
       direccion: datos[0].display_name,
-    }
-  }
-
-  async function buscarSugerenciasDireccion(valor) {
-    if (valor.trim().length < 3) {
-      setSugerencias([])
-      setBuscandoDireccion(false)
-      return
-    }
-
-    setBuscandoDireccion(true)
-
-    try {
-      const datos = await window.api.buscarDireccion(valor)
-      setSugerencias(datos || [])
-    } catch (error) {
-      console.error('Error buscando sugerencias:', error)
-      setSugerencias([])
-    } finally {
-      setBuscandoDireccion(false)
     }
   }
 
@@ -110,6 +98,19 @@ function App() {
       return
     }
 
+    if (name === 'geometriaTipo') {
+      setForm((prev) => ({
+        ...prev,
+        geometriaTipo: value,
+        geometria: [],
+        latitud: '',
+        longitud: '',
+      }))
+
+      setPuntoSeleccionado(null)
+      return
+    }
+
     setForm((prev) => ({
       ...prev,
       [name]: value,
@@ -125,6 +126,7 @@ function App() {
       direccion: sugerencia.display_name,
       latitud: lat.toFixed(6),
       longitud: lon.toFixed(6),
+      geometria: [[lat, lon]],
     }))
 
     setPuntoSeleccionado([lat, lon])
@@ -148,16 +150,23 @@ function App() {
       direccion: resultado.direccion,
       latitud: resultado.latitud.toFixed(6),
       longitud: resultado.longitud.toFixed(6),
+      geometria:
+        prev.geometriaTipo === 'Punto'
+          ? [[resultado.latitud, resultado.longitud]]
+          : prev.geometria,
     }))
   }
 
   function guardarIntervencion(e) {
     e.preventDefault()
 
-    if (!form.latitud || !form.longitud) {
-      alert(
-        'Primero seleccioná una ubicación en el mapa o buscá una dirección.'
-      )
+    if (form.geometriaTipo === 'Punto' && (!form.latitud || !form.longitud)) {
+      alert('Primero seleccioná una ubicación en el mapa o buscá una dirección.')
+      return
+    }
+
+    if (form.geometriaTipo === 'Línea' && form.geometria.length < 2) {
+      alert('Para una línea necesitás marcar al menos 2 puntos en el mapa.')
       return
     }
 
@@ -180,30 +189,12 @@ function App() {
       setIntervenciones([...intervenciones, nuevaIntervencion])
     }
 
-    setForm({
-      area: 'Vialidad',
-      fecha: '',
-      barrio: '',
-      tipoIntervencion: 'Mantenimiento',
-      subtipo: '',
-      estado: 'Pendiente',
-      fuente: 'Carga manual',
-      direccion: '',
-      latitud: '',
-      longitud: '',
-      descripcion: '',
-      unidad: 'cuadras',
-      cantidad: '',
-      geometriaTipo: 'Punto',
-    })
-
+    setForm(formInicial)
     setPuntoSeleccionado(null)
   }
 
   function eliminarIntervencion(id) {
-    const confirmar = confirm(
-      '¿Seguro que querés eliminar esta intervención?'
-    )
+    const confirmar = confirm('¿Seguro que querés eliminar esta intervención?')
 
     if (!confirmar) return
 
@@ -216,23 +207,25 @@ function App() {
     setIntervencionEditandoId(intervencion.id)
 
     setForm({
-      area: intervencion.area || 'Vialidad',
-      fecha: intervencion.fecha || '',
+      nombre: intervencion.nombre || '',
+      mesTerminacion: intervencion.mesTerminacion || '',
+      obra: intervencion.obra || 'MICROBACHEO',
+      ubicacion: intervencion.ubicacion || '',
       barrio: intervencion.barrio || '',
-      tipoIntervencion:
-        intervencion.tipoIntervencion || 'Mantenimiento',
-      subtipo: intervencion.subtipo || '',
       estado: intervencion.estado || 'Pendiente',
       fuente: intervencion.fuente || 'Carga manual',
+      inspector: intervencion.inspector || '',
+      realizo: intervencion.realizo || '',
+      cuadras: intervencion.cuadras || '',
+      metrosLineales: intervencion.metrosLineales || '',
+      metrosCuadrados: intervencion.metrosCuadrados || '',
+      descripcion: intervencion.descripcion || '',
       direccion: intervencion.direccion || '',
       latitud: intervencion.latitud || '',
       longitud: intervencion.longitud || '',
-      descripcion: intervencion.descripcion || '',
-      unidad: intervencion.unidad || 'cuadras',
-      cantidad: intervencion.cantidad || '',
       geometriaTipo: intervencion.geometriaTipo || 'Punto',
+      geometria: intervencion.geometria || [],
     })
-
     if (intervencion.latitud && intervencion.longitud) {
       setPuntoSeleccionado([
         parseFloat(intervencion.latitud),
@@ -261,24 +254,37 @@ function App() {
             <span>Mar del Plata / Partido de General Pueyrredon</span>
           </div>
 
-          <input
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            placeholder="Buscar por área, barrio, tipo, estado o dirección..."
-          />
+          <div className="topbar-actions">
+            <input
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="Buscar por obra, barrio, estado o ubicación..."
+            />
+
+            <button
+              type="button"
+              className="export-btn"
+              onClick={() => exportarKml(intervencionesFiltradas)}
+            >
+              Exportar KML
+            </button>
+          </div>
         </header>
 
         <section className="content">
           <MapView
+            form={form}
             intervencionesFiltradas={intervencionesFiltradas}
+            intervencionEditandoId={intervencionEditandoId}
             puntoSeleccionado={puntoSeleccionado}
             setPuntoSeleccionado={setPuntoSeleccionado}
             setForm={setForm}
             obtenerDireccion={obtenerDireccion}
             barrioSeleccionado={barrioSeleccionado}
             setBarrioSeleccionado={setBarrioSeleccionado}
+            mostrarBarrios={mostrarBarrios}
+            setMostrarBarrios={setMostrarBarrios}
           />
-
           <AssetsPanel
             intervencionesFiltradas={intervencionesFiltradas}
             editarIntervencion={editarIntervencion}

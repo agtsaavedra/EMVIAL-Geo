@@ -8,6 +8,7 @@
     "start": "concurrently \"npm run dev\" \"npm run electron\""
   },
   "dependencies": {
+    "@turf/turf": "^7.3.5",
     "leaflet": "^1.9.4",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",

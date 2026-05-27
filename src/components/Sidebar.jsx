@@ -14,21 +14,41 @@ function Sidebar({
       <p className="subtitle">Gestión operativa territorial</p>
 
       <form onSubmit={guardarIntervencion} className="form">
-        <label>Área</label>
-        <select name="area" value={form.area} onChange={manejarCambio}>
-          <option>Vialidad</option>
-          <option>Alumbrado</option>
-          <option>Conservación urbana</option>
-          <option>Espacios públicos</option>
-          <option>Otra</option>
-        </select>
+        <label>Nombre</label>
+        <input
+          name="nombre"
+          value={form.nombre}
+          onChange={manejarCambio}
+          placeholder="Ej: Línea 96"
+        />
 
-        <label>Fecha</label>
+        <label>Mes de terminación</label>
         <input
           type="date"
-          name="fecha"
-          value={form.fecha}
+          name="mesTerminacion"
+          value={form.mesTerminacion}
           onChange={manejarCambio}
+        />
+
+        <label>Obra</label>
+        <select name="obra" value={form.obra} onChange={manejarCambio}>
+          <option>MICROBACHEO</option>
+          <option>BACHEO</option>
+          <option>TJ</option>
+          <option>GRANZA</option>
+          <option>RECAPADO</option>
+          <option>PAVIMENTACIÓN</option>
+          <option>CORDÓN CUNETA</option>
+          <option>ALUMBRADO LED</option>
+          <option>OTRA</option>
+        </select>
+
+        <label>Ubicación</label>
+        <input
+          name="ubicacion"
+          value={form.ubicacion}
+          onChange={manejarCambio}
+          placeholder="Ej: Falucho 2400 e/ Stgo. del Estero y Santa Fe"
         />
 
         <label>Barrio / zona</label>
@@ -36,33 +56,7 @@ function Sidebar({
           name="barrio"
           value={form.barrio}
           onChange={manejarCambio}
-          placeholder="Ej: Las Heras, Centro, Puerto..."
-        />
-
-        <label>Tipo de intervención</label>
-        <select
-          name="tipoIntervencion"
-          value={form.tipoIntervencion}
-          onChange={manejarCambio}
-        >
-          <option>Mantenimiento</option>
-          <option>Reparación</option>
-          <option>Obra nueva</option>
-          <option>Relevamiento</option>
-          <option>Alumbrado LED</option>
-          <option>Bacheo</option>
-          <option>Granza</option>
-          <option>Recapado</option>
-          <option>Pavimentación</option>
-          <option>Otro</option>
-        </select>
-
-        <label>Subtipo / detalle</label>
-        <input
-          name="subtipo"
-          value={form.subtipo}
-          onChange={manejarCambio}
-          placeholder="Ej: calle reparada, luminaria, cordón cuneta..."
+          placeholder="Ej: Centro, Las Avenidas, Puerto..."
         />
 
         <label>Estado</label>
@@ -74,7 +68,53 @@ function Sidebar({
           <option>Planificada</option>
         </select>
 
-        <label>Fuente de información</label>
+        <label>Inspector</label>
+        <input
+          name="inspector"
+          value={form.inspector}
+          onChange={manejarCambio}
+          placeholder="Ej: GM"
+        />
+
+        <label>Realizó</label>
+        <input
+          name="realizo"
+          value={form.realizo}
+          onChange={manejarCambio}
+          placeholder="Ej: Coop. de Trabajo..."
+        />
+
+        <label>Cuadras</label>
+        <input
+          type="number"
+          step="0.01"
+          name="cuadras"
+          value={form.cuadras}
+          onChange={manejarCambio}
+          placeholder="Ej: 4"
+        />
+
+        <label>Metros lineales</label>
+        <input
+          type="number"
+          step="0.01"
+          name="metrosLineales"
+          value={form.metrosLineales}
+          onChange={manejarCambio}
+          placeholder="Ej: 2515.35"
+        />
+
+        <label>Metros cuadrados</label>
+        <input
+          type="number"
+          step="0.01"
+          name="metrosCuadrados"
+          value={form.metrosCuadrados}
+          onChange={manejarCambio}
+          placeholder="Ej: 6"
+        />
+
+        <label>Fuente</label>
         <select name="fuente" value={form.fuente} onChange={manejarCambio}>
           <option>Carga manual</option>
           <option>WhatsApp</option>
@@ -85,7 +125,7 @@ function Sidebar({
           <option>Otro</option>
         </select>
 
-        <label>Dirección / referencia</label>
+        <label>Dirección / búsqueda geográfica</label>
 
         <div className="address-wrapper">
           <div className="address-row">
@@ -142,28 +182,6 @@ function Sidebar({
           <option>Línea</option>
           <option>Polígono</option>
         </select>
-
-        <label>Unidad de medida</label>
-        <select name="unidad" value={form.unidad} onChange={manejarCambio}>
-          <option>cuadras</option>
-          <option>metros</option>
-          <option>kilómetros</option>
-          <option>m²</option>
-          <option>toneladas</option>
-          <option>unidades</option>
-          <option>sin unidad</option>
-        </select>
-
-        <label>Cantidad</label>
-        <input
-          type="number"
-          step="0.01"
-          name="cantidad"
-          value={form.cantidad}
-          onChange={manejarCambio}
-          placeholder="Ej: 2.4"
-        />
-
         <label>Observaciones</label>
         <textarea
           name="descripcion"
@@ -173,7 +191,9 @@ function Sidebar({
         />
 
         <button className="primary" type="submit">
-          {activoEditandoId ? 'Actualizar intervención' : 'Guardar intervención'}
+          {activoEditandoId
+            ? 'Actualizar intervención'
+            : 'Guardar intervención'}
         </button>
       </form>
     </aside>
