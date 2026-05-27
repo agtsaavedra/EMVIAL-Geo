@@ -1,23 +1,30 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import './App.css'
 
 import Sidebar from './components/Sidebar.jsx'
 import MapView from './components/MapView'
 import AssetsPanel from './components/AssetsPanel'
+import Topbar from './components/Topbar'
+import { useIntervenciones } from './hooks/useIntervenciones'
 import { exportarKml } from './utils/exportKML.js'
 
 function App() {
-  const [intervenciones, setIntervenciones] = useState([])
+  const {
+    intervenciones,
+    intervencionEditandoId,
+    setIntervencionEditandoId,
+    guardarIntervencionEnDB,
+    eliminarIntervencion,
+    recargarIntervenciones,
+  } = useIntervenciones()
 
-  const [intervencionEditandoId, setIntervencionEditandoId] = useState(null)
   const [busqueda, setBusqueda] = useState('')
   const [sugerencias, setSugerencias] = useState([])
   const [buscandoDireccion, setBuscandoDireccion] = useState(false)
   const [puntoSeleccionado, setPuntoSeleccionado] = useState(null)
   const [barrioSeleccionado, setBarrioSeleccionado] = useState('')
   const [mostrarBarrios, setMostrarBarrios] = useState(true)
-const [menuAbierto, setMenuAbierto] = useState(false)
-
+  const [menuAbierto, setMenuAbierto] = useState(false)
 
   const formInicial = {
     nombre: '',
@@ -42,27 +49,19 @@ const [menuAbierto, setMenuAbierto] = useState(false)
 
   const [form, setForm] = useState(formInicial)
 
-  useEffect(() => {
-    async function cargarIntervenciones() {
-      const datos = await window.api.obtenerIntervenciones()
-      setIntervenciones(datos)
-    }
-
-    cargarIntervenciones()
-  }, [])
-
   const intervencionesFiltradas = intervenciones.filter((intervencion) => {
     const texto = `
-  ${intervencion.nombre}
-  ${intervencion.obra}
-  ${intervencion.ubicacion}
-  ${intervencion.barrio}
-  ${intervencion.estado}
-  ${intervencion.fuente}
-  ${intervencion.inspector}
-  ${intervencion.realizo}
-  ${intervencion.descripcion}
-`.toLowerCase()
+      ${intervencion.nombre}
+      ${intervencion.obra}
+      ${intervencion.ubicacion}
+      ${intervencion.barrio}
+      ${intervencion.estado}
+      ${intervencion.fuente}
+      ${intervencion.inspector}
+      ${intervencion.realizo}
+      ${intervencion.descripcion}
+    `.toLowerCase()
+
     return texto.includes(busqueda.toLowerCase())
   })
 
@@ -176,44 +175,10 @@ const [menuAbierto, setMenuAbierto] = useState(false)
       return
     }
 
-    if (intervencionEditandoId) {
-      const actualizada = await window.api.guardarIntervencion({
-        id: intervencionEditandoId,
-        ...form,
-      })
-
-      setIntervenciones((prev) =>
-        prev.map((intervencion) =>
-          intervencion.id === intervencionEditandoId
-            ? actualizada
-            : intervencion
-        )
-      )
-
-      setIntervencionEditandoId(null)
-    } else {
-      const nueva = await window.api.guardarIntervencion({
-        id: Date.now(),
-        ...form,
-      })
-
-      setIntervenciones((prev) => [nueva, ...prev])
-    }
+    await guardarIntervencionEnDB(form)
 
     setForm(formInicial)
     setPuntoSeleccionado(null)
-  }
-
-  async function eliminarIntervencion(id) {
-    const confirmar = confirm('¿Seguro que querés eliminar esta intervención?')
-
-    if (!confirmar) return
-
-    await window.api.eliminarIntervencion(id)
-
-    setIntervenciones((prev) =>
-      prev.filter((intervencion) => intervencion.id !== id)
-    )
   }
 
   async function crearBackup() {
@@ -235,9 +200,7 @@ const [menuAbierto, setMenuAbierto] = useState(false)
 
     if (!resultado.ok) return
 
-    const datos = await window.api.obtenerIntervenciones()
-
-    setIntervenciones(datos)
+    await recargarIntervenciones()
 
     alert('Backup restaurado correctamente.')
   }
@@ -265,6 +228,7 @@ const [menuAbierto, setMenuAbierto] = useState(false)
       geometriaTipo: intervencion.geometriaTipo || 'Punto',
       geometria: intervencion.geometria || [],
     })
+
     if (intervencion.latitud && intervencion.longitud) {
       setPuntoSeleccionado([
         parseFloat(intervencion.latitud),
@@ -287,74 +251,28 @@ const [menuAbierto, setMenuAbierto] = useState(false)
       />
 
       <main className="main">
-        <header className="topbar">
-          <div>
-            <h2>Mapa de intervenciones</h2>
-            <span>Mar del Plata / Partido de General Pueyrredon</span>
-          </div>
-
-         <div className="topbar-actions">
-  <input
-    value={busqueda}
-    onChange={(e) => setBusqueda(e.target.value)}
-    placeholder="Buscar por obra, barrio, estado o ubicación..."
-  />
-
-  <div className="menu-wrapper">
-    <button
-      type="button"
-      className="menu-btn"
-      onClick={() => setMenuAbierto((prev) => !prev)}
-    >
-      ☰
-    </button>
-
-    {menuAbierto && (
-      <div className="dropdown-menu">
-        <button
-          type="button"
-          onClick={() => {
+        <Topbar
+          busqueda={busqueda}
+          setBusqueda={setBusqueda}
+          menuAbierto={menuAbierto}
+          setMenuAbierto={setMenuAbierto}
+          exportarKmlActual={() => {
             exportarKml(intervencionesFiltradas)
             setMenuAbierto(false)
           }}
-        >
-          Exportar KML
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
+          crearBackup={() => {
             crearBackup()
             setMenuAbierto(false)
           }}
-        >
-          Crear backup
-        </button>
-
-        <button
-          type="button"
-          className="danger"
-          onClick={() => {
+          restaurarBackup={() => {
             restaurarBackup()
             setMenuAbierto(false)
           }}
-        >
-          Restaurar backup
-        </button>
-        <button
-  type="button"
-  onClick={() => {
-    window.api.abrirCarpetaBackups()
-    setMenuAbierto(false)
-  }}
->
-  Abrir carpeta de backups
-</button>
-      </div>
-    )}
-  </div>
-</div>
-        </header>
+          abrirCarpetaBackups={() => {
+            window.api.abrirCarpetaBackups()
+            setMenuAbierto(false)
+          }}
+        />
 
         <section className="content">
           <MapView
@@ -370,6 +288,7 @@ const [menuAbierto, setMenuAbierto] = useState(false)
             mostrarBarrios={mostrarBarrios}
             setMostrarBarrios={setMostrarBarrios}
           />
+
           <AssetsPanel
             intervencionesFiltradas={intervencionesFiltradas}
             editarIntervencion={editarIntervencion}

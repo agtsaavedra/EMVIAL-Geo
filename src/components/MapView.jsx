@@ -15,6 +15,8 @@ import '../utils/mapIcons'
 import L from 'leaflet'
 import * as turf from '@turf/turf'
 import barriosGeojsonRaw from '../data/barrios.geojson?raw'
+import MapActions from './MapActions'
+import { obtenerColorIntervencion } from '../utils/mapColors'
 
 const barriosGeojson = JSON.parse(barriosGeojsonRaw)
 const centroMarDelPlata = [-38.0055, -57.5426]
@@ -31,21 +33,6 @@ function detectarBarrio(lat, lon) {
   )
 
   return barrio ? obtenerNombreBarrio(barrio) : ''
-}
-
-function obtenerColorIntervencion(intervencion) {
-  const texto = `${intervencion.obra || ''} ${intervencion.descripcion || ''}`.toUpperCase()
-
-  if (texto.includes('MICROBACHEO')) return '#dc2626'
-  if (texto.includes('BACHEO')) return '#7c3f2c'
-  if (texto.includes('TJ')) return '#9333ea'
-  if (texto.includes('GRANZA')) return '#16a34a'
-  if (texto.includes('PAVIMENT')) return '#2563eb'
-  if (texto.includes('RECAPADO')) return '#ea580c'
-  if (texto.includes('CORDON') || texto.includes('CORDÓN')) return '#0891b2'
-  if (texto.includes('LED') || texto.includes('ALUMBRADO')) return '#facc15'
-
-  return '#9333ea'
 }
 
 function estiloBarrio(feature, barrioSeleccionado) {
@@ -233,8 +220,8 @@ function MapView({
     ...barriosGeojson,
     features: barrioSeleccionado
       ? barriosGeojson.features.filter(
-          (feature) => obtenerNombreBarrio(feature) === barrioSeleccionado
-        )
+        (feature) => obtenerNombreBarrio(feature) === barrioSeleccionado
+      )
       : barriosGeojson.features,
   }
 
@@ -246,15 +233,15 @@ function MapView({
 
   const previewLinea =
     ['Línea', 'Polígono'].includes(form.geometriaTipo) &&
-    form.geometria?.length > 0 &&
-    cursorLinea
+      form.geometria?.length > 0 &&
+      cursorLinea
       ? [form.geometria[form.geometria.length - 1], cursorLinea]
       : null
 
   const cierrePoligono =
     form.geometriaTipo === 'Polígono' &&
-    form.geometria?.length > 1 &&
-    cursorLinea
+      form.geometria?.length > 1 &&
+      cursorLinea
       ? [cursorLinea, form.geometria[0]]
       : null
 
@@ -456,40 +443,14 @@ function MapView({
         </MapContainer>
       </div>
 
-      <div className="map-actions">
-        <label className="layer-toggle external">
-          <input
-            type="checkbox"
-            checked={mostrarBarrios}
-            onChange={(e) => setMostrarBarrios(e.target.checked)}
-          />
-          <span>Mostrar barrios</span>
-        </label>
-
-        {['Línea', 'Polígono'].includes(form.geometriaTipo) && (
-          <>
-            <button
-              type="button"
-              className="map-action-btn"
-              onClick={deshacerPunto}
-            >
-              ↶ Deshacer punto
-            </button>
-
-            <button
-              type="button"
-              className="map-action-btn danger"
-              onClick={limpiarGeometria}
-            >
-              🗑 Limpiar geometría
-            </button>
-
-            <span className="map-action-info">
-              Puntos marcados: {form.geometria?.length || 0}
-            </span>
-          </>
-        )}
-      </div>
+      <MapActions
+        mostrarBarrios={mostrarBarrios}
+        setMostrarBarrios={setMostrarBarrios}
+        geometriaTipo={form.geometriaTipo}
+        cantidadPuntos={form.geometria?.length || 0}
+        deshacerPunto={deshacerPunto}
+        limpiarGeometria={limpiarGeometria}
+      />
     </div>
   )
 }
