@@ -1,6 +1,14 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 
+
+const {
+  obtenerIntervenciones,
+  guardarIntervencion,
+  eliminarIntervencion,
+} = require('./database')
+
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1400,
@@ -73,6 +81,18 @@ ipcMain.handle('obtener-direccion', async (event, lat, lon) => {
   }
 })
 
+
+ipcMain.handle('obtener-intervenciones', () => {
+  return obtenerIntervenciones()
+})
+
+ipcMain.handle('guardar-intervencion', (event, intervencion) => {
+  return guardarIntervencion(intervencion)
+})
+
+ipcMain.handle('eliminar-intervencion', (event, id) => {
+  return eliminarIntervencion(id)
+})
 app.whenReady().then(() => {
   createWindow()
 })

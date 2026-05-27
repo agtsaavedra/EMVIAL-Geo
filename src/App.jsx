@@ -7,10 +7,7 @@ import AssetsPanel from './components/AssetsPanel'
 import { exportarKml } from './utils/exportKML.js'
 
 function App() {
-  const [intervenciones, setIntervenciones] = useState(() => {
-    const guardadas = localStorage.getItem('emvial_intervenciones')
-    return guardadas ? JSON.parse(guardadas) : []
-  })
+const [intervenciones, setIntervenciones] = useState([])
 
   const [intervencionEditandoId, setIntervencionEditandoId] = useState(null)
   const [busqueda, setBusqueda] = useState('')
@@ -44,11 +41,13 @@ function App() {
   const [form, setForm] = useState(formInicial)
 
   useEffect(() => {
-    localStorage.setItem(
-      'emvial_intervenciones',
-      JSON.stringify(intervenciones)
-    )
-  }, [intervenciones])
+  async function cargarIntervenciones() {
+    const datos = await window.api.obtenerIntervenciones()
+    setIntervenciones(datos)
+  }
+
+  cargarIntervenciones()
+}, [])
 
   const intervencionesFiltradas = intervenciones.filter((intervencion) => {
     const texto = `
@@ -157,51 +156,63 @@ function App() {
     }))
   }
 
-  function guardarIntervencion(e) {
-    e.preventDefault()
+ async function guardarIntervencion(e) {
+  e.preventDefault()
 
-    if (form.geometriaTipo === 'Punto' && (!form.latitud || !form.longitud)) {
-      alert('Primero seleccioná una ubicación en el mapa o buscá una dirección.')
-      return
-    }
+  if (form.geometriaTipo === 'Punto' && (!form.latitud || !form.longitud)) {
+    alert('Primero seleccioná una ubicación en el mapa o buscá una dirección.')
+    return
+  }
 
-    if (form.geometriaTipo === 'Línea' && form.geometria.length < 2) {
-      alert('Para una línea necesitás marcar al menos 2 puntos en el mapa.')
-      return
-    }
+  if (form.geometriaTipo === 'Línea' && form.geometria.length < 2) {
+    alert('Para una línea necesitás marcar al menos 2 puntos en el mapa.')
+    return
+  }
 
-    if (intervencionEditandoId) {
-      setIntervenciones(
-        intervenciones.map((intervencion) =>
-          intervencion.id === intervencionEditandoId
-            ? { ...intervencion, ...form }
-            : intervencion
-        )
+  if (form.geometriaTipo === 'Polígono' && form.geometria.length < 3) {
+    alert('Para un polígono necesitás marcar al menos 3 puntos en el mapa.')
+    return
+  }
+
+  if (intervencionEditandoId) {
+    const actualizada = await window.api.guardarIntervencion({
+      id: intervencionEditandoId,
+      ...form,
+    })
+
+    setIntervenciones((prev) =>
+      prev.map((intervencion) =>
+        intervencion.id === intervencionEditandoId
+          ? actualizada
+          : intervencion
       )
-
-      setIntervencionEditandoId(null)
-    } else {
-      const nuevaIntervencion = {
-        id: Date.now(),
-        ...form,
-      }
-
-      setIntervenciones([...intervenciones, nuevaIntervencion])
-    }
-
-    setForm(formInicial)
-    setPuntoSeleccionado(null)
-  }
-
-  function eliminarIntervencion(id) {
-    const confirmar = confirm('¿Seguro que querés eliminar esta intervención?')
-
-    if (!confirmar) return
-
-    setIntervenciones(
-      intervenciones.filter((intervencion) => intervencion.id !== id)
     )
+
+    setIntervencionEditandoId(null)
+  } else {
+    const nueva = await window.api.guardarIntervencion({
+      id: Date.now(),
+      ...form,
+    })
+
+    setIntervenciones((prev) => [nueva, ...prev])
   }
+
+  setForm(formInicial)
+  setPuntoSeleccionado(null)
+}
+
+async function eliminarIntervencion(id) {
+  const confirmar = confirm('¿Seguro que querés eliminar esta intervención?')
+
+  if (!confirmar) return
+
+  await window.api.eliminarIntervencion(id)
+
+  setIntervenciones((prev) =>
+    prev.filter((intervencion) => intervencion.id !== id)
+  )
+}
 
   function editarIntervencion(intervencion) {
     setIntervencionEditandoId(intervencion.id)
