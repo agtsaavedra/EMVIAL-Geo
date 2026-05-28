@@ -16,14 +16,18 @@ contextBridge.exposeInMainWorld('api', {
   eliminarIntervencion: (id) =>
     ipcRenderer.invoke('eliminar-intervencion', id),
 
-  crearBackupManual: () =>
-    ipcRenderer.invoke('crear-backup-manual'),
+  crearBackupManual: (periodo) =>
+    ipcRenderer.invoke('crear-backup-manual', periodo),
 
   restaurarBackupManual: () =>
     ipcRenderer.invoke('restaurar-backup-manual'),
 
   abrirCarpetaBackups: () =>
     ipcRenderer.invoke('abrir-carpeta-backups'),
+
+  restaurarPeriodoManual: (periodo) =>
+  ipcRenderer.invoke('restaurar-periodo-manual', periodo),
 })
+
 
 console.log('PRELOAD CARGADO')

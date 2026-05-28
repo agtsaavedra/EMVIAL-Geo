@@ -12,41 +12,44 @@ function Topbar({
   restaurarBackup,
   abrirCarpetaBackups,
   modoOscuro = false,
-  setModoOscuro = () => {},
+  setModoOscuro = () => { },
   filtroObra = '',
-  setFiltroObra = () => {},
+  setFiltroObra = () => { },
   filtroEstado = '',
-  setFiltroEstado = () => {},
+  setFiltroEstado = () => { },
   filtroBarrio = '',
-  setFiltroBarrio = () => {},
+  setFiltroBarrio = () => { },
   barriosDisponibles = [],
+  periodoActivo,
+  setPeriodoActivo,
+  restaurarPeriodoActual,
 }) {
   const hayFiltros =
     filtroObra || filtroEstado || filtroBarrio
 
-    const menuRef = useRef(null)
-    useEffect(() => {
-  function handleClickOutside(event) {
-    if (
-      menuRef.current &&
-      !menuRef.current.contains(event.target)
-    ) {
-      setMenuAbierto(false)
+  const menuRef = useRef(null)
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target)
+      ) {
+        setMenuAbierto(false)
+      }
     }
-  }
 
-  document.addEventListener(
-    'mousedown',
-    handleClickOutside
-  )
-
-  return () => {
-    document.removeEventListener(
+    document.addEventListener(
       'mousedown',
       handleClickOutside
     )
-  }
-}, [setMenuAbierto])
+
+    return () => {
+      document.removeEventListener(
+        'mousedown',
+        handleClickOutside
+      )
+    }
+  }, [setMenuAbierto])
 
 
   return (
@@ -106,6 +109,13 @@ function Topbar({
 
                 <button
                   type="button"
+                  onClick={restaurarPeriodoActual}
+                >
+                  Restaurar periodo actual
+                </button>
+
+                <button
+                  type="button"
                   className="danger"
                   onClick={restaurarBackup}
                 >
@@ -125,6 +135,13 @@ function Topbar({
       </div>
 
       <div className="topbar-filters">
+        <input
+          type="month"
+          value={periodoActivo}
+          onChange={(e) => setPeriodoActivo(e.target.value)}
+          title="Seleccionar mes de trabajo"
+          className="periodo-input"
+        />
         <select
           value={filtroObra}
           onChange={(e) =>

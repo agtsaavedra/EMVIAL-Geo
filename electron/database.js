@@ -7,21 +7,49 @@ const dbPath = path.join(app.getPath('userData'), 'emvial.sqlite')
 
 
 const backupsDir = path.join(app.getPath('userData'), 'backups')
+const backupsGeneralDir = path.join(backupsDir, '_GENERAL')
+
+const MESES = [
+    'ENERO',
+    'FEBRERO',
+    'MARZO',
+    'ABRIL',
+    'MAYO',
+    'JUNIO',
+    'JULIO',
+    'AGOSTO',
+    'SEPTIEMBRE',
+    'OCTUBRE',
+    'NOVIEMBRE',
+    'DICIEMBRE',
+]
+
+function obtenerCarpetaPeriodo(periodo) {
+    if (!periodo || !/^\d{4}-\d{2}$/.test(periodo)) {
+        return path.join(backupsDir, 'SIN_PERIODO')
+    }
+
+    const [anio, mes] = periodo.split('-')
+    const nombreMes = MESES[Number(mes) - 1] || mes
+
+    return path.join(backupsDir, `${periodo}_${nombreMes}`)
+}
+
 
 
 let SQL
 let db
 
 async function iniciarDB() {
-  SQL = await initSqlJs()
+    SQL = await initSqlJs()
 
-  if (fs.existsSync(dbPath)) {
-    const fileBuffer = fs.readFileSync(dbPath)
-    db = new SQL.Database(fileBuffer)
-  } else {
-    db = new SQL.Database()
+    if (fs.existsSync(dbPath)) {
+        const fileBuffer = fs.readFileSync(dbPath)
+        db = new SQL.Database(fileBuffer)
+    } else {
+        db = new SQL.Database()
 
-    db.run(`
+        db.run(`
       CREATE TABLE IF NOT EXISTS intervenciones (
         id INTEGER PRIMARY KEY,
         data TEXT NOT NULL,
@@ -30,9 +58,9 @@ async function iniciarDB() {
       )
     `)
 
-    guardarArchivo()
-    crearBackupAutomatico()
-  }
+        guardarArchivo()
+
+    }
 }
 
 function guardarArchivo() {
@@ -91,6 +119,8 @@ async function guardarIntervencion(intervencion) {
     }
 
     guardarArchivo()
+    crearBackupGeneralAutomatico()
+    crearBackupAutomatico(nueva.periodo)
 
     return nueva
 }
@@ -98,15 +128,29 @@ async function guardarIntervencion(intervencion) {
 async function eliminarIntervencion(id) {
     if (!db) await iniciarDB()
 
+    const result = db.exec(`
+    SELECT data
+    FROM intervenciones
+    WHERE id = ${id}
+  `)
+
+    let periodo = null
+
+    if (result.length && result[0].values.length) {
+        const data = JSON.parse(result[0].values[0][0])
+        periodo = data.periodo
+    }
+
     db.run(`DELETE FROM intervenciones WHERE id = ?`, [id])
 
     guardarArchivo()
-    crearBackupAutomatico()
+    crearBackupGeneralAutomatico()
+    crearBackupAutomatico(periodo)
 
     return true
 }
 
-async function crearBackupManual() {
+async function crearBackupManual(periodo) {
     if (!db) await iniciarDB()
 
     guardarArchivo()
@@ -118,7 +162,7 @@ async function crearBackupManual() {
 
     const resultado = await dialog.showSaveDialog({
         title: 'Guardar backup de EMVIAL Geo',
-        defaultPath: `emvial_backup_${fecha}.sqlite`,
+        defaultPath: `emvial_backup_${periodo || 'sin_periodo'}_${fecha}.sqlite`,
         filters: [
             { name: 'Base SQLite', extensions: ['sqlite'] },
         ],
@@ -169,10 +213,13 @@ function asegurarCarpetaBackups() {
     }
 }
 
-function crearBackupAutomatico() {
+
+function crearBackupGeneralAutomatico() {
     if (!fs.existsSync(dbPath)) return
 
-    asegurarCarpetaBackups()
+    if (!fs.existsSync(backupsGeneralDir)) {
+        fs.mkdirSync(backupsGeneralDir, { recursive: true })
+    }
 
     const fecha = new Date()
         .toISOString()
@@ -180,25 +227,84 @@ function crearBackupAutomatico() {
         .replaceAll('.', '-')
 
     const backupPath = path.join(
-        backupsDir,
-        `emvial_auto_${fecha}.sqlite`
+        backupsGeneralDir,
+        `emvial_general_${fecha}.sqlite`
     )
 
     fs.copyFileSync(dbPath, backupPath)
 
-    limpiarBackupsAntiguos()
+    limpiarBackupsAntiguos(backupsGeneralDir)
 }
 
-function limpiarBackupsAntiguos() {
-    asegurarCarpetaBackups()
+
+function crearBackupAutomatico(periodo) {
+    if (!db || !periodo) return
+
+    const carpetaPeriodo = obtenerCarpetaPeriodo(periodo)
+
+    if (!fs.existsSync(carpetaPeriodo)) {
+        fs.mkdirSync(carpetaPeriodo, { recursive: true })
+    }
+
+    const backupPeriodo = new SQL.Database()
+
+    backupPeriodo.run(`
+    CREATE TABLE IF NOT EXISTS intervenciones (
+      id INTEGER PRIMARY KEY,
+      data TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `)
+
+    const result = db.exec(`
+    SELECT id, data, created_at, updated_at
+    FROM intervenciones
+  `)
+
+    if (result.length) {
+        result[0].values.forEach(([id, data, createdAt, updatedAt]) => {
+            const intervencion = JSON.parse(data)
+
+            if (intervencion.periodo === periodo) {
+                backupPeriodo.run(
+                    `
+          INSERT INTO intervenciones
+          (id, data, created_at, updated_at)
+          VALUES (?, ?, ?, ?)
+        `,
+                    [id, data, createdAt, updatedAt]
+                )
+            }
+        })
+    }
+
+    const fecha = new Date()
+        .toISOString()
+        .replaceAll(':', '-')
+        .replaceAll('.', '-')
+
+    const backupPath = path.join(
+        carpetaPeriodo,
+        `emvial_periodo_${periodo}_${fecha}.sqlite`
+    )
+
+    const data = backupPeriodo.export()
+    fs.writeFileSync(backupPath, Buffer.from(data))
+
+    limpiarBackupsAntiguos(carpetaPeriodo)
+}
+
+function limpiarBackupsAntiguos(carpetaPeriodo) {
+    if (!fs.existsSync(carpetaPeriodo)) return
 
     const backups = fs
-        .readdirSync(backupsDir)
+        .readdirSync(carpetaPeriodo)
         .filter((file) => file.startsWith('emvial_auto_') && file.endsWith('.sqlite'))
         .map((file) => ({
             file,
-            path: path.join(backupsDir, file),
-            mtime: fs.statSync(path.join(backupsDir, file)).mtime.getTime(),
+            path: path.join(carpetaPeriodo, file),
+            mtime: fs.statSync(path.join(carpetaPeriodo, file)).mtime.getTime(),
         }))
         .sort((a, b) => b.mtime - a.mtime)
 
@@ -210,18 +316,107 @@ function limpiarBackupsAntiguos() {
 }
 
 async function abrirCarpetaBackups() {
-  asegurarCarpetaBackups()
+    asegurarCarpetaBackups()
 
-  await shell.openPath(backupsDir)
+    await shell.openPath(backupsDir)
 
-  return true
+    return true
+}
+
+async function restaurarPeriodoManual(periodo) {
+    if (!periodo || !/^\d{4}-\d{2}$/.test(periodo)) {
+        return {
+            ok: false,
+            message: 'Periodo inválido.',
+        }
+    }
+
+    if (!db) await iniciarDB()
+
+    const confirmacion = await dialog.showMessageBox({
+        type: 'warning',
+        buttons: ['Cancelar', 'Continuar'],
+        defaultId: 1,
+        cancelId: 0,
+        title: 'Restaurar periodo',
+        message: `Esto reemplazará solo las intervenciones del periodo ${periodo}.`,
+        detail: 'Los demás periodos no se tocarán. ¿Querés continuar?',
+    })
+
+    if (confirmacion.response !== 1) {
+        return {
+            ok: false,
+            message: 'Restauración cancelada.',
+        }
+    }
+
+    const carpetaPeriodo = obtenerCarpetaPeriodo(periodo)
+
+    if (!fs.existsSync(carpetaPeriodo)) {
+        fs.mkdirSync(carpetaPeriodo, { recursive: true })
+    }
+
+    const resultado = await dialog.showOpenDialog({
+        title: `Restaurar periodo ${periodo}`,
+        defaultPath: carpetaPeriodo,
+        properties: ['openFile'],
+        filters: [
+            { name: 'Backup SQLite', extensions: ['sqlite'] },
+        ],
+    })
+    if (resultado.canceled || !resultado.filePaths.length) {
+        return {
+            ok: false,
+            message: 'Restauración cancelada.',
+        }
+    }
+
+    const backupPath = resultado.filePaths[0]
+    const fileBuffer = fs.readFileSync(backupPath)
+    const backupDb = new SQL.Database(fileBuffer)
+
+    const result = backupDb.exec(`
+    SELECT id, data, created_at, updated_at
+    FROM intervenciones
+  `)
+
+    db.run(`DELETE FROM intervenciones WHERE json_extract(data, '$.periodo') = ?`, [
+        periodo,
+    ])
+
+    if (result.length) {
+        result[0].values.forEach(([id, data, createdAt, updatedAt]) => {
+            const intervencion = JSON.parse(data)
+
+            if (intervencion.periodo === periodo) {
+                db.run(
+                    `
+          INSERT INTO intervenciones
+          (id, data, created_at, updated_at)
+          VALUES (?, ?, ?, ?)
+        `,
+                    [id, data, createdAt, updatedAt]
+                )
+            }
+        })
+    }
+
+    guardarArchivo()
+    crearBackupGeneralAutomatico()
+    crearBackupAutomatico(periodo)
+
+    return {
+        ok: true,
+        path: backupPath,
+    }
 }
 
 module.exports = {
-  obtenerIntervenciones,
-  guardarIntervencion,
-  eliminarIntervencion,
-  crearBackupManual,
-  restaurarBackupManual,
-  abrirCarpetaBackups,
+    obtenerIntervenciones,
+    guardarIntervencion,
+    eliminarIntervencion,
+    crearBackupManual,
+    restaurarBackupManual,
+    abrirCarpetaBackups,
+    restaurarPeriodoManual,
 }

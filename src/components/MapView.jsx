@@ -269,6 +269,7 @@ function MapView({
   setBarrioSeleccionado,
   mostrarBarrios,
   setMostrarBarrios,
+  editarIntervencion,
 }) {
   const [cursorLinea, setCursorLinea] = useState(null)
 
@@ -285,37 +286,37 @@ function MapView({
     (intervencion) => intervencion.id !== intervencionEditandoId
   )
 
-const statsPorObra = Object.values(
-  intervencionesVisibles.reduce((acc, intervencion) => {
-    const obra = intervencion.obra || 'Sin obra'
+  const statsPorObra = Object.values(
+    intervencionesVisibles.reduce((acc, intervencion) => {
+      const obra = intervencion.obra || 'Sin obra'
 
-    if (!acc[obra]) {
-      acc[obra] = {
-        obra,
-        total: 0,
-        lineas: 0,
-        puntos: 0,
-        poligonos: 0,
+      if (!acc[obra]) {
+        acc[obra] = {
+          obra,
+          total: 0,
+          lineas: 0,
+          puntos: 0,
+          poligonos: 0,
+        }
       }
-    }
 
-    acc[obra].total += 1
+      acc[obra].total += 1
 
-    if (intervencion.geometriaTipo === 'Línea') {
-      acc[obra].lineas += 1
-    }
+      if (intervencion.geometriaTipo === 'Línea') {
+        acc[obra].lineas += 1
+      }
 
-    if (intervencion.geometriaTipo === 'Punto') {
-      acc[obra].puntos += 1
-    }
+      if (intervencion.geometriaTipo === 'Punto') {
+        acc[obra].puntos += 1
+      }
 
-    if (intervencion.geometriaTipo === 'Polígono') {
-      acc[obra].poligonos += 1
-    }
+      if (intervencion.geometriaTipo === 'Polígono') {
+        acc[obra].poligonos += 1
+      }
 
-    return acc
-  }, {})
-)
+      return acc
+    }, {})
+  )
 
   const colorFormulario = obtenerColorIntervencion(form)
 
@@ -478,11 +479,21 @@ const statsPorObra = Object.values(
                   pathOptions={{ color, weight: 5 }}
                 >
                   <Popup>
-                    <strong>{intervencion.obra}</strong>
-                    <br />
-                    {intervencion.nombre}
-                    <br />
-                    {intervencion.ubicacion}
+                    <Popup>
+                      <strong>{intervencion.obra}</strong>
+                      <br />
+                      {intervencion.nombre}
+                      <br />
+                      {intervencion.ubicacion}
+                      <br />
+                      <button
+                        type="button"
+                        className="popup-edit-btn"
+                        onClick={() => editarIntervencion(intervencion)}
+                      >
+                        Editar
+                      </button>
+                    </Popup>
                   </Popup>
                 </Polyline>
               )
@@ -504,11 +515,21 @@ const statsPorObra = Object.values(
                   }}
                 >
                   <Popup>
-                    <strong>{intervencion.obra}</strong>
-                    <br />
-                    {intervencion.nombre}
-                    <br />
-                    {intervencion.ubicacion}
+                    <Popup>
+                      <strong>{intervencion.obra}</strong>
+                      <br />
+                      {intervencion.nombre}
+                      <br />
+                      {intervencion.ubicacion}
+                      <br />
+                      <button
+                        type="button"
+                        className="popup-edit-btn"
+                        onClick={() => editarIntervencion(intervencion)}
+                      >
+                        Editar
+                      </button>
+                    </Popup>
                   </Popup>
                 </Polygon>
               )
@@ -525,11 +546,21 @@ const statsPorObra = Object.values(
                   icon={crearIconoColor(color)}
                 >
                   <Popup>
-                    <strong>{intervencion.obra}</strong>
-                    <br />
-                    {intervencion.nombre}
-                    <br />
-                    {intervencion.ubicacion}
+                    <Popup>
+                      <strong>{intervencion.obra}</strong>
+                      <br />
+                      {intervencion.nombre}
+                      <br />
+                      {intervencion.ubicacion}
+                      <br />
+                      <button
+                        type="button"
+                        className="popup-edit-btn"
+                        onClick={() => editarIntervencion(intervencion)}
+                      >
+                        Editar
+                      </button>
+                    </Popup>
                   </Popup>
                 </Marker>
               )
@@ -548,6 +579,12 @@ const statsPorObra = Object.values(
         deshacerPunto={deshacerPunto}
         limpiarUbicacion={limpiarUbicacion}
         statsPorObra={statsPorObra}
+        hayUbicacion={
+          Boolean(form.direccion) ||
+          Boolean(form.latitud) ||
+          Boolean(form.longitud) ||
+          Boolean(form.geometria?.length)
+        }
       />
     </div>
   )

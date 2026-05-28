@@ -127,3 +127,10 @@
 .dropdown-menu button.danger:hover {
   background: rgba(239, 68, 68, 0.12);
 }
+
+.periodo-input {
+  width: 150px;
+  min-width: 150px;
+  padding: 8px 10px;
+  font-size: 13px;
+}

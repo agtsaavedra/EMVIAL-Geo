@@ -8,6 +8,7 @@ const {
   crearBackupManual,
   restaurarBackupManual,
   abrirCarpetaBackups,
+  restaurarPeriodoManual,
 } = require('./database')
 
 function createWindow() {
@@ -122,8 +123,8 @@ ipcMain.handle('eliminar-intervencion', async (event, id) => {
 // ===============================
 //
 
-ipcMain.handle('crear-backup-manual', async () => {
-  return await crearBackupManual()
+ipcMain.handle('crear-backup-manual', async (event, periodo) => {
+  return await crearBackupManual(periodo)
 })
 
 ipcMain.handle('restaurar-backup-manual', async () => {
@@ -132,6 +133,10 @@ ipcMain.handle('restaurar-backup-manual', async () => {
 
 ipcMain.handle('abrir-carpeta-backups', async () => {
   return await abrirCarpetaBackups()
+})
+
+ipcMain.handle('restaurar-periodo-manual', async (event, periodo) => {
+  return await restaurarPeriodoManual(periodo)
 })
 
 //

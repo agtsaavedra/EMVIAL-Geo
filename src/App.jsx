@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 import Sidebar from './components/Sidebar.jsx'
@@ -7,6 +7,7 @@ import AssetsPanel from './components/AssetsPanel'
 import Topbar from './components/Topbar'
 import { useIntervenciones } from './hooks/useIntervenciones'
 import { exportarKml } from './utils/exportKML.js'
+
 
 function App() {
   const {
@@ -30,6 +31,9 @@ function App() {
   const [filtroObra, setFiltroObra] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('')
   const [filtroBarrio, setFiltroBarrio] = useState('')
+  const [periodoActivo, setPeriodoActivo] = useState(() => {
+    return new Date().toISOString().slice(0, 7)
+  })
 
   const formInicial = {
     nombre: '',
@@ -54,15 +58,34 @@ function App() {
 
   const [form, setForm] = useState(formInicial)
 
+  useEffect(() => {
+    setForm(formInicial)
+    setPuntoSeleccionado(null)
+    setBarrioSeleccionado('')
+    setFiltroObra('')
+    setFiltroEstado('')
+    setFiltroBarrio('')
+    setSugerencias([])
+    setBuscandoDireccion(false)
+    setIntervencionEditandoId(null)
+  }, [periodoActivo])
+
+
+
+
+  const intervencionesDelPeriodo = intervenciones.filter((intervencion) => {
+    return intervencion.periodo === periodoActivo
+  })
+
   const barriosDisponibles = [
     ...new Set(
-      intervenciones
+      intervencionesDelPeriodo
         .map((intervencion) => intervencion.barrio)
         .filter(Boolean)
     ),
   ].sort()
 
-  const intervencionesFiltradas = intervenciones.filter((intervencion) => {
+  const intervencionesFiltradas = intervencionesDelPeriodo.filter((intervencion) => {
     const texto = `
     ${intervencion.nombre}
     ${intervencion.obra}
@@ -203,15 +226,20 @@ function App() {
       alert('Para un polígono necesitás marcar al menos 3 puntos en el mapa.')
       return
     }
+    await guardarIntervencionEnDB({
+      ...form,
+      periodo: periodoActivo,
+    })
 
-    await guardarIntervencionEnDB(form)
+    setPuntoSeleccionado(null)
 
     setForm(formInicial)
-    setPuntoSeleccionado(null)
+    setBarrioSeleccionado('')
+    setSugerencias([])
   }
 
   async function crearBackup() {
-    const resultado = await window.api.crearBackupManual()
+    const resultado = await window.api.crearBackupManual(periodoActivo)
 
     if (resultado.ok) {
       alert('Backup creado correctamente.')
@@ -266,6 +294,18 @@ function App() {
     }
   }
 
+
+  async function restaurarPeriodoActual() {
+    const resultado = await window.api.restaurarPeriodoManual(periodoActivo)
+
+    if (!resultado.ok) return
+
+    await recargarIntervenciones()
+
+    alert('Periodo restaurado correctamente.')
+  }
+
+
   return (
     <div className={`app ${modoOscuro ? 'dark' : ''}`}>
       <Sidebar
@@ -281,6 +321,8 @@ function App() {
 
       <main className="main">
         <Topbar
+          periodoActivo={periodoActivo}
+          setPeriodoActivo={setPeriodoActivo}
           filtroObra={filtroObra}
           setFiltroObra={setFiltroObra}
           filtroEstado={filtroEstado}
@@ -310,6 +352,10 @@ function App() {
             window.api.abrirCarpetaBackups()
             setMenuAbierto(false)
           }}
+          restaurarPeriodoActual={() => {
+            restaurarPeriodoActual()
+            setMenuAbierto(false)
+          }}
         />
 
         <section className="content">
@@ -325,6 +371,7 @@ function App() {
             setBarrioSeleccionado={setBarrioSeleccionado}
             mostrarBarrios={mostrarBarrios}
             setMostrarBarrios={setMostrarBarrios}
+            editarIntervencion={editarIntervencion}
           />
 
           <AssetsPanel

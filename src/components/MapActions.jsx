@@ -8,6 +8,7 @@ function MapActions({
   deshacerPunto,
   limpiarUbicacion,
   statsPorObra = [],
+  hayUbicacion,
 }) {
   return (
     <div className="map-actions-wrapper">
@@ -21,13 +22,15 @@ function MapActions({
           <span>Mostrar barrios</span>
         </label>
 
-        <button
-          type="button"
-          className="map-action-btn"
-          onClick={limpiarUbicacion}
-        >
-          × Limpiar ubicación
-        </button>
+        {hayUbicacion && (
+          <button
+            type="button"
+            className="map-action-btn"
+            onClick={limpiarUbicacion}
+          >
+            × Limpiar ubicación
+          </button>
+        )}
 
         {['Línea', 'Polígono'].includes(geometriaTipo) && (
           <>

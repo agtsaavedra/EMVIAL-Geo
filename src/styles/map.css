@@ -170,3 +170,18 @@
 
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
+
+.popup-edit-btn {
+  margin-top: 8px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.popup-edit-btn:hover {
+  background: #1d4ed8;
+}
