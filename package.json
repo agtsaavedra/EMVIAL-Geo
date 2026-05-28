@@ -1,7 +1,8 @@
 {
-  "name": "appweb-emvial",
+  "name": "emvial-geo",
   "private": true,
   "version": "0.0.0",
+  "productName": "EMVIAL Geo",
   "scripts": {
     "dev": "vite",
     "electron": "electron .",

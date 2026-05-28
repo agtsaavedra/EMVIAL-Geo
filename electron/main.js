@@ -15,6 +15,9 @@ function createWindow() {
     width: 1400,
     height: 900,
     autoHideMenuBar: true,
+    title: 'EMVIAL Geo',
+    icon: path.join(__dirname, '../public/icon.ico'),
+
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

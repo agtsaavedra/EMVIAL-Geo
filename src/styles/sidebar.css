@@ -91,3 +91,16 @@
   margin-top: 6px;
   color: #cbd5e1;
 }
+
+.sidebar-logo {
+  width: 100%;
+  margin-bottom: 18px;
+  display: block;
+}
+
+.sidebar-logo {
+  width: 120px;
+  height: auto;
+  display: block;
+  margin: 0 auto 18px;
+}

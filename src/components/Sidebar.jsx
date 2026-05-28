@@ -1,4 +1,6 @@
 import InterventionForm from './InterventionForm'
+import mapPin from '../assets/map-pin.svg'
+
 
 function Sidebar({
   form,
@@ -12,6 +14,12 @@ function Sidebar({
 }) {
   return (
     <aside className="sidebar">
+      <img
+        src={mapPin}
+        alt="EMVIAL Geo"
+        className="sidebar-logo"
+      />
+
       <h1>EMVIAL Geo</h1>
 
       <p className="subtitle">

@@ -13,15 +13,15 @@ let SQL
 let db
 
 async function iniciarDB() {
-    SQL = await initSqlJs()
+  SQL = await initSqlJs()
 
-    if (fs.existsSync(dbPath)) {
-        const fileBuffer = fs.readFileSync(dbPath)
-        db = new SQL.Database(fileBuffer)
-    } else {
-        db = new SQL.Database()
+  if (fs.existsSync(dbPath)) {
+    const fileBuffer = fs.readFileSync(dbPath)
+    db = new SQL.Database(fileBuffer)
+  } else {
+    db = new SQL.Database()
 
-        db.run(`
+    db.run(`
       CREATE TABLE IF NOT EXISTS intervenciones (
         id INTEGER PRIMARY KEY,
         data TEXT NOT NULL,
@@ -30,12 +30,9 @@ async function iniciarDB() {
       )
     `)
 
-        guardarArchivo()
-        guardarArchivo()
-        crearBackupAutomatico()
-
-        return nueva
-    }
+    guardarArchivo()
+    crearBackupAutomatico()
+  }
 }
 
 function guardarArchivo() {

@@ -1,0 +1,8 @@
+<svg width="420" height="120" viewBox="0 0 420 120" xmlns="http://www.w3.org/2000/svg">
+  <rect width="420" height="120" rx="24" fill="#111827"></rect>
+  <path d="M62 22C39 22 20 41 20 64c0 31 42 78 42 78s42-47 42-78c0-23-19-42-42-42z" fill="#2563EB"></path>
+  <circle cx="62" cy="64" r="15" fill="#F9FAFB"></circle>
+  <path d="M122 76L166 48L212 76L258 48" fill="none" stroke="#22C55E" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"></path>
+  <text x="122" y="42" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#F9FAFB">EMVIAL Geo</text>
+  <text x="122" y="96" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#CBD5E1">Gestión operativa territorial</text>
+</svg>
