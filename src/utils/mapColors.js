@@ -12,3 +12,21 @@ export function obtenerColorIntervencion(intervencion) {
 
   return '#9333ea'
 }
+
+export function crearIconoColor(color) {
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `
+      <div style="
+        width: 24px;
+        height: 24px;
+        background: ${color};
+        border: 3px solid white;
+        border-radius: 999px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+      "></div>
+    `,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+  })
+}

@@ -18,6 +18,7 @@ import barriosGeojsonRaw from '../data/barrios.geojson?raw'
 import MapActions from './MapActions'
 import { obtenerColorIntervencion } from '../utils/mapColors'
 
+
 const barriosGeojson = JSON.parse(barriosGeojsonRaw)
 const centroMarDelPlata = [-38.0055, -57.5426]
 
@@ -57,6 +58,26 @@ function configurarBarrio(feature, layer) {
   })
 }
 
+
+function crearIconoColor(color) {
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `
+      <div style="
+        width: 24px;
+        height: 24px;
+        background: ${color};
+        border: 3px solid white;
+        border-radius: 999px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+      "></div>
+    `,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+  })
+}
+
+
 function ClickMapa({
   form,
   setForm,
@@ -86,6 +107,8 @@ function ClickMapa({
       const barrioDetectado = detectarBarrio(lat, lon)
 
       if (form.geometriaTipo === 'Línea' || form.geometriaTipo === 'Polígono') {
+        let direccionPrimerPunto = ''
+
         setForm((prev) => {
           const geometriaActual = prev.geometria || []
           const esPrimerPunto = geometriaActual.length === 0
@@ -98,6 +121,15 @@ function ClickMapa({
             geometria: [...geometriaActual, [lat, lon]],
           }
         })
+
+        if (!form.geometria || form.geometria.length === 0) {
+          direccionPrimerPunto = await obtenerDireccion(lat, lon)
+
+          setForm((prev) => ({
+            ...prev,
+            direccion: direccionPrimerPunto,
+          }))
+        }
 
         setPuntoSeleccionado([lat, lon])
         return
@@ -253,6 +285,38 @@ function MapView({
     (intervencion) => intervencion.id !== intervencionEditandoId
   )
 
+const statsPorObra = Object.values(
+  intervencionesVisibles.reduce((acc, intervencion) => {
+    const obra = intervencion.obra || 'Sin obra'
+
+    if (!acc[obra]) {
+      acc[obra] = {
+        obra,
+        total: 0,
+        lineas: 0,
+        puntos: 0,
+        poligonos: 0,
+      }
+    }
+
+    acc[obra].total += 1
+
+    if (intervencion.geometriaTipo === 'Línea') {
+      acc[obra].lineas += 1
+    }
+
+    if (intervencion.geometriaTipo === 'Punto') {
+      acc[obra].puntos += 1
+    }
+
+    if (intervencion.geometriaTipo === 'Polígono') {
+      acc[obra].poligonos += 1
+    }
+
+    return acc
+  }, {})
+)
+
   const colorFormulario = obtenerColorIntervencion(form)
 
   const previewLinea =
@@ -289,13 +353,16 @@ function MapView({
     setCursorLinea(null)
   }
 
-  function limpiarGeometria() {
+
+
+  function limpiarUbicacion() {
     setForm((prev) => ({
       ...prev,
-      geometria: [],
+      direccion: '',
       latitud: '',
       longitud: '',
       barrio: '',
+      geometria: [],
     }))
 
     setPuntoSeleccionado(null)
@@ -305,7 +372,7 @@ function MapView({
   return (
     <div className="map-area">
       <div className="map-real">
-        
+
         <MapContainer
           center={centroMarDelPlata}
           zoom={13}
@@ -389,7 +456,10 @@ function MapView({
           )}
 
           {puntoSeleccionado && form.geometriaTipo === 'Punto' && (
-            <Marker position={puntoSeleccionado}>
+            <Marker
+              position={puntoSeleccionado}
+              icon={crearIconoColor(colorFormulario)}
+            >
               <Popup>Ubicación seleccionada</Popup>
             </Marker>
           )}
@@ -452,6 +522,7 @@ function MapView({
                     parseFloat(intervencion.latitud),
                     parseFloat(intervencion.longitud),
                   ]}
+                  icon={crearIconoColor(color)}
                 >
                   <Popup>
                     <strong>{intervencion.obra}</strong>
@@ -475,7 +546,8 @@ function MapView({
         geometriaTipo={form.geometriaTipo}
         cantidadPuntos={form.geometria?.length || 0}
         deshacerPunto={deshacerPunto}
-        limpiarGeometria={limpiarGeometria}
+        limpiarUbicacion={limpiarUbicacion}
+        statsPorObra={statsPorObra}
       />
     </div>
   )

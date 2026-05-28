@@ -1,4 +1,8 @@
+import { OBRAS, ESTADOS } from '../constants/intervenciones'
+import { useEffect, useRef } from 'react'
+
 function Topbar({
+
   busqueda,
   setBusqueda,
   menuAbierto,
@@ -7,63 +11,188 @@ function Topbar({
   crearBackup,
   restaurarBackup,
   abrirCarpetaBackups,
-  modoOscuro,
-  setModoOscuro,
+  modoOscuro = false,
+  setModoOscuro = () => {},
+  filtroObra = '',
+  setFiltroObra = () => {},
+  filtroEstado = '',
+  setFiltroEstado = () => {},
+  filtroBarrio = '',
+  setFiltroBarrio = () => {},
+  barriosDisponibles = [],
 }) {
+  const hayFiltros =
+    filtroObra || filtroEstado || filtroBarrio
+
+    const menuRef = useRef(null)
+    useEffect(() => {
+  function handleClickOutside(event) {
+    if (
+      menuRef.current &&
+      !menuRef.current.contains(event.target)
+    ) {
+      setMenuAbierto(false)
+    }
+  }
+
+  document.addEventListener(
+    'mousedown',
+    handleClickOutside
+  )
+
+  return () => {
+    document.removeEventListener(
+      'mousedown',
+      handleClickOutside
+    )
+  }
+}, [setMenuAbierto])
+
+
   return (
     <header className="topbar">
-      <div>
-        <h2>Mapa de intervenciones</h2>
-        <span>Mar del Plata / Partido de General Pueyrredon</span>
+      <div className="topbar-main">
+        <div className="topbar-title">
+          <h2>Mapa de intervenciones</h2>
+          <span>
+            Mar del Plata / Partido de General Pueyrredon
+          </span>
+        </div>
+
+        <div className="topbar-actions">
+          <input
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            placeholder="Buscar por obra, barrio, estado o ubicación..."
+          />
+
+          <div className="menu-wrapper" ref={menuRef}>
+            <button
+              type="button"
+              className="menu-btn"
+              onClick={() =>
+                setMenuAbierto((prev) => !prev)
+              }
+            >
+              ☰
+            </button>
+
+            {menuAbierto && (
+              <div className="dropdown-menu">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setModoOscuro((prev) => !prev)
+                  }
+                >
+                  {modoOscuro
+                    ? '☀️ Modo claro'
+                    : '🌙 Modo oscuro'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={exportarKmlActual}
+                >
+                  Exportar KML
+                </button>
+
+                <button
+                  type="button"
+                  onClick={crearBackup}
+                >
+                  Crear backup
+                </button>
+
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={restaurarBackup}
+                >
+                  Restaurar backup
+                </button>
+
+                <button
+                  type="button"
+                  onClick={abrirCarpetaBackups}
+                >
+                  Abrir carpeta de backups
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
+      <div className="topbar-filters">
+        <select
+          value={filtroObra}
+          onChange={(e) =>
+            setFiltroObra(e.target.value)
+          }
+        >
+          <option value="">
+            Todas las obras
+          </option>
 
-      <div className="topbar-actions">
-        <input
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          placeholder="Buscar por obra, barrio, estado o ubicación..."
-        />
+          {OBRAS.map((obra) => (
+            <option key={obra} value={obra}>
+              {obra}
+            </option>
+          ))}
+        </select>
 
-        <div className="menu-wrapper">
+        <select
+          value={filtroEstado}
+          onChange={(e) =>
+            setFiltroEstado(e.target.value)
+          }
+        >
+          <option value="">
+            Todos los estados
+          </option>
+
+          {ESTADOS.map((estado) => (
+            <option key={estado} value={estado}>
+              {estado}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={filtroBarrio}
+          onChange={(e) =>
+            setFiltroBarrio(e.target.value)
+          }
+        >
+          <option value="">
+            Todos los barrios
+          </option>
+
+          {barriosDisponibles.map((barrio) => (
+            <option
+              key={barrio}
+              value={barrio}
+            >
+              {barrio}
+            </option>
+          ))}
+        </select>
+
+        {hayFiltros && (
           <button
             type="button"
-            className="menu-btn"
-            onClick={() => setMenuAbierto((prev) => !prev)}
+            className="clear-filters-btn"
+            title="Limpiar filtros"
+            onClick={() => {
+              setFiltroObra('')
+              setFiltroEstado('')
+              setFiltroBarrio('')
+            }}
           >
-            ☰
+            ✕
           </button>
-
-          {menuAbierto && (
-            <div className="dropdown-menu">
-              <button type="button" onClick={exportarKmlActual}>
-                Exportar KML
-              </button>
-
-              <button type="button" onClick={crearBackup}>
-                Crear backup
-              </button>
-
-              <button
-                type="button"
-                className="danger"
-                onClick={restaurarBackup}
-              >
-                Restaurar backup
-              </button>
-
-              <button type="button" onClick={abrirCarpetaBackups}>
-                Abrir carpeta de backups
-              </button>
-              <button
-                type="button"
-                onClick={() => setModoOscuro((prev) => !prev)}
-              >
-                {modoOscuro ? '☀️ Modo claro' : '🌙 Modo oscuro'}
-              </button>
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </header>
   )

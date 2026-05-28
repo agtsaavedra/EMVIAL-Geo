@@ -27,6 +27,9 @@ function App() {
   const [barrioSeleccionado, setBarrioSeleccionado] = useState('')
   const [mostrarBarrios, setMostrarBarrios] = useState(true)
   const [menuAbierto, setMenuAbierto] = useState(false)
+  const [filtroObra, setFiltroObra] = useState('')
+  const [filtroEstado, setFiltroEstado] = useState('')
+  const [filtroBarrio, setFiltroBarrio] = useState('')
 
   const formInicial = {
     nombre: '',
@@ -51,20 +54,44 @@ function App() {
 
   const [form, setForm] = useState(formInicial)
 
+  const barriosDisponibles = [
+    ...new Set(
+      intervenciones
+        .map((intervencion) => intervencion.barrio)
+        .filter(Boolean)
+    ),
+  ].sort()
+
   const intervencionesFiltradas = intervenciones.filter((intervencion) => {
     const texto = `
-      ${intervencion.nombre}
-      ${intervencion.obra}
-      ${intervencion.ubicacion}
-      ${intervencion.barrio}
-      ${intervencion.estado}
-      ${intervencion.fuente}
-      ${intervencion.inspector}
-      ${intervencion.realizo}
-      ${intervencion.descripcion}
-    `.toLowerCase()
+    ${intervencion.nombre}
+    ${intervencion.obra}
+    ${intervencion.ubicacion}
+    ${intervencion.barrio}
+    ${intervencion.estado}
+    ${intervencion.fuente}
+    ${intervencion.inspector}
+    ${intervencion.realizo}
+    ${intervencion.descripcion}
+  `.toLowerCase()
 
-    return texto.includes(busqueda.toLowerCase())
+    const coincideBusqueda = texto.includes(busqueda.toLowerCase())
+
+    const coincideObra =
+      !filtroObra || intervencion.obra === filtroObra
+
+    const coincideEstado =
+      !filtroEstado || intervencion.estado === filtroEstado
+
+    const coincideBarrio =
+      !filtroBarrio || intervencion.barrio === filtroBarrio
+
+    return (
+      coincideBusqueda &&
+      coincideObra &&
+      coincideEstado &&
+      coincideBarrio
+    )
   })
 
   async function obtenerDireccion(lat, lon) {
@@ -254,6 +281,13 @@ function App() {
 
       <main className="main">
         <Topbar
+          filtroObra={filtroObra}
+          setFiltroObra={setFiltroObra}
+          filtroEstado={filtroEstado}
+          setFiltroEstado={setFiltroEstado}
+          filtroBarrio={filtroBarrio}
+          setFiltroBarrio={setFiltroBarrio}
+          barriosDisponibles={barriosDisponibles}
           busqueda={busqueda}
           modoOscuro={modoOscuro}
           setModoOscuro={setModoOscuro}
