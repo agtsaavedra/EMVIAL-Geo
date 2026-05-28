@@ -18,6 +18,8 @@ function App() {
     recargarIntervenciones,
   } = useIntervenciones()
 
+
+  const [modoOscuro, setModoOscuro] = useState(false)
   const [busqueda, setBusqueda] = useState('')
   const [sugerencias, setSugerencias] = useState([])
   const [buscandoDireccion, setBuscandoDireccion] = useState(false)
@@ -238,7 +240,7 @@ function App() {
   }
 
   return (
-    <div className="app">
+    <div className={`app ${modoOscuro ? 'dark' : ''}`}>
       <Sidebar
         form={form}
         manejarCambio={manejarCambio}
@@ -253,6 +255,8 @@ function App() {
       <main className="main">
         <Topbar
           busqueda={busqueda}
+          modoOscuro={modoOscuro}
+          setModoOscuro={setModoOscuro}
           setBusqueda={setBusqueda}
           menuAbierto={menuAbierto}
           setMenuAbierto={setMenuAbierto}

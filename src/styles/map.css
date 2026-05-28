@@ -3,7 +3,7 @@
   width: 100%;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
 }
 
 .leaflet-container {
@@ -12,9 +12,10 @@
 }
 
 .map-control {
-  background: white;
+  background: var(--surface);
   padding: 8px;
   border-radius: 10px;
+  border: 1px solid var(--border);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
 }
 
@@ -22,7 +23,9 @@
   width: 260px;
   padding: 9px;
   border-radius: 8px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--input-text);
 }
 
 .layer-toggle {
@@ -30,7 +33,7 @@
   align-items: center;
   gap: 8px;
   width: 180px;
-  color: #111827;
+  color: var(--text);
   font-size: 14px;
   cursor: pointer;
 }
@@ -41,10 +44,11 @@
 
 .layer-toggle.external {
   width: auto;
-  background: #f9fafb;
-  border: 1px solid #d1d5db;
-  padding: 8px 12px;
-  border-radius: 9px;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  border-radius: 12px;
 }
 
 .map-area {
@@ -55,35 +59,49 @@
 }
 
 .map-actions {
-  background: white;
-  border-radius: 14px;
-  padding: 10px;
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 16px;
+  padding: 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
 }
 
 .map-action-btn {
-  border: 1px solid #d1d5db;
-  background: white;
-  color: #111827;
-  padding: 8px 12px;
-  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
 }
 
 .map-action-btn:hover {
-  background: #f3f4f6;
+  background: var(--surface);
+  transform: translateY(-1px);
+}
+
+.map-action-btn:active {
+  transform: scale(0.98);
 }
 
 .map-action-btn.danger:hover {
-  background: #fee2e2;
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.45);
 }
 
 .map-action-info {
-  font-size: 13px;
-  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-soft);
 }

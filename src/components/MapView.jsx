@@ -201,6 +201,30 @@ function CentrarMapa({ punto, geometriaTipo }) {
   return null
 }
 
+function InvalidarTamañoMapa() {
+  const map = useMap()
+
+  useEffect(() => {
+    const invalidar = () => {
+      map.invalidateSize()
+    }
+
+    const timers = [
+      setTimeout(invalidar, 100),
+      setTimeout(invalidar, 300),
+      setTimeout(invalidar, 600),
+    ]
+
+    window.addEventListener('resize', invalidar)
+
+    return () => {
+      timers.forEach(clearTimeout)
+      window.removeEventListener('resize', invalidar)
+    }
+  })
+
+  return null
+}
 function MapView({
   form,
   intervencionesFiltradas = [],
@@ -281,11 +305,13 @@ function MapView({
   return (
     <div className="map-area">
       <div className="map-real">
+        
         <MapContainer
           center={centroMarDelPlata}
           zoom={13}
           style={{ height: '100%', width: '100%' }}
         >
+          <InvalidarTamañoMapa />
           <TileLayer
             attribution="&copy; OpenStreetMap contributors"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

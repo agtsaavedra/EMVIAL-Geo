@@ -16,8 +16,12 @@ body,
   display: flex;
   width: 100vw;
   height: 100vh;
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--bg);
+  color: var(--text);
+}
+.app {
+  background: var(--bg);
+  color: var(--text);
 }
 
 .main {
@@ -31,9 +35,10 @@ body,
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 20px;
   padding: 20px;
+  overflow: hidden;
 }
 
 .primary,
@@ -61,8 +66,10 @@ input {
   width: 100%;
   padding: 13px;
   border-radius: 10px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
   font-size: 15px;
+  background: var(--input-bg);
+  color: var(--input-text);
 }
 
 textarea {
@@ -70,6 +77,27 @@ textarea {
   resize: vertical;
   padding: 12px;
   border-radius: 10px;
-  border: none;
+  border: 1px solid var(--border);
   font-family: Arial, Helvetica, sans-serif;
+  background: var(--input-bg);
+  color: var(--input-text);
+}
+
+.app,
+.topbar,
+.sidebar,
+.panel,
+.card,
+.map-actions,
+.layer-toggle.external,
+.dropdown-menu,
+input,
+select,
+textarea,
+button {
+  transition:
+    background-color 0.22s ease,
+    color 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
 }

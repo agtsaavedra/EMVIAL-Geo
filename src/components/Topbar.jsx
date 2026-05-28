@@ -7,6 +7,8 @@ function Topbar({
   crearBackup,
   restaurarBackup,
   abrirCarpetaBackups,
+  modoOscuro,
+  setModoOscuro,
 }) {
   return (
     <header className="topbar">
@@ -14,6 +16,7 @@ function Topbar({
         <h2>Mapa de intervenciones</h2>
         <span>Mar del Plata / Partido de General Pueyrredon</span>
       </div>
+
 
       <div className="topbar-actions">
         <input
@@ -51,6 +54,12 @@ function Topbar({
 
               <button type="button" onClick={abrirCarpetaBackups}>
                 Abrir carpeta de backups
+              </button>
+              <button
+                type="button"
+                onClick={() => setModoOscuro((prev) => !prev)}
+              >
+                {modoOscuro ? '☀️ Modo claro' : '🌙 Modo oscuro'}
               </button>
             </div>
           )}

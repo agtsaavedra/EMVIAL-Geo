@@ -1,3 +1,11 @@
+import {
+  OBRAS,
+  ESTADOS,
+  FUENTES,
+  GEOMETRIAS,
+} from '../constants/intervenciones'
+
+
 function InterventionForm({
   form,
   manejarCambio,
@@ -28,15 +36,11 @@ function InterventionForm({
 
       <label>Obra</label>
       <select name="obra" value={form.obra} onChange={manejarCambio}>
-        <option>MICROBACHEO</option>
-        <option>BACHEO</option>
-        <option>TJ</option>
-        <option>GRANZA</option>
-        <option>RECAPADO</option>
-        <option>PAVIMENTACIÓN</option>
-        <option>CORDÓN CUNETA</option>
-        <option>ALUMBRADO LED</option>
-        <option>OTRA</option>
+        {OBRAS.map((obra) => (
+          <option key={obra} value={obra}>
+            {obra}
+          </option>
+        ))}
       </select>
 
       <label>Ubicación</label>
@@ -57,11 +61,11 @@ function InterventionForm({
 
       <label>Estado</label>
       <select name="estado" value={form.estado} onChange={manejarCambio}>
-        <option>Pendiente</option>
-        <option>En proceso</option>
-        <option>Finalizada</option>
-        <option>Relevada</option>
-        <option>Planificada</option>
+        {ESTADOS.map((estado) => (
+          <option key={estado} value={estado}>
+            {estado}
+          </option>
+        ))}
       </select>
 
       <label>Inspector</label>
@@ -112,13 +116,11 @@ function InterventionForm({
 
       <label>Fuente</label>
       <select name="fuente" value={form.fuente} onChange={manejarCambio}>
-        <option>Carga manual</option>
-        <option>WhatsApp</option>
-        <option>PDF</option>
-        <option>KML/KMZ</option>
-        <option>Google My Maps</option>
-        <option>Relevamiento propio</option>
-        <option>Otro</option>
+        {FUENTES.map((fuente) => (
+          <option key={fuente} value={fuente}>
+            {fuente}
+          </option>
+        ))}
       </select>
 
       <label>Dirección / búsqueda geográfica</label>
@@ -174,9 +176,11 @@ function InterventionForm({
         value={form.geometriaTipo}
         onChange={manejarCambio}
       >
-        <option>Punto</option>
-        <option>Línea</option>
-        <option>Polígono</option>
+        {GEOMETRIAS.map((tipo) => (
+          <option key={tipo} value={tipo}>
+            {tipo}
+          </option>
+        ))}
       </select>
 
       <label>Observaciones</label>
