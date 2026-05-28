@@ -1,0 +1,93 @@
+.sidebar {
+  width: 320px;
+  min-width: 320px;
+  background: #111827;
+  color: white;
+  padding: 28px 24px;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar h1 {
+  margin: 0;
+  font-size: 30px;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: #cbd5e1;
+  margin: 10px 0 24px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding-bottom: 30px;
+}
+
+.form label {
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.form input,
+.form select,
+.form textarea {
+  padding: 10px;
+}
+
+.address-wrapper {
+  position: relative;
+}
+
+.address-row {
+  display: flex;
+  gap: 8px;
+}
+
+.address-row input {
+  flex: 1;
+}
+
+.address-row button {
+  width: 80px;
+  background: #374151;
+  color: white;
+  cursor: pointer;
+}
+
+.suggestions {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 6px;
+  border: 1px solid #d1d5db;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.suggestions button {
+  width: 100%;
+  text-align: left;
+  background: white;
+  color: #111827;
+  border: none;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 0;
+  padding: 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.suggestions button:hover {
+  background: #f3f4f6;
+}
+
+.searching {
+  display: block;
+  margin-top: 6px;
+  color: #cbd5e1;
+}
