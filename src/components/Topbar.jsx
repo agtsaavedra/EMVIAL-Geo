@@ -23,6 +23,8 @@ function Topbar({
   periodoActivo,
   setPeriodoActivo,
   restaurarPeriodoActual,
+  exportarExcelActual,
+
 }) {
   const hayFiltros =
     filtroObra || filtroEstado || filtroBarrio
@@ -56,17 +58,17 @@ function Topbar({
     <header className="topbar">
       <div className="topbar-main">
         <div className="topbar-title">
-  <img
-    src={mapPin}
-    alt="EMVIAL Geo"
-    className="topbar-logo"
-  />
+          <img
+            src={mapPin}
+            alt="EMVIAL Geo"
+            className="topbar-logo"
+          />
 
-  <div>
-    <h2>Mapa de intervenciones</h2>
-    <span>Mar del Plata / Partido de General Pueyrredon</span>
-  </div>
-</div>
+          <div>
+            <h2>Mapa de intervenciones</h2>
+            <span>Mar del Plata / Partido de General Pueyrredon</span>
+          </div>
+        </div>
 
         <div className="topbar-actions">
           <input
@@ -133,6 +135,9 @@ function Topbar({
                   onClick={abrirCarpetaBackups}
                 >
                   Abrir carpeta de backups
+                </button>
+                <button type="button" onClick={exportarExcelActual}>
+                  Exportar Excel
                 </button>
               </div>
             )}

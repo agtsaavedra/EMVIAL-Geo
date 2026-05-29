@@ -21,7 +21,13 @@ function AssetsPanel({
           }, 320)
         }}
       >
-        {abierto ? '›' : '‹'}
+        {window.innerWidth <= 1024
+  ? abierto
+    ? '▾'
+    : '▴'
+  : abierto
+    ? '›'
+    : '‹'}
       </button>
 
       {abierto && (

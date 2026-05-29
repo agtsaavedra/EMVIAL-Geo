@@ -12,6 +12,7 @@ import { useBackups } from './hooks/useBackups'
 import { useFormularioIntervencion } from './hooks/useFormularioIntervencion'
 import { useGeocoding } from './hooks/useGeocoding'
 import { useFiltrosIntervenciones } from './hooks/useFiltrosIntervenciones'
+import { exportarExcelPeriodo } from './services/exportExcel.js'
 
 import { exportarKml } from './utils/exportKML.js'
 
@@ -128,6 +129,7 @@ function App() {
   // ===============================
 
   const {
+    intervencionesDelPeriodo,
     intervencionesFiltradas,
     barriosDisponibles,
   } = useFiltrosIntervenciones({
@@ -138,7 +140,6 @@ function App() {
     filtroEstado,
     filtroBarrio,
   })
-
   // ===============================
   // Render
   // ===============================
@@ -191,6 +192,10 @@ function App() {
           }}
           abrirCarpetaBackups={() => {
             window.api.abrirCarpetaBackups()
+            setMenuAbierto(false)
+          }}
+          exportarExcelActual={() => {
+            exportarExcelPeriodo(intervencionesDelPeriodo, periodoActivo)
             setMenuAbierto(false)
           }}
         />

@@ -1,0 +1,183 @@
+/* ===============================
+   Desktop medio / monitores chicos
+   =============================== */
+
+@media (max-width: 1600px) {
+  .sidebar-panel {
+    width: 300px;
+    min-width: 300px;
+  }
+
+  .assets-panel {
+    width: 330px;
+    min-width: 330px;
+  }
+
+  .content {
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .topbar {
+    padding: 12px 18px;
+  }
+}
+
+/* ===============================
+   Notebook estándar
+   =============================== */
+
+@media (max-width: 1366px) {
+  .sidebar-panel {
+    width: 280px;
+    min-width: 280px;
+  }
+
+  .assets-panel {
+    width: 300px;
+    min-width: 300px;
+  }
+
+  .content {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .topbar-actions input {
+    width: 280px;
+  }
+
+  .topbar-filters select {
+    width: 160px;
+  }
+
+  .periodo-input {
+    width: 145px;
+    min-width: 145px;
+  }
+
+  .topbar-logo {
+    width: 52px;
+  }
+
+  .topbar-title h2 {
+    font-size: 24px;
+  }
+}
+
+/* ===============================
+   Ventana angosta de escritorio
+   =============================== */
+
+@media (max-width: 1200px) {
+  .sidebar-panel {
+    width: 260px;
+    min-width: 260px;
+  }
+
+  .assets-panel {
+    width: 280px;
+    min-width: 280px;
+  }
+
+  .topbar {
+    min-height: 138px;
+  }
+
+  .topbar-main {
+    align-items: flex-start;
+  }
+
+  .topbar-actions input {
+    width: 240px;
+  }
+
+  .topbar-filters {
+    justify-content: flex-start;
+  }
+
+  .topbar-filters select {
+    width: 145px;
+  }
+}
+
+/* ===============================
+   Tablet horizontal / muy angosto
+   =============================== */
+
+@media (max-width: 1024px) {
+  .sidebar-panel {
+    width: 0;
+    min-width: 0;
+  }
+
+  .sidebar-panel.open {
+    width: 280px;
+    min-width: 280px;
+  }
+
+  .sidebar-panel.closed {
+    width: 0;
+    min-width: 0;
+  }
+
+  .sidebar-panel.closed .sidebar {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .sidebar-toggle {
+    right: -18px;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+  }
+
+  .map-area {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .assets-panel {
+    width: 100%;
+    min-width: 0;
+    height: 280px;
+    min-height: 280px;
+  }
+
+  .assets-panel.closed {
+    height: 0;
+    min-height: 0;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .assets-panel.closed .panel {
+    opacity: 0;
+    transform: translateY(16px);
+    pointer-events: none;
+  }
+
+  .panel-toggle {
+    left: 50%;
+    top: -18px;
+    transform: translateX(-50%);
+
+    width: 72px;
+    height: 36px;
+
+    border-radius: 12px 12px 0 0;
+  }
+
+  .assets-panel.closed .panel-toggle {
+    top: -18px;
+  }
+
+  .topbar-actions input {
+    width: 220px;
+  }
+}
