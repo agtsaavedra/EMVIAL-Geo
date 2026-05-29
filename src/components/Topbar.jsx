@@ -24,6 +24,7 @@ function Topbar({
   setPeriodoActivo,
   restaurarPeriodoActual,
   exportarExcelActual,
+  configurarCarpetaBackups,
 
 }) {
   const hayFiltros =
@@ -135,6 +136,13 @@ function Topbar({
                   onClick={abrirCarpetaBackups}
                 >
                   Abrir carpeta de backups
+                </button>
+
+                <button
+                  type="button"
+                  onClick={configurarCarpetaBackups}
+                >
+                  Configurar carpeta de backups
                 </button>
                 <button type="button" onClick={exportarExcelActual}>
                   Exportar Excel

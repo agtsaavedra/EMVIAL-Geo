@@ -9,6 +9,7 @@ const {
   restaurarBackupManual,
   abrirCarpetaBackups,
   restaurarPeriodoManual,
+  configurarCarpetaBackups,
 } = require('./database')
 
 function createWindow() {
@@ -139,6 +140,12 @@ ipcMain.handle('restaurar-periodo-manual', async (event, periodo) => {
   return await restaurarPeriodoManual(periodo)
 })
 
+ipcMain.handle(
+  'configurar-carpeta-backups',
+  async () => {
+    return await configurarCarpetaBackups()
+  }
+)
 //
 // ===============================
 // APP READY

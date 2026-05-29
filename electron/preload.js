@@ -1,6 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('api', {
+
+
   buscarDireccion: (direccion) =>
     ipcRenderer.invoke('buscar-direccion', direccion),
 
@@ -27,6 +29,11 @@ contextBridge.exposeInMainWorld('api', {
 
   restaurarPeriodoManual: (periodo) =>
   ipcRenderer.invoke('restaurar-periodo-manual', periodo),
+
+  configurarCarpetaBackups: () =>
+  ipcRenderer.invoke(
+    'configurar-carpeta-backups'
+  ),
 })
 
 

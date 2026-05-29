@@ -198,6 +198,18 @@ function App() {
             exportarExcelPeriodo(intervencionesDelPeriodo, periodoActivo)
             setMenuAbierto(false)
           }}
+          configurarCarpetaBackups={async () => {
+            const resultado =
+              await window.api.configurarCarpetaBackups()
+
+            if (resultado.ok) {
+              alert(resultado.message)
+            } else {
+              alert(resultado.message)
+            }
+
+            setMenuAbierto(false)
+          }}
         />
 
         <section className="content">
