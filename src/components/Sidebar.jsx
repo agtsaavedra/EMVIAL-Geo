@@ -12,6 +12,7 @@ function Sidebar({
   buscandoDireccion,
   seleccionarSugerencia,
   activoEditandoId,
+  cancelarEdicion,
 }) {
   
 
@@ -39,6 +40,7 @@ function Sidebar({
           buscandoDireccion={buscandoDireccion}
           seleccionarSugerencia={seleccionarSugerencia}
           activoEditandoId={activoEditandoId}
+          cancelarEdicion={cancelarEdicion}
         />
       </div>
     </aside>

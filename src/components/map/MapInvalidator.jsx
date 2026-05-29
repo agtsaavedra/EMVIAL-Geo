@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useMap } from 'react-leaflet'
 
-function MapInvalidator() {
+function MapInvalidator({ refreshKey }) {
   const map = useMap()
 
   useEffect(() => {
@@ -10,9 +10,9 @@ function MapInvalidator() {
     }
 
     const timers = [
-      setTimeout(invalidar, 100),
-      setTimeout(invalidar, 300),
-      setTimeout(invalidar, 600),
+      setTimeout(invalidar, 80),
+      setTimeout(invalidar, 250),
+      setTimeout(invalidar, 500),
     ]
 
     window.addEventListener('resize', invalidar)
@@ -21,7 +21,7 @@ function MapInvalidator() {
       timers.forEach(clearTimeout)
       window.removeEventListener('resize', invalidar)
     }
-  }, [map])
+  }, [map, refreshKey])
 
   return null
 }

@@ -22,3 +22,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+# Electron build
+release/
+*.blockmap
+
+# SQLite / datos locales
+*.sqlite
+*.sqlite-journal
+*.db
+
+# Backups locales
+backups/

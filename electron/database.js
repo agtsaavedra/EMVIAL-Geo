@@ -584,6 +584,15 @@ async function configurarCarpetaBackups() {
   }
 }
 
+function obtenerEstadoApp() {
+  return {
+    dbPath,
+    configPath,
+    backupsDir,
+    defaultBackupsDir,
+  }
+}
+
 // =====================================================
 // EXPORTS
 // =====================================================
@@ -597,4 +606,5 @@ module.exports = {
   abrirCarpetaBackups,
   restaurarPeriodoManual,
   configurarCarpetaBackups,
+  obtenerEstadoApp,
 }

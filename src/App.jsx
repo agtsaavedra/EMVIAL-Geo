@@ -1,12 +1,12 @@
 import './App.css'
-
+import { useState } from 'react'
 import Sidebar from './components/Sidebar.jsx'
 import MapView from './components/map/MapView.jsx'
 import AssetsPanel from './components/AssetsPanel'
 import Topbar from './components/Topbar'
 import Toast from './components/Toast'
 import ConfirmDialog from './components/ConfirmDialog'
-
+import AboutDialog from './components/AboutDialog'
 import { useToast } from './hooks/useToast'
 import { useConfirmDialog } from './hooks/useConfirmDialog'
 import { useIntervenciones } from './hooks/useIntervenciones'
@@ -105,6 +105,7 @@ function App() {
     manejarCambio,
     guardarIntervencion,
     editarIntervencion,
+    cancelarEdicion,
   } = useFormularioIntervencion({
     periodoActivo,
     guardarIntervencionEnDB,
@@ -166,6 +167,20 @@ function App() {
   // Render
   // ===============================
 
+
+  const [aboutAbierto, setAboutAbierto] =
+    useState(false)
+
+  const [estadoApp, setEstadoApp] =
+    useState(null)
+
+  async function abrirAbout() {
+    const estado =
+      await window.api.obtenerEstadoApp()
+
+    setEstadoApp(estado)
+    setAboutAbierto(true)
+  }
   return (
     <div className={`app ${modoOscuro ? 'dark' : ''}`}>
       <Sidebar
@@ -179,11 +194,13 @@ function App() {
         buscandoDireccion={buscandoDireccion}
         seleccionarSugerencia={seleccionarSugerencia}
         activoEditandoId={intervencionEditandoId}
+        cancelarEdicion={cancelarEdicion}
       />
 
       <main className="main">
         <Topbar
           periodoActivo={periodoActivo}
+          
           setPeriodoActivo={setPeriodoActivo}
           filtroObra={filtroObra}
           setFiltroObra={setFiltroObra}
@@ -198,7 +215,10 @@ function App() {
           setModoOscuro={setModoOscuro}
           menuAbierto={menuAbierto}
           setMenuAbierto={setMenuAbierto}
-
+          abrirAbout={() => {
+            setMenuAbierto(false)
+            abrirAbout()
+          }}
           exportarKmlActual={() => {
             setMenuAbierto(false)
 
@@ -303,6 +323,7 @@ function App() {
 
         <section className="content">
           <MapView
+
             form={form}
             intervencionesFiltradas={intervencionesFiltradas}
             intervencionEditandoId={intervencionEditandoId}
@@ -318,6 +339,7 @@ function App() {
             intervencionEnfocada={intervencionEnfocada}
             modoDibujo={modoDibujo}
             setModoDibujo={setModoDibujo}
+            sidebarAbierto={sidebarAbierto}
           />
 
           <AssetsPanel
@@ -368,6 +390,15 @@ function App() {
           dialogo?.onConfirmar?.()
           cerrarDialogo()
         }}
+      />
+
+      <AboutDialog
+        abierto={aboutAbierto}
+        onCerrar={() =>
+          setAboutAbierto(false)
+        }
+        estadoApp={estadoApp}
+        periodoActivo={periodoActivo}
       />
     </div>
   )

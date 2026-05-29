@@ -49,6 +49,7 @@ function MapView({
   intervencionEnfocada,
   modoDibujo,
   setModoDibujo,
+  sidebarAbierto,
 }) {
   // =====================================================
   // ESTADO INTERNO DEL MAPA
@@ -138,7 +139,7 @@ function MapView({
           style={{ height: '100%', width: '100%' }}
         >
           {/* Recalcula el tamaño real del mapa cuando cambia el layout */}
-          <MapInvalidator />
+          <MapInvalidator refreshKey={sidebarAbierto}/>
 
           {/* Capa base OpenStreetMap */}
           <TileLayer

@@ -25,6 +25,7 @@ function Topbar({
   restaurarPeriodoActual,
   exportarExcelActual,
   configurarCarpetaBackups,
+  abrirAbout,
 
 }) {
   const hayFiltros =
@@ -147,8 +148,17 @@ function Topbar({
                 <button type="button" onClick={exportarExcelActual}>
                   Exportar Excel
                 </button>
+
+                <button
+              type="button"
+              onClick={abrirAbout}
+            >
+              Acerca de EMVIAL Geo
+            </button>
               </div>
             )}
+            
+
           </div>
         </div>
       </div>

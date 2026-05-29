@@ -174,3 +174,20 @@
 .sidebar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.35);
 }
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.cancel-edit-btn {
+  background: rgba(220, 38, 38, 0.14);
+  color: #fecaca;
+  border: 1px solid rgba(220, 38, 38, 0.5);
+}
+
+.cancel-edit-btn:hover {
+  background: rgba(220, 38, 38, 0.25);
+}

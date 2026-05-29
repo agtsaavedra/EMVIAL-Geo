@@ -15,6 +15,7 @@ function InterventionForm({
   buscandoDireccion,
   seleccionarSugerencia,
   activoEditandoId,
+  cancelarEdicion,
 }) {
   return (
     <form onSubmit={guardarIntervencion} className="form">
@@ -191,11 +192,23 @@ function InterventionForm({
         placeholder="Detalle de la intervención, origen del dato, aclaraciones..."
       />
 
-      <button className="primary" type="submit">
-        {activoEditandoId
-          ? 'Actualizar intervención'
-          : 'Guardar intervención'}
-      </button>
+      <div className="form-actions">
+        <button className="primary" type="submit">
+          {activoEditandoId
+            ? 'Actualizar intervención'
+            : 'Guardar intervención'}
+        </button>
+
+        {activoEditandoId && (
+          <button
+            type="button"
+            className="secondary cancel-edit-btn"
+            onClick={cancelarEdicion}
+          >
+            Cancelar edición
+          </button>
+        )}
+      </div>
     </form>
   )
 }

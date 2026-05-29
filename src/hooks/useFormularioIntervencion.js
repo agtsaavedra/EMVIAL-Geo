@@ -183,11 +183,41 @@ export function useFormularioIntervencion({
     }
   }
 
+  // ===============================
+// Cancelar edición actual
+// ===============================
+
+function cancelarEdicion() {
+  // salir del modo edición
+  setIntervencionEditandoId(null)
+
+  // limpiar formulario
+  setForm(formInicial)
+
+  // limpiar selección temporal del mapa
+  setPuntoSeleccionado(null)
+
+  // limpiar barrio temporal
+  setBarrioSeleccionado('')
+
+  // limpiar sugerencias de búsqueda
+  setSugerencias([])
+
+  // frenar búsqueda
+  setBuscandoDireccion(false)
+
+  mostrarToast(
+    'Edición cancelada.',
+    'info'
+  )
+}
+
   return {
     form,
     setForm,
     manejarCambio,
     guardarIntervencion,
     editarIntervencion,
+    cancelarEdicion,
   }
 }

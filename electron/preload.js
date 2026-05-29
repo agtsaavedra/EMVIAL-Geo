@@ -30,11 +30,16 @@ contextBridge.exposeInMainWorld('api', {
   restaurarPeriodoManual: (periodo) =>
   ipcRenderer.invoke('restaurar-periodo-manual', periodo),
 
+  obtenerEstadoApp: () =>
+  ipcRenderer.invoke('obtener-estado-app'),
+  
   configurarCarpetaBackups: () =>
   ipcRenderer.invoke(
     'configurar-carpeta-backups'
   ),
 })
+
+
 
 
 console.log('PRELOAD CARGADO')
