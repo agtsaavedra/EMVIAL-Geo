@@ -9,6 +9,8 @@ function MapActions({
   limpiarUbicacion,
   statsPorObra = [],
   hayUbicacion,
+  modoDibujo,
+  setModoDibujo,
 }) {
   return (
     <div className="map-actions-wrapper">
@@ -20,6 +22,14 @@ function MapActions({
             onChange={(e) => setMostrarBarrios(e.target.checked)}
           />
           <span>Mostrar barrios</span>
+        </label>
+        <label className="layer-toggle external">
+          <input
+            type="checkbox"
+            checked={modoDibujo}
+            onChange={(e) => setModoDibujo(e.target.checked)}
+          />
+          <span>Modo dibujo</span>
         </label>
 
         {hayUbicacion && (

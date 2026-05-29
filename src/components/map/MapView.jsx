@@ -16,6 +16,7 @@ import MapCenter from './MapCenter'
 import MapInvalidator from './MapInvalidator'
 import IntervencionesLayer from './IntervencionesLayer'
 import GeometryPreview from './GeometryPreview'
+import MapFocus from './MapFocus'
 
 import { crearIconoColor } from '../../map/mapIcons'
 import { obtenerColorIntervencion } from '../../map/mapColors'
@@ -45,6 +46,9 @@ function MapView({
   mostrarBarrios,
   setMostrarBarrios,
   editarIntervencion,
+  intervencionEnfocada,
+  modoDibujo,
+  setModoDibujo,
 }) {
   // =====================================================
   // ESTADO INTERNO DEL MAPA
@@ -155,11 +159,13 @@ function MapView({
           )}
 
           {/* Selector Leaflet de barrios */}
-          <ControlBarrio
-            barrioSeleccionado={barrioSeleccionado}
-            setBarrioSeleccionado={setBarrioSeleccionado}
-            setPuntoSeleccionado={setPuntoSeleccionado}
-          />
+          {mostrarBarrios && (
+            <ControlBarrio
+              barrioSeleccionado={barrioSeleccionado}
+              setBarrioSeleccionado={setBarrioSeleccionado}
+              setPuntoSeleccionado={setPuntoSeleccionado}
+            />
+          )}
 
           {/* Captura clicks del usuario sobre el mapa */}
           <ClickMapa
@@ -168,6 +174,7 @@ function MapView({
             setPuntoSeleccionado={setPuntoSeleccionado}
             obtenerDireccion={obtenerDireccion}
             setCursorLinea={setCursorLinea}
+            modoDibujo={modoDibujo}
           />
 
           {/* Centra el mapa cuando se selecciona un punto */}
@@ -175,6 +182,8 @@ function MapView({
             punto={puntoSeleccionado}
             geometriaTipo={form.geometriaTipo}
           />
+
+          <MapFocus intervencion={intervencionEnfocada} />
 
           {/* Dibuja línea/polígono en edición y su preview punteada */}
           <GeometryPreview
@@ -197,6 +206,7 @@ function MapView({
           <IntervencionesLayer
             intervenciones={intervencionesVisibles}
             editarIntervencion={editarIntervencion}
+            modoDibujo={modoDibujo}
           />
         </MapContainer>
       </div>
@@ -210,6 +220,8 @@ function MapView({
         deshacerPunto={deshacerPunto}
         limpiarUbicacion={limpiarUbicacion}
         statsPorObra={statsPorObra}
+        modoDibujo={modoDibujo}
+        setModoDibujo={setModoDibujo}
         hayUbicacion={
           Boolean(form.direccion) ||
           Boolean(form.latitud) ||

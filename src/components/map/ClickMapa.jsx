@@ -7,6 +7,8 @@ function ClickMapa({
   setPuntoSeleccionado,
   obtenerDireccion,
   setCursorLinea,
+  modoDibujo,
+  
 }) {
   useMapEvents({
     mousemove(e) {
@@ -25,6 +27,7 @@ function ClickMapa({
     },
 
     async click(e) {
+       if (!modoDibujo) return
       const originalTarget = e.originalEvent?.target
 
       if (originalTarget?.closest?.('.leaflet-control')) return

@@ -56,6 +56,10 @@ function App() {
     setFiltroEstado,
     filtroBarrio,
     setFiltroBarrio,
+    intervencionEnfocada,
+    setIntervencionEnfocada,
+    modoDibujo,
+    setModoDibujo,
   } = useUIState()
 
   // ===============================
@@ -205,16 +209,21 @@ function App() {
             mostrarBarrios={mostrarBarrios}
             setMostrarBarrios={setMostrarBarrios}
             editarIntervencion={editarIntervencion}
+            intervencionEnfocada={intervencionEnfocada}
+            modoDibujo={modoDibujo}
+            setModoDibujo={setModoDibujo}
           />
 
           <AssetsPanel
             intervencionesFiltradas={intervencionesFiltradas}
             editarIntervencion={editarIntervencion}
             eliminarIntervencion={eliminarIntervencion}
+            enfocarIntervencion={setIntervencionEnfocada}
           />
         </section>
       </main>
     </div>
+
   )
 }
 

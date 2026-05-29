@@ -4,6 +4,7 @@ function AssetsPanel({
   intervencionesFiltradas = [],
   editarIntervencion,
   eliminarIntervencion,
+  enfocarIntervencion,
 }) {
   const [abierto, setAbierto] = useState(true)
 
@@ -31,7 +32,7 @@ function AssetsPanel({
             <p className="empty">Todavía no hay intervenciones cargadas.</p>
           ) : (
             intervencionesFiltradas.map((intervencion) => (
-              <div className="card" key={intervencion.id}>
+              <div className="card" key={intervencion.id} onClick={() => enfocarIntervencion?.(intervencion)}>
                 <div className="card-header">
                   <div>
                     <strong>
@@ -51,7 +52,10 @@ function AssetsPanel({
                     <button
                       type="button"
                       className="edit-btn"
-                      onClick={() => editarIntervencion(intervencion)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        editarIntervencion(intervencion)
+                      }}
                     >
                       Editar
                     </button>
@@ -59,7 +63,10 @@ function AssetsPanel({
                     <button
                       type="button"
                       className="delete-btn"
-                      onClick={() => eliminarIntervencion(intervencion.id)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        eliminarIntervencion(intervencion.id)
+                      }}
                     >
                       Eliminar
                     </button>

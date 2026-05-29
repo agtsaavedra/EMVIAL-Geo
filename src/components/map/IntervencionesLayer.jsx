@@ -12,7 +12,16 @@ import { obtenerColorIntervencion } from '../../map/mapColors'
 function IntervencionesLayer({
   intervenciones = [],
   editarIntervencion,
+  modoDibujo,
 }) {
+
+  function manejarClickCapa(e) {
+    if (!modoDibujo) {
+      e.originalEvent.stopPropagation()
+    }
+  }
+
+
   return (
     <>
       {intervenciones.map((intervencion) => {
@@ -27,6 +36,9 @@ function IntervencionesLayer({
               key={intervencion.id}
               positions={intervencion.geometria}
               pathOptions={{ color, weight: 5 }}
+              eventHandlers={{
+                click: manejarClickCapa,
+              }}
             >
               <Popup>
                 <PopupIntervencion
@@ -52,6 +64,9 @@ function IntervencionesLayer({
                 fillColor: color,
                 fillOpacity: 0.25,
               }}
+              eventHandlers={{
+                click: manejarClickCapa,
+              }}
             >
               <Popup>
                 <PopupIntervencion
@@ -72,6 +87,9 @@ function IntervencionesLayer({
                 parseFloat(intervencion.longitud),
               ]}
               icon={crearIconoColor(color)}
+              eventHandlers={{
+                click: manejarClickCapa,
+              }}
             >
               <Popup>
                 <PopupIntervencion
