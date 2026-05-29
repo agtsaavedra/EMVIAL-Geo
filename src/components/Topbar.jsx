@@ -1,6 +1,6 @@
 import { OBRAS, ESTADOS } from '../constants/intervenciones'
 import { useEffect, useRef } from 'react'
-
+import mapPin from '../assets/map-pin.svg'
 function Topbar({
 
   busqueda,
@@ -56,11 +56,17 @@ function Topbar({
     <header className="topbar">
       <div className="topbar-main">
         <div className="topbar-title">
-          <h2>Mapa de intervenciones</h2>
-          <span>
-            Mar del Plata / Partido de General Pueyrredon
-          </span>
-        </div>
+  <img
+    src={mapPin}
+    alt="EMVIAL Geo"
+    className="topbar-logo"
+  />
+
+  <div>
+    <h2>Mapa de intervenciones</h2>
+    <span>Mar del Plata / Partido de General Pueyrredon</span>
+  </div>
+</div>
 
         <div className="topbar-actions">
           <input

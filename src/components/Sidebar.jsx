@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import InterventionForm from './InterventionForm'
-import mapPin from '../assets/map-pin.svg'
 
 function Sidebar({
   form,
@@ -26,8 +25,6 @@ function Sidebar({
       </button>
 
       <div className="sidebar">
-        <img src={mapPin} alt="EMVIAL Geo" className="sidebar-logo" />
-
         <h1>EMVIAL Geo</h1>
         <p className="subtitle">Gestión operativa territorial</p>
 

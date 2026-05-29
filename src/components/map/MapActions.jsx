@@ -1,4 +1,4 @@
-import { obtenerColorIntervencion } from '../utils/mapColors'
+import { obtenerColorIntervencion } from '../../map/mapColors'
 
 function MapActions({
   mostrarBarrios,

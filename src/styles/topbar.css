@@ -134,3 +134,16 @@
   padding: 8px 10px;
   font-size: 13px;
 }
+
+
+.topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.topbar-logo {
+  width: 54px;
+  height: auto;
+  flex-shrink: 0;
+}
