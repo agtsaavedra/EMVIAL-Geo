@@ -4,6 +4,7 @@ export function useGeocoding({
   setPuntoSeleccionado,
   setSugerencias,
   setBuscandoDireccion,
+  mostrarToast,
 }) {
   async function obtenerDireccion(lat, lon) {
     return await window.api.obtenerDireccion(lat, lon)
@@ -43,7 +44,7 @@ export function useGeocoding({
     const resultado = await obtenerCoordenadas(form.direccion)
 
     if (!resultado) {
-      alert('No se encontró la dirección.')
+      mostrarToast('No se encontró la dirección.', 'error')
       return
     }
 

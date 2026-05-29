@@ -5,35 +5,47 @@ export function useBackups({
   async function crearBackup() {
     const resultado = await window.api.crearBackupManual(periodoActivo)
 
-    if (resultado.ok) {
-      alert('Backup creado correctamente.')
+    if (!resultado.ok) {
+      return resultado
+    }
+
+    return {
+      ok: true,
+      message: 'Backup creado correctamente.',
+      path: resultado.path,
     }
   }
 
   async function restaurarBackup() {
-    const confirmar = confirm(
-      'Esto reemplazará la base actual por el backup seleccionado. ¿Continuar?'
-    )
-
-    if (!confirmar) return
-
     const resultado = await window.api.restaurarBackupManual()
 
-    if (!resultado.ok) return
+    if (!resultado.ok) {
+      return resultado
+    }
 
     await recargarIntervenciones()
 
-    alert('Backup restaurado correctamente.')
+    return {
+      ok: true,
+      message: 'Backup restaurado correctamente.',
+      path: resultado.path,
+    }
   }
 
   async function restaurarPeriodoActual() {
     const resultado = await window.api.restaurarPeriodoManual(periodoActivo)
 
-    if (!resultado.ok) return
+    if (!resultado.ok) {
+      return resultado
+    }
 
     await recargarIntervenciones()
 
-    alert('Periodo restaurado correctamente.')
+    return {
+      ok: true,
+      message: 'Período restaurado correctamente.',
+      path: resultado.path,
+    }
   }
 
   return {

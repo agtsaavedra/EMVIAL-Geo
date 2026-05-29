@@ -4,7 +4,11 @@ import Sidebar from './components/Sidebar.jsx'
 import MapView from './components/map/MapView.jsx'
 import AssetsPanel from './components/AssetsPanel'
 import Topbar from './components/Topbar'
+import Toast from './components/Toast'
+import ConfirmDialog from './components/ConfirmDialog'
 
+import { useToast } from './hooks/useToast'
+import { useConfirmDialog } from './hooks/useConfirmDialog'
 import { useIntervenciones } from './hooks/useIntervenciones'
 import { useUIState } from './hooks/useUIState'
 import { usePeriodo } from './hooks/usePeriodo'
@@ -12,11 +16,18 @@ import { useBackups } from './hooks/useBackups'
 import { useFormularioIntervencion } from './hooks/useFormularioIntervencion'
 import { useGeocoding } from './hooks/useGeocoding'
 import { useFiltrosIntervenciones } from './hooks/useFiltrosIntervenciones'
-import { exportarExcelPeriodo } from './services/exportExcel.js'
 
+import { exportarExcelPeriodo } from './services/exportExcel.js'
 import { exportarKml } from './utils/exportKML.js'
 
 function App() {
+  // ===============================
+  // Hooks globales de UI
+  // ===============================
+
+  const { toast, mostrarToast } = useToast()
+  const { dialogo, confirmar, cerrarDialogo } = useConfirmDialog()
+
   // ===============================
   // Datos persistentes
   // ===============================
@@ -61,16 +72,15 @@ function App() {
     setIntervencionEnfocada,
     modoDibujo,
     setModoDibujo,
+    sidebarAbierto,
+    setSidebarAbierto,
   } = useUIState()
 
   // ===============================
   // Periodo activo
   // ===============================
 
-  const {
-    periodoActivo,
-    setPeriodoActivo,
-  } = usePeriodo()
+  const { periodoActivo, setPeriodoActivo } = usePeriodo()
 
   // ===============================
   // Backups
@@ -106,6 +116,7 @@ function App() {
     setFiltroBarrio,
     setSugerencias,
     setBuscandoDireccion,
+    mostrarToast,
   })
 
   // ===============================
@@ -122,6 +133,7 @@ function App() {
     setPuntoSeleccionado,
     setSugerencias,
     setBuscandoDireccion,
+    mostrarToast,
   })
 
   // ===============================
@@ -140,6 +152,16 @@ function App() {
     filtroEstado,
     filtroBarrio,
   })
+
+  // ===============================
+  // Acciones auxiliares
+  // ===============================
+
+  function manejarEditarIntervencion(intervencion) {
+    setSidebarAbierto(true)
+    editarIntervencion(intervencion)
+  }
+
   // ===============================
   // Render
   // ===============================
@@ -147,6 +169,8 @@ function App() {
   return (
     <div className={`app ${modoOscuro ? 'dark' : ''}`}>
       <Sidebar
+        abierto={sidebarAbierto}
+        setAbierto={setSidebarAbierto}
         form={form}
         manejarCambio={manejarCambio}
         guardarIntervencion={guardarIntervencion}
@@ -174,41 +198,106 @@ function App() {
           setModoOscuro={setModoOscuro}
           menuAbierto={menuAbierto}
           setMenuAbierto={setMenuAbierto}
+
           exportarKmlActual={() => {
-            exportarKml(intervencionesFiltradas)
             setMenuAbierto(false)
+
+            const ok = exportarKml(intervencionesDelPeriodo)
+
+            mostrarToast(
+              ok
+                ? 'KML exportado correctamente.'
+                : 'No hay intervenciones para exportar en este período.',
+              ok ? 'success' : 'error'
+            )
           }}
-          crearBackup={() => {
-            crearBackup()
-            setMenuAbierto(false)
-          }}
-          restaurarBackup={() => {
-            restaurarBackup()
-            setMenuAbierto(false)
-          }}
-          restaurarPeriodoActual={() => {
-            restaurarPeriodoActual()
-            setMenuAbierto(false)
-          }}
-          abrirCarpetaBackups={() => {
-            window.api.abrirCarpetaBackups()
-            setMenuAbierto(false)
-          }}
+
           exportarExcelActual={() => {
-            exportarExcelPeriodo(intervencionesDelPeriodo, periodoActivo)
             setMenuAbierto(false)
+
+            const ok = exportarExcelPeriodo(
+              intervencionesDelPeriodo,
+              periodoActivo
+            )
+
+            mostrarToast(
+              ok
+                ? 'Excel exportado correctamente.'
+                : 'No hay intervenciones para exportar en este período.',
+              ok ? 'success' : 'error'
+            )
           }}
+
+          crearBackup={async () => {
+            setMenuAbierto(false)
+
+            const resultado = await crearBackup()
+
+            mostrarToast(
+              resultado?.message || 'Backup creado correctamente.',
+              resultado?.ok === false ? 'error' : 'success'
+            )
+          }}
+
+          restaurarBackup={() => {
+            setMenuAbierto(false)
+
+            confirmar({
+              titulo: 'Restaurar backup',
+              mensaje:
+                'Se reemplazará la base actual por el backup seleccionado.',
+              detalle:
+                'Esta acción sobrescribirá la información actual.',
+              textoConfirmar: 'Restaurar',
+              textoCancelar: 'Cancelar',
+              danger: true,
+              onConfirmar: async () => {
+                const resultado = await restaurarBackup()
+
+                mostrarToast(
+                  resultado?.message || 'Backup restaurado correctamente.',
+                  resultado?.ok === false ? 'error' : 'success'
+                )
+              },
+            })
+          }}
+
+          restaurarPeriodoActual={() => {
+            setMenuAbierto(false)
+
+            confirmar({
+              titulo: 'Restaurar período',
+              mensaje: `Se restaurarán únicamente las intervenciones del período ${periodoActivo}.`,
+              detalle: 'Los demás períodos no se modificarán.',
+              textoConfirmar: 'Restaurar período',
+              textoCancelar: 'Cancelar',
+              danger: true,
+              onConfirmar: async () => {
+                const resultado = await restaurarPeriodoActual()
+
+                mostrarToast(
+                  resultado?.message || 'Período restaurado correctamente.',
+                  resultado?.ok === false ? 'error' : 'success'
+                )
+              },
+            })
+          }}
+
+          abrirCarpetaBackups={() => {
+            setMenuAbierto(false)
+            window.api.abrirCarpetaBackups()
+          }}
+
           configurarCarpetaBackups={async () => {
+            setMenuAbierto(false)
+
             const resultado =
               await window.api.configurarCarpetaBackups()
 
-            if (resultado.ok) {
-              alert(resultado.message)
-            } else {
-              alert(resultado.message)
-            }
-
-            setMenuAbierto(false)
+            mostrarToast(
+              resultado?.message || 'Carpeta de backups configurada.',
+              resultado?.ok ? 'success' : 'error'
+            )
           }}
         />
 
@@ -225,7 +314,7 @@ function App() {
             setBarrioSeleccionado={setBarrioSeleccionado}
             mostrarBarrios={mostrarBarrios}
             setMostrarBarrios={setMostrarBarrios}
-            editarIntervencion={editarIntervencion}
+            editarIntervencion={manejarEditarIntervencion}
             intervencionEnfocada={intervencionEnfocada}
             modoDibujo={modoDibujo}
             setModoDibujo={setModoDibujo}
@@ -233,14 +322,54 @@ function App() {
 
           <AssetsPanel
             intervencionesFiltradas={intervencionesFiltradas}
-            editarIntervencion={editarIntervencion}
-            eliminarIntervencion={eliminarIntervencion}
+            editarIntervencion={manejarEditarIntervencion}
+            eliminarIntervencion={(intervencion) => {
+              confirmar({
+                titulo: 'Eliminar intervención',
+                mensaje:
+                  'Se eliminará esta intervención del período actual.',
+                detalle: 'Esta acción no puede deshacerse.',
+                textoConfirmar: 'Eliminar',
+                textoCancelar: 'Cancelar',
+                danger: true,
+                onConfirmar: async () => {
+                  try {
+                    await eliminarIntervencion(intervencion.id)
+                    mostrarToast(
+                      'Intervención eliminada correctamente.',
+                      'success'
+                    )
+                  } catch {
+                    mostrarToast(
+                      'No se pudo eliminar la intervención.',
+                      'error'
+                    )
+                  }
+                },
+              })
+            }}
             enfocarIntervencion={setIntervencionEnfocada}
           />
         </section>
       </main>
-    </div>
 
+      <Toast toast={toast} />
+
+      <ConfirmDialog
+        abierto={Boolean(dialogo)}
+        titulo={dialogo?.titulo}
+        mensaje={dialogo?.mensaje}
+        detalle={dialogo?.detalle}
+        textoConfirmar={dialogo?.textoConfirmar}
+        textoCancelar={dialogo?.textoCancelar}
+        danger={dialogo?.danger}
+        onCancelar={cerrarDialogo}
+        onConfirmar={() => {
+          dialogo?.onConfirmar?.()
+          cerrarDialogo()
+        }}
+      />
+    </div>
   )
 }
 

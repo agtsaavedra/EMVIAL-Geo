@@ -449,22 +449,6 @@ async function restaurarPeriodoManual(periodo) {
 
   if (!db) await iniciarDB()
 
-  const confirmacion = await dialog.showMessageBox({
-    type: 'warning',
-    buttons: ['Cancelar', 'Continuar'],
-    defaultId: 1,
-    cancelId: 0,
-    title: 'Restaurar periodo',
-    message: `Esto reemplazará solo las intervenciones del periodo ${periodo}.`,
-    detail: 'Los demás periodos no se tocarán. ¿Querés continuar?',
-  })
-
-  if (confirmacion.response !== 1) {
-    return {
-      ok: false,
-      message: 'Restauración cancelada.',
-    }
-  }
 
   const carpetaPeriodo = obtenerCarpetaPeriodo(periodo)
   asegurarCarpeta(carpetaPeriodo)

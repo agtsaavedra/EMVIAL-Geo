@@ -12,8 +12,17 @@ export function useFormularioIntervencion({
   setFiltroBarrio,
   setSugerencias,
   setBuscandoDireccion,
+  mostrarToast,
 }) {
+  // ===============================
+  // Estado del formulario
+  // ===============================
+
   const [form, setForm] = useState(formInicial)
+
+  // ===============================
+  // Reset al cambiar de período
+  // ===============================
 
   useEffect(() => {
     setForm(formInicial)
@@ -25,7 +34,21 @@ export function useFormularioIntervencion({
     setSugerencias([])
     setBuscandoDireccion(false)
     setIntervencionEditandoId(null)
-  }, [periodoActivo])
+  }, [
+    periodoActivo,
+    setPuntoSeleccionado,
+    setBarrioSeleccionado,
+    setFiltroObra,
+    setFiltroEstado,
+    setFiltroBarrio,
+    setSugerencias,
+    setBuscandoDireccion,
+    setIntervencionEditandoId,
+  ])
+
+  // ===============================
+  // Cambios de campos
+  // ===============================
 
   function manejarCambio(e) {
     const { name, value } = e.target
@@ -63,21 +86,43 @@ export function useFormularioIntervencion({
     }))
   }
 
+  // ===============================
+  // Guardar / actualizar intervención
+  // ===============================
+
   async function guardarIntervencion(e) {
     e.preventDefault()
 
-    if (form.geometriaTipo === 'Punto' && (!form.latitud || !form.longitud)) {
-      alert('Primero seleccioná una ubicación en el mapa o buscá una dirección.')
+    if (
+      form.geometriaTipo === 'Punto' &&
+      (!form.latitud || !form.longitud)
+    ) {
+      mostrarToast(
+        'Primero seleccioná una ubicación en el mapa o buscá una dirección.',
+        'error'
+      )
       return
     }
 
-    if (form.geometriaTipo === 'Línea' && form.geometria.length < 2) {
-      alert('Para una línea necesitás marcar al menos 2 puntos en el mapa.')
+    if (
+      form.geometriaTipo === 'Línea' &&
+      form.geometria.length < 2
+    ) {
+      mostrarToast(
+        'Para una línea necesitás marcar al menos 2 puntos en el mapa.',
+        'error'
+      )
       return
     }
 
-    if (form.geometriaTipo === 'Polígono' && form.geometria.length < 3) {
-      alert('Para un polígono necesitás marcar al menos 3 puntos en el mapa.')
+    if (
+      form.geometriaTipo === 'Polígono' &&
+      form.geometria.length < 3
+    ) {
+      mostrarToast(
+        'Para un polígono necesitás marcar al menos 3 puntos en el mapa.',
+        'error'
+      )
       return
     }
 
@@ -86,16 +131,30 @@ export function useFormularioIntervencion({
       periodo: periodoActivo,
     })
 
+    mostrarToast(
+      form.id
+        ? 'Intervención actualizada correctamente.'
+        : 'Intervención guardada correctamente.',
+      'success'
+    )
+
     setPuntoSeleccionado(null)
     setForm(formInicial)
     setBarrioSeleccionado('')
     setSugerencias([])
+    setIntervencionEditandoId(null)
   }
+
+  // ===============================
+  // Cargar intervención en formulario
+  // ===============================
 
   function editarIntervencion(intervencion) {
     setIntervencionEditandoId(intervencion.id)
 
     setForm({
+      ...formInicial,
+      id: intervencion.id,
       nombre: intervencion.nombre || '',
       mesTerminacion: intervencion.mesTerminacion || '',
       obra: intervencion.obra || 'MICROBACHEO',

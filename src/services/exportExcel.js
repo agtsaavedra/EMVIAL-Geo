@@ -15,9 +15,8 @@ function contarPuntos(intervencion) {
 
 export function exportarExcelPeriodo(intervenciones = [], periodoActivo) {
   if (!intervenciones.length) {
-    alert('No hay intervenciones para exportar en este período.')
-    return
-  }
+  return false
+}
 
   const filasIntervenciones = intervenciones.map((item) => ({
     
@@ -76,4 +75,6 @@ export function exportarExcelPeriodo(intervenciones = [], periodoActivo) {
   const nombreArchivo = `EMVIAL_${periodoActivo || 'sin_periodo'}.xlsx`
 
   XLSX.writeFile(workbook, nombreArchivo)
+
+  return true
 }

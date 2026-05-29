@@ -1,7 +1,9 @@
-import { useState } from 'react'
+
 import InterventionForm from './InterventionForm'
 
 function Sidebar({
+  abierto,
+  setAbierto,
   form,
   manejarCambio,
   guardarIntervencion,
@@ -11,7 +13,7 @@ function Sidebar({
   seleccionarSugerencia,
   activoEditandoId,
 }) {
-  const [abierto, setAbierto] = useState(true)
+  
 
   return (
     <aside className={`sidebar-panel ${abierto ? 'open' : 'closed'}`}>

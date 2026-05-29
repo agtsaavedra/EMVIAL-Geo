@@ -6,3 +6,5 @@
 @import './styles/scrollbar.css';
 @import './styles/theme.css';
 @import './styles/responsive.css';
+@import './styles/toast.css';
+@import './styles/confirm-dialog.css';

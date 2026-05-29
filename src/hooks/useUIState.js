@@ -14,6 +14,7 @@ export function useUIState() {
     const [filtroBarrio, setFiltroBarrio] = useState('')
     const [intervencionEnfocada, setIntervencionEnfocada] = useState(null)
     const [modoDibujo, setModoDibujo] = useState(true)
+    const [sidebarAbierto, setSidebarAbierto] = useState(true)
     return {
         modoOscuro,
         setModoOscuro,
@@ -41,5 +42,7 @@ export function useUIState() {
         setIntervencionEnfocada,
         modoDibujo,
         setModoDibujo,
+        sidebarAbierto,
+        setSidebarAbierto,
     }
 }

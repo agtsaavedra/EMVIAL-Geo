@@ -221,7 +221,15 @@ function MapView({
         limpiarUbicacion={limpiarUbicacion}
         statsPorObra={statsPorObra}
         modoDibujo={modoDibujo}
-        setModoDibujo={setModoDibujo}
+        setModoDibujo={(activo) => {
+          setModoDibujo(activo)
+
+          // Si se apaga el modo dibujo,
+          // limpiamos geometría temporal
+          if (!activo) {
+            limpiarUbicacion()
+          }
+        }}
         hayUbicacion={
           Boolean(form.direccion) ||
           Boolean(form.latitud) ||

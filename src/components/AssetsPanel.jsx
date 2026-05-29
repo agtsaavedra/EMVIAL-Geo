@@ -22,12 +22,12 @@ function AssetsPanel({
         }}
       >
         {window.innerWidth <= 1024
-  ? abierto
-    ? '▾'
-    : '▴'
-  : abierto
-    ? '›'
-    : '‹'}
+          ? abierto
+            ? '▾'
+            : '▴'
+          : abierto
+            ? '›'
+            : '‹'}
       </button>
 
       {abierto && (
@@ -71,7 +71,7 @@ function AssetsPanel({
                       className="delete-btn"
                       onClick={(e) => {
                         e.stopPropagation()
-                        eliminarIntervencion(intervencion.id)
+                        eliminarIntervencion(intervencion)
                       }}
                     >
                       Eliminar
