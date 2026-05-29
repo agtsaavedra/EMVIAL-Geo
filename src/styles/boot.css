@@ -1,0 +1,172 @@
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(circle at top, rgba(37, 99, 235, 0.28), transparent 34%),
+    linear-gradient(135deg, #07111f 0%, #0f172a 55%, #111827 100%);
+
+  color: white;
+}
+
+.boot-card {
+  width: 390px;
+  max-width: calc(100vw - 32px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 42px 36px;
+  border-radius: 28px;
+
+  background: rgba(15, 23, 42, 0.74);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  backdrop-filter: blur(16px);
+
+  animation: bootFadeIn 0.35s ease;
+}
+
+.boot-logo-wrap {
+  width: 116px;
+  height: 116px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 28px;
+
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.22);
+
+  margin-bottom: 20px;
+}
+
+.boot-logo {
+  width: 82px;
+  height: auto;
+
+  animation: bootPulse 1.8s ease-in-out infinite;
+}
+
+.boot-logo.error {
+  animation: none;
+  margin-bottom: 18px;
+}
+
+.boot-card h1 {
+  margin: 0;
+  font-size: 34px;
+  letter-spacing: -0.03em;
+}
+
+.boot-card p {
+  margin: 8px 0 24px;
+
+  color: rgba(226, 232, 240, 0.82);
+  font-size: 16px;
+}
+
+.boot-spinner {
+  width: 46px;
+  height: 46px;
+
+  border-radius: 999px;
+
+  border: 4px solid rgba(255, 255, 255, 0.14);
+  border-top-color: #60a5fa;
+  border-right-color: #22c55e;
+
+  animation: bootSpin 0.85s linear infinite;
+
+  margin-bottom: 16px;
+}
+
+.boot-card small {
+  color: rgba(203, 213, 225, 0.78);
+  font-size: 13px;
+}
+
+.boot-card-error {
+  align-items: stretch;
+}
+
+.boot-card-error h1,
+.boot-card-error p {
+  text-align: center;
+}
+
+.boot-error-box {
+  width: 100%;
+  max-height: 170px;
+  overflow: auto;
+
+  margin: 8px 0 18px;
+  padding: 14px;
+
+  border-radius: 14px;
+
+  background: rgba(0, 0, 0, 0.28);
+  color: #fecaca;
+
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+.boot-retry-btn {
+  border: none;
+  border-radius: 14px;
+
+  background: #2563eb;
+  color: white;
+
+  padding: 13px 18px;
+
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boot-retry-btn:hover {
+  background: #1d4ed8;
+}
+
+@keyframes bootSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bootPulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-4px) scale(1.03);
+  }
+}
+
+@keyframes bootFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
