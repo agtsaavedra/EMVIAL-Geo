@@ -44,6 +44,7 @@ function InterventionForm({
       )}
       <label>Nombre</label>
       <input
+        autoFocus={Boolean(activoEditandoId)}
         name="nombre"
         value={form.nombre}
         onChange={manejarCambio}

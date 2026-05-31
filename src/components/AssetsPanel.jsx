@@ -5,8 +5,10 @@ function AssetsPanel({
   editarIntervencion,
   eliminarIntervencion,
   enfocarIntervencion,
+  abierto,
+setAbierto,
 }) {
-  const [abierto, setAbierto] = useState(true)
+  
 
   return (
     <aside className={`assets-panel ${abierto ? 'open' : 'closed'}`}>

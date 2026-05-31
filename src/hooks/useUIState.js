@@ -15,6 +15,7 @@ export function useUIState() {
     const [intervencionEnfocada, setIntervencionEnfocada] = useState(null)
     const [modoDibujo, setModoDibujo] = useState(true)
     const [sidebarAbierto, setSidebarAbierto] = useState(true)
+    const [assetsPanelAbierto, setAssetsPanelAbierto] = useState(true)
     return {
         modoOscuro,
         setModoOscuro,
@@ -44,5 +45,7 @@ export function useUIState() {
         setModoDibujo,
         sidebarAbierto,
         setSidebarAbierto,
+        assetsPanelAbierto,
+        setAssetsPanelAbierto,
     }
 }

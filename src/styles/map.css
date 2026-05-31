@@ -369,7 +369,7 @@
 .map-stats-panel {
   position: absolute;
 
-  right: 16px;
+  right: 30px;
   bottom: 16px;
 
   width: 360px;
@@ -565,4 +565,16 @@
 
 .map-stats-open-btn:active {
   transform: scale(0.97);
+}
+
+.map-stats-panel {
+  transition:
+    right 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.22s ease,
+    opacity 0.22s ease;
+}
+
+/* panel abierto → mover dashboard */
+.map-stats-panel.with-assets-panel {
+  right: 345px;
 }

@@ -1,5 +1,5 @@
 import './App.css'
-import { useState,useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar.jsx'
 import MapView from './components/map/MapView.jsx'
 import AssetsPanel from './components/AssetsPanel'
@@ -74,6 +74,8 @@ function App() {
     setModoDibujo,
     sidebarAbierto,
     setSidebarAbierto,
+    assetsPanelAbierto,
+    setAssetsPanelAbierto,
   } = useUIState()
 
   // ===============================
@@ -167,92 +169,97 @@ function App() {
   }
 
   function manejarEditarIntervencion(intervencion) {
-  // Centrar/zoom sobre la intervención.
-  manejarEnfocarIntervencion(intervencion)
+    manejarEnfocarIntervencion(intervencion)
 
-  // Abrir formulario.
-  setSidebarAbierto(true)
+    setSidebarAbierto(true)
 
-  // Cargar datos en modo edición.
-  editarIntervencion(intervencion)
-}
+    if (window.innerWidth <= 1024) {
+      setAssetsPanelAbierto(false)
 
-function manejarCancelarEdicion() {
-  if (!hayCambiosSinGuardar) {
-    cancelarEdicion()
-    return
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'))
+      }, 320)
+    }
+
+    editarIntervencion(intervencion)
   }
 
-  confirmar({
-    titulo: 'Descartar cambios',
-    mensaje:
-      'Hay cambios sin guardar en la intervención actual.',
-    detalle:
-      'Si continuás, se perderán las modificaciones realizadas.',
-    textoConfirmar: 'Descartar cambios',
-    textoCancelar: 'Seguir editando',
-    danger: true,
-    onConfirmar: cancelarEdicion,
-  })
-}
-
-
-function manejarCambioPeriodo(nuevoPeriodo) {
-  if (!hayCambiosSinGuardar) {
-    setPeriodoActivo(nuevoPeriodo)
-    return
-  }
-
-  confirmar({
-    titulo: 'Cambiar período',
-    mensaje:
-      'Hay cambios sin guardar en la intervención actual.',
-    detalle:
-      'Si cambiás de período, se descartarán las modificaciones no guardadas.',
-    textoConfirmar: 'Cambiar período',
-    textoCancelar: 'Seguir editando',
-    danger: true,
-    onConfirmar: () => {
-      cancelarEdicion()
-      setPeriodoActivo(nuevoPeriodo)
-    },
-  })
-}
-
-useEffect(() => {
-  function manejarSolicitudCierre() {
+  function manejarCancelarEdicion() {
     if (!hayCambiosSinGuardar) {
-      window.api.confirmarCierreApp()
+      cancelarEdicion()
       return
     }
 
     confirmar({
-      titulo: 'Salir sin guardar',
+      titulo: 'Descartar cambios',
       mensaje:
         'Hay cambios sin guardar en la intervención actual.',
       detalle:
-        'Si salís ahora, se perderán las modificaciones realizadas.',
-      textoConfirmar: 'Salir igual',
+        'Si continuás, se perderán las modificaciones realizadas.',
+      textoConfirmar: 'Descartar cambios',
+      textoCancelar: 'Seguir editando',
+      danger: true,
+      onConfirmar: cancelarEdicion,
+    })
+  }
+
+
+  function manejarCambioPeriodo(nuevoPeriodo) {
+    if (!hayCambiosSinGuardar) {
+      setPeriodoActivo(nuevoPeriodo)
+      return
+    }
+
+    confirmar({
+      titulo: 'Cambiar período',
+      mensaje:
+        'Hay cambios sin guardar en la intervención actual.',
+      detalle:
+        'Si cambiás de período, se descartarán las modificaciones no guardadas.',
+      textoConfirmar: 'Cambiar período',
       textoCancelar: 'Seguir editando',
       danger: true,
       onConfirmar: () => {
-        window.api.confirmarCierreApp()
+        cancelarEdicion()
+        setPeriodoActivo(nuevoPeriodo)
       },
     })
   }
 
-  const cleanup =
-    window.api.onAppCloseRequest(
-      manejarSolicitudCierre
-    )
+  useEffect(() => {
+    function manejarSolicitudCierre() {
+      if (!hayCambiosSinGuardar) {
+        window.api.confirmarCierreApp()
+        return
+      }
 
-  return () => {
-    cleanup?.()
-  }
-}, [
-  hayCambiosSinGuardar,
-  confirmar,
-])
+      confirmar({
+        titulo: 'Salir sin guardar',
+        mensaje:
+          'Hay cambios sin guardar en la intervención actual.',
+        detalle:
+          'Si salís ahora, se perderán las modificaciones realizadas.',
+        textoConfirmar: 'Salir igual',
+        textoCancelar: 'Seguir editando',
+        danger: true,
+        onConfirmar: () => {
+          window.api.confirmarCierreApp()
+        },
+      })
+    }
+
+    const cleanup =
+      window.api.onAppCloseRequest(
+        manejarSolicitudCierre
+      )
+
+    return () => {
+      cleanup?.()
+    }
+  }, [
+    hayCambiosSinGuardar,
+    confirmar,
+  ])
   // ===============================
   // Render
   // ===============================
@@ -285,7 +292,7 @@ useEffect(() => {
         seleccionarSugerencia={seleccionarSugerencia}
         activoEditandoId={intervencionEditandoId}
         cancelarEdicion={manejarCancelarEdicion}
-         hayCambiosSinGuardar={hayCambiosSinGuardar}
+        hayCambiosSinGuardar={hayCambiosSinGuardar}
       />
 
       <main className="main">
@@ -432,6 +439,9 @@ useEffect(() => {
             setModoDibujo={setModoDibujo}
             sidebarAbierto={sidebarAbierto}
             enfocarIntervencion={manejarEnfocarIntervencion}
+            assetsPanelAbierto={
+              assetsPanelAbierto
+            }
           />
 
           <AssetsPanel
@@ -463,6 +473,8 @@ useEffect(() => {
               })
             }}
             enfocarIntervencion={manejarEnfocarIntervencion}
+            abierto={assetsPanelAbierto}
+            setAbierto={setAssetsPanelAbierto}
           />
         </section>
       </main>

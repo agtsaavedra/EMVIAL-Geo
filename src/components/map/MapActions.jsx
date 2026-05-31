@@ -14,6 +14,7 @@ function MapActions({
   setModoDibujo,
   intervenciones = [],
   seleccionarBarrioEstadistica,
+  assetsPanelAbierto,
 }) {
   const [statsAbiertas, setStatsAbiertas] = useState(false)
 
@@ -99,13 +100,12 @@ function MapActions({
       {statsPorObra.length > 0 && (
         <div className="map-stats-row">
           <div
-            className={`map-stats ${
-              statsPorObra.length >= 6
+            className={`map-stats ${statsPorObra.length >= 6
                 ? 'compact'
                 : statsPorObra.length >= 4
                   ? 'medium'
                   : ''
-            }`}
+              }`}
           >
             {statsPorObra.map((item) => {
               const color = obtenerColorIntervencion({ obra: item.obra })
@@ -138,7 +138,10 @@ function MapActions({
           onClick={() => setStatsAbiertas(false)}
         >
           <div
-            className="map-stats-panel"
+            className={`map-stats-panel ${assetsPanelAbierto
+                ? 'with-assets-panel'
+                : ''
+              }`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="map-stats-panel-header">

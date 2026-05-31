@@ -53,6 +53,7 @@ function MapView({
   setModoDibujo,
   sidebarAbierto,
   enfocarIntervencion,
+  assetsPanelAbierto,
 }) {
   // =====================================================
   // ESTADO INTERNO DEL MAPA
@@ -357,6 +358,8 @@ function MapView({
         statsPorObra={statsPorObra}
         modoDibujo={modoDibujo}
         intervenciones={intervencionesVisibles}
+        assetsPanelAbierto={assetsPanelAbierto}
+        
         seleccionarBarrioEstadistica={(barrio) => {
           setMostrarBarrios(true)
           setBarrioSeleccionado(barrio)
