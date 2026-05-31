@@ -5,6 +5,7 @@ import {
   Popup,
   GeoJSON,
 } from 'react-leaflet'
+import MapBarrioFocus from './MapBarrioFocus'
 
 import { useEffect, useRef, useState } from 'react'
 import 'leaflet/dist/leaflet.css'
@@ -185,30 +186,30 @@ function MapView({
   }, [intervencionEditandoId])
 
 
-useEffect(() => {
-  if (!intervencionEditandoId) {
-    geometriaOriginalRef.current = null
+  useEffect(() => {
+    if (!intervencionEditandoId) {
+      geometriaOriginalRef.current = null
+      setEdicionGeometricaIniciada(false)
+      return
+    }
+
+    const original = intervencionesFiltradas.find(
+      (item) => item.id === intervencionEditandoId
+    )
+
+    if (!original) return
+
+    geometriaOriginalRef.current = {
+      geometriaTipo: original.geometriaTipo || 'Punto',
+      geometria: original.geometria || [],
+      direccion: original.direccion || '',
+      latitud: original.latitud || '',
+      longitud: original.longitud || '',
+      barrio: original.barrio || '',
+    }
+
     setEdicionGeometricaIniciada(false)
-    return
-  }
-
-  const original = intervencionesFiltradas.find(
-    (item) => item.id === intervencionEditandoId
-  )
-
-  if (!original) return
-
-  geometriaOriginalRef.current = {
-    geometriaTipo: original.geometriaTipo || 'Punto',
-    geometria: original.geometria || [],
-    direccion: original.direccion || '',
-    latitud: original.latitud || '',
-    longitud: original.longitud || '',
-    barrio: original.barrio || '',
-  }
-
-  setEdicionGeometricaIniciada(false)
-}, [intervencionEditandoId, intervencionesFiltradas])
+  }, [intervencionEditandoId, intervencionesFiltradas])
 
   function cambiarGeometriaTipo(tipo) {
     // Si todavía no empezó a editar geometría,
@@ -250,16 +251,19 @@ useEffect(() => {
           setCursorLinea(null)
         }}
       >
-        <GeometryControl
-          geometriaTipo={form.geometriaTipo}
-          setGeometriaTipo={cambiarGeometriaTipo}
-        />
+        {modoDibujo && (
+          <GeometryControl
+            geometriaTipo={form.geometriaTipo}
+            setGeometriaTipo={cambiarGeometriaTipo}
+          />)}
         <MapContainer
           center={centroMarDelPlata}
           zoom={13}
           style={{ height: '100%', width: '100%' }}
           attributionControl={false}
+
         >
+          <MapBarrioFocus barrioSeleccionado={barrioSeleccionado} />
           {/* Recalcula el tamaño real del mapa cuando cambia el layout */}
           <MapInvalidator refreshKey={sidebarAbierto} />
 
@@ -276,10 +280,10 @@ useEffect(() => {
             <GeoJSON
               key={barrioSeleccionado || 'todos-los-barrios'}
               data={barriosFiltrados}
-              style={(feature) =>
-                estiloBarrio(feature, barrioSeleccionado)
-              }
-              onEachFeature={configurarBarrio}
+              style={(feature) => ({
+                ...estiloBarrio(feature, barrioSeleccionado),
+                interactive: false,
+              })}
             />
           )}
 
@@ -352,6 +356,11 @@ useEffect(() => {
         limpiarUbicacion={limpiarUbicacion}
         statsPorObra={statsPorObra}
         modoDibujo={modoDibujo}
+        intervenciones={intervencionesVisibles}
+        seleccionarBarrioEstadistica={(barrio) => {
+          setMostrarBarrios(true)
+          setBarrioSeleccionado(barrio)
+        }}
         setModoDibujo={(activo) => {
           setModoDibujo(activo)
           setCursorLinea(null)

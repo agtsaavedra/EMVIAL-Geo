@@ -1,5 +1,5 @@
 import './App.css'
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import Sidebar from './components/Sidebar.jsx'
 import MapView from './components/map/MapView.jsx'
 import AssetsPanel from './components/AssetsPanel'
@@ -106,6 +106,7 @@ function App() {
     guardarIntervencion,
     editarIntervencion,
     cancelarEdicion,
+    hayCambiosSinGuardar,
   } = useFormularioIntervencion({
     periodoActivo,
     guardarIntervencionEnDB,
@@ -176,6 +177,82 @@ function App() {
   editarIntervencion(intervencion)
 }
 
+function manejarCancelarEdicion() {
+  if (!hayCambiosSinGuardar) {
+    cancelarEdicion()
+    return
+  }
+
+  confirmar({
+    titulo: 'Descartar cambios',
+    mensaje:
+      'Hay cambios sin guardar en la intervención actual.',
+    detalle:
+      'Si continuás, se perderán las modificaciones realizadas.',
+    textoConfirmar: 'Descartar cambios',
+    textoCancelar: 'Seguir editando',
+    danger: true,
+    onConfirmar: cancelarEdicion,
+  })
+}
+
+
+function manejarCambioPeriodo(nuevoPeriodo) {
+  if (!hayCambiosSinGuardar) {
+    setPeriodoActivo(nuevoPeriodo)
+    return
+  }
+
+  confirmar({
+    titulo: 'Cambiar período',
+    mensaje:
+      'Hay cambios sin guardar en la intervención actual.',
+    detalle:
+      'Si cambiás de período, se descartarán las modificaciones no guardadas.',
+    textoConfirmar: 'Cambiar período',
+    textoCancelar: 'Seguir editando',
+    danger: true,
+    onConfirmar: () => {
+      cancelarEdicion()
+      setPeriodoActivo(nuevoPeriodo)
+    },
+  })
+}
+
+useEffect(() => {
+  function manejarSolicitudCierre() {
+    if (!hayCambiosSinGuardar) {
+      window.api.confirmarCierreApp()
+      return
+    }
+
+    confirmar({
+      titulo: 'Salir sin guardar',
+      mensaje:
+        'Hay cambios sin guardar en la intervención actual.',
+      detalle:
+        'Si salís ahora, se perderán las modificaciones realizadas.',
+      textoConfirmar: 'Salir igual',
+      textoCancelar: 'Seguir editando',
+      danger: true,
+      onConfirmar: () => {
+        window.api.confirmarCierreApp()
+      },
+    })
+  }
+
+  const cleanup =
+    window.api.onAppCloseRequest(
+      manejarSolicitudCierre
+    )
+
+  return () => {
+    cleanup?.()
+  }
+}, [
+  hayCambiosSinGuardar,
+  confirmar,
+])
   // ===============================
   // Render
   // ===============================
@@ -207,14 +284,15 @@ function App() {
         buscandoDireccion={buscandoDireccion}
         seleccionarSugerencia={seleccionarSugerencia}
         activoEditandoId={intervencionEditandoId}
-        cancelarEdicion={cancelarEdicion}
+        cancelarEdicion={manejarCancelarEdicion}
+         hayCambiosSinGuardar={hayCambiosSinGuardar}
       />
 
       <main className="main">
         <Topbar
           periodoActivo={periodoActivo}
 
-          setPeriodoActivo={setPeriodoActivo}
+          setPeriodoActivo={manejarCambioPeriodo}
           filtroObra={filtroObra}
           setFiltroObra={setFiltroObra}
           filtroEstado={filtroEstado}

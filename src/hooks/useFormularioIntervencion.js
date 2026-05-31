@@ -19,6 +19,7 @@ export function useFormularioIntervencion({
   // ===============================
 
   const [form, setForm] = useState(formInicial)
+  const [formOriginal, setFormOriginal] = useState(null)
 
   // ===============================
   // Reset al cambiar de período
@@ -91,6 +92,9 @@ export function useFormularioIntervencion({
   // ===============================
 
   async function guardarIntervencion(e) {
+
+
+
     e.preventDefault()
 
     if (
@@ -140,6 +144,7 @@ export function useFormularioIntervencion({
 
     setPuntoSeleccionado(null)
     setForm(formInicial)
+    setFormOriginal(null)
     setBarrioSeleccionado('')
     setSugerencias([])
     setIntervencionEditandoId(null)
@@ -152,7 +157,8 @@ export function useFormularioIntervencion({
   function editarIntervencion(intervencion) {
     setIntervencionEditandoId(intervencion.id)
 
-    setForm({
+
+    const formEditado = {
       ...formInicial,
       id: intervencion.id,
       nombre: intervencion.nombre || '',
@@ -173,7 +179,11 @@ export function useFormularioIntervencion({
       longitud: intervencion.longitud || '',
       geometriaTipo: intervencion.geometriaTipo || 'Punto',
       geometria: intervencion.geometria || [],
-    })
+    }
+
+
+    setForm(formEditado)
+    setFormOriginal(formEditado)
 
     if (intervencion.latitud && intervencion.longitud) {
       setPuntoSeleccionado([
@@ -190,30 +200,41 @@ export function useFormularioIntervencion({
   // Cancelar edición actual
   // ===============================
 
-  function cancelarEdicion() {
-    // salir del modo edición
-    setIntervencionEditandoId(null)
+ function cancelarEdicion() {
+  // salir del modo edición
+  setIntervencionEditandoId(null)
 
-    // limpiar formulario
-    setForm(formInicial)
+  // limpiar formulario
+  setForm(formInicial)
 
-    // limpiar selección temporal del mapa
-    setPuntoSeleccionado(null)
+  // limpiar original
+  setFormOriginal(null)
 
-    // limpiar barrio temporal
-    setBarrioSeleccionado('')
+  // limpiar selección temporal del mapa
+  setPuntoSeleccionado(null)
 
-    // limpiar sugerencias de búsqueda
-    setSugerencias([])
+  // limpiar barrio temporal
+  setBarrioSeleccionado('')
 
-    // frenar búsqueda
-    setBuscandoDireccion(false)
+  // limpiar sugerencias
+  setSugerencias([])
 
-    mostrarToast(
-      'Edición cancelada.',
-      'info'
-    )
-  }
+  // frenar búsqueda
+  setBuscandoDireccion(false)
+
+  mostrarToast(
+    'Edición cancelada.',
+    'info'
+  )
+}
+
+
+const hayCambiosSinGuardar =
+      form.id && formOriginal
+        ? JSON.stringify(form) !== JSON.stringify(formOriginal)
+        : false
+
+
 
   return {
     form,
@@ -222,5 +243,6 @@ export function useFormularioIntervencion({
     guardarIntervencion,
     editarIntervencion,
     cancelarEdicion,
+    hayCambiosSinGuardar,
   }
 }

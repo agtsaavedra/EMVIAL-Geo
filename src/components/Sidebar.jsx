@@ -13,6 +13,7 @@ function Sidebar({
   seleccionarSugerencia,
   activoEditandoId,
   cancelarEdicion,
+  hayCambiosSinGuardar,
 }) {
   
 const formContainerRef = useRef(null)
@@ -51,6 +52,7 @@ useEffect(() => {
           seleccionarSugerencia={seleccionarSugerencia}
           activoEditandoId={activoEditandoId}
           cancelarEdicion={cancelarEdicion}
+           hayCambiosSinGuardar={hayCambiosSinGuardar}
         />
       </div>
     </aside>

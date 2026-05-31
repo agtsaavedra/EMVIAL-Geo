@@ -16,18 +16,17 @@ function IntervencionesLayer({
   modoDibujo,
 }) {
   function manejarClickCapa(e, intervencion) {
-    // Si estamos en modo consulta, el click NO debe crear geometría nueva.
-    if (!modoDibujo) {
-      e.originalEvent?.stopPropagation?.()
-    }
+    e.originalEvent?.stopPropagation?.()
 
-    // Enfoca la intervención aunque sea línea/polígono.
+    if (modoDibujo) return
+
+    // Primero enfocamos. MapFocus puede cerrar popup anterior.
     enfocarIntervencion?.(intervencion)
 
-    // Reabre el popup después del centrado/zoom.
+    // Después abrimos el popup, cuando el mapa ya se movió.
     setTimeout(() => {
       e.target?.openPopup?.()
-    }, 180)
+    }, 250)
   }
 
   return (
@@ -43,7 +42,11 @@ function IntervencionesLayer({
             <Polyline
               key={intervencion.id}
               positions={intervencion.geometria}
-              pathOptions={{ color, weight: 5 }}
+              pathOptions={{
+                color,
+                weight: 7,
+                opacity: 0.95,
+              }}
               eventHandlers={{
                 click: (e) => manejarClickCapa(e, intervencion),
               }}

@@ -50,8 +50,19 @@ function createWindow() {
     },
   })
 
-  // Forzar nombre visible ventana
+  // nombre visible
   win.setTitle('EMVIAL Geo')
+
+  // proteger cierre accidental
+  win.on('close', (event) => {
+    if (!app.isQuiting) {
+      event.preventDefault()
+
+      win.webContents.send(
+        'app-close-request'
+      )
+    }
+  })
 
   // Desarrollo
   if (isDev) {
@@ -62,7 +73,7 @@ function createWindow() {
     win.webContents.openDevTools()
   }
 
-  // Producción (build)
+  // Producción
   else {
     win.loadFile(
       path.join(
@@ -78,6 +89,12 @@ function createWindow() {
 // IPC - GEOCODING
 // ===============================
 //
+
+ipcMain.handle('confirmar-cierre-app', () => {
+  app.isQuiting = true
+  app.quit()
+})
+
 
 ipcMain.handle(
   'buscar-direccion',

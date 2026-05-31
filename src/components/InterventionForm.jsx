@@ -16,9 +16,32 @@ function InterventionForm({
   seleccionarSugerencia,
   activoEditandoId,
   cancelarEdicion,
+  hayCambiosSinGuardar,
 }) {
   return (
+
+
     <form onSubmit={guardarIntervencion} className="form">
+      {activoEditandoId && (
+        <div className="edit-banner">
+          <div>
+            <strong>✏️ Editando intervención</strong>
+
+            <span>
+              {hayCambiosSinGuardar
+                ? 'Cambios sin guardar'
+                : 'Sin cambios pendientes'}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={cancelarEdicion}
+          >
+            Cancelar edición
+          </button>
+        </div>
+      )}
       <label>Nombre</label>
       <input
         name="nombre"
@@ -185,16 +208,6 @@ function InterventionForm({
             ? 'Actualizar intervención'
             : 'Guardar intervención'}
         </button>
-
-        {activoEditandoId && (
-          <button
-            type="button"
-            className="secondary cancel-edit-btn"
-            onClick={cancelarEdicion}
-          >
-            Cancelar edición
-          </button>
-        )}
       </div>
     </form>
   )

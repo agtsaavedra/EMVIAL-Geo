@@ -28,15 +28,34 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('abrir-carpeta-backups'),
 
   restaurarPeriodoManual: (periodo) =>
-  ipcRenderer.invoke('restaurar-periodo-manual', periodo),
+    ipcRenderer.invoke('restaurar-periodo-manual', periodo),
 
   obtenerEstadoApp: () =>
-  ipcRenderer.invoke('obtener-estado-app'),
-  
+    ipcRenderer.invoke('obtener-estado-app'),
+
   configurarCarpetaBackups: () =>
-  ipcRenderer.invoke(
-    'configurar-carpeta-backups'
-  ),
+    ipcRenderer.invoke(
+      'configurar-carpeta-backups'
+    ),
+
+  onAppCloseRequest: (callback) => {
+    const listener = () => callback()
+
+    ipcRenderer.on(
+      'app-close-request',
+      listener
+    )
+
+    return () => {
+      ipcRenderer.removeListener(
+        'app-close-request',
+        listener
+      )
+    }
+  },
+
+  confirmarCierreApp: () =>
+    ipcRenderer.invoke('confirmar-cierre-app'),
 })
 
 
