@@ -8,6 +8,7 @@ import {
 import PopupIntervencion from './PopupIntervencion'
 import { crearIconoColor } from '../../map/mapIcons'
 import { obtenerColorIntervencion } from '../../map/mapColors'
+import { useState } from 'react'
 
 function IntervencionesLayer({
   intervenciones = [],
@@ -15,6 +16,10 @@ function IntervencionesLayer({
   enfocarIntervencion,
   modoDibujo,
 }) {
+
+  const [hoverId, setHoverId] = useState(null)
+
+
   function manejarClickCapa(e, intervencion) {
     e.originalEvent?.stopPropagation?.()
 
@@ -44,11 +49,13 @@ function IntervencionesLayer({
               positions={intervencion.geometria}
               pathOptions={{
                 color,
-                weight: 7,
-                opacity: 0.95,
+                weight: hoverId === intervencion.id ? 9 : 7,
+                opacity: hoverId === intervencion.id ? 1 : 0.92,
               }}
               eventHandlers={{
                 click: (e) => manejarClickCapa(e, intervencion),
+                mouseover: () => setHoverId(intervencion.id),
+                mouseout: () => setHoverId(null),
               }}
             >
               <Popup>
@@ -71,12 +78,14 @@ function IntervencionesLayer({
               positions={intervencion.geometria}
               pathOptions={{
                 color,
-                weight: 4,
+                weight: hoverId === intervencion.id ? 6 : 4,
                 fillColor: color,
-                fillOpacity: 0.25,
+                fillOpacity: hoverId === intervencion.id ? 0.38 : 0.25,
               }}
               eventHandlers={{
                 click: (e) => manejarClickCapa(e, intervencion),
+                mouseover: () => setHoverId(intervencion.id),
+                mouseout: () => setHoverId(null),
               }}
             >
               <Popup>
@@ -100,6 +109,8 @@ function IntervencionesLayer({
               icon={crearIconoColor(color)}
               eventHandlers={{
                 click: (e) => manejarClickCapa(e, intervencion),
+                mouseover: () => setHoverId(intervencion.id),
+                mouseout: () => setHoverId(null),
               }}
             >
               <Popup>

@@ -86,13 +86,12 @@ function MapActions({
               type="button"
               className="map-action-btn"
               onClick={deshacerPunto}
+              disabled={cantidadPuntos === 0}
             >
               ↶ Deshacer punto
             </button>
 
-            <span className="map-action-info">
-              Puntos marcados: {cantidadPuntos || 0}
-            </span>
+
           </>
         )}
       </div>
@@ -101,10 +100,10 @@ function MapActions({
         <div className="map-stats-row">
           <div
             className={`map-stats ${statsPorObra.length >= 6
-                ? 'compact'
-                : statsPorObra.length >= 4
-                  ? 'medium'
-                  : ''
+              ? 'compact'
+              : statsPorObra.length >= 4
+                ? 'medium'
+                : ''
               }`}
           >
             {statsPorObra.map((item) => {
@@ -139,8 +138,8 @@ function MapActions({
         >
           <div
             className={`map-stats-panel ${assetsPanelAbierto
-                ? 'with-assets-panel'
-                : ''
+              ? 'with-assets-panel'
+              : ''
               }`}
             onClick={(e) => e.stopPropagation()}
           >

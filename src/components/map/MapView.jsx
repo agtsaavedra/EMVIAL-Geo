@@ -111,31 +111,36 @@ function MapView({
   // ACCIONES SOBRE GEOMETRÍA EN EDICIÓN
   // =====================================================
 
-  function deshacerPunto() {
-    let nuevoUltimoPunto = null
+function deshacerPunto() {
+  let nuevoUltimoPunto = null
 
-    setForm((prev) => {
-      const nuevaGeometria = (prev.geometria || []).slice(0, -1)
+  setForm((prev) => {
+    const nuevaGeometria = (prev.geometria || []).slice(0, -1)
 
-      nuevoUltimoPunto =
-        nuevaGeometria[nuevaGeometria.length - 1] || null
+    nuevoUltimoPunto =
+      nuevaGeometria[nuevaGeometria.length - 1] || null
 
-      return {
-        ...prev,
-        geometria: nuevaGeometria,
-        latitud: nuevoUltimoPunto
-          ? nuevoUltimoPunto[0].toFixed(6)
-          : '',
-        longitud: nuevoUltimoPunto
-          ? nuevoUltimoPunto[1].toFixed(6)
-          : '',
-        barrio: nuevaGeometria.length === 0 ? '' : prev.barrio,
-      }
-    })
+    return {
+      ...prev,
+      geometria: nuevaGeometria,
+      latitud: nuevoUltimoPunto
+        ? nuevoUltimoPunto[0].toFixed(6)
+        : '',
+      longitud: nuevoUltimoPunto
+        ? nuevoUltimoPunto[1].toFixed(6)
+        : '',
+      barrio: nuevaGeometria.length === 0 ? '' : prev.barrio,
+    }
+  })
 
-    setPuntoSeleccionado(nuevoUltimoPunto)
-    setCursorLinea(null)
-  }
+ setPuntoSeleccionado(nuevoUltimoPunto)
+setCursorLinea(null)
+
+if (intervencionEditandoId) {
+  setRedibujandoGeometria(true)
+  setEdicionGeometricaIniciada(true)
+}
+}
 
   function limpiarUbicacion() {
     setForm((prev) => ({
@@ -257,6 +262,18 @@ function MapView({
             geometriaTipo={form.geometriaTipo}
             setGeometriaTipo={cambiarGeometriaTipo}
           />)}
+
+        {modoDibujo && (
+          <div className="drawing-mode-banner">
+            <strong>✏️ Dibujo</strong>
+            <span>
+              {form.geometriaTipo === 'Punto'
+                ? 'Seleccionar ubicación'
+                : `${form.geometriaTipo} · ${form.geometria?.length || 0
+                } pts`}
+            </span>
+          </div>
+        )}
         <MapContainer
           center={centroMarDelPlata}
           zoom={13}
@@ -359,7 +376,7 @@ function MapView({
         modoDibujo={modoDibujo}
         intervenciones={intervencionesVisibles}
         assetsPanelAbierto={assetsPanelAbierto}
-        
+
         seleccionarBarrioEstadistica={(barrio) => {
           setMostrarBarrios(true)
           setBarrioSeleccionado(barrio)
