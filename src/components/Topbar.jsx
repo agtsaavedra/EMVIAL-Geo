@@ -1,60 +1,56 @@
+import { useEffect, useRef, useState } from 'react'
 import { OBRAS, ESTADOS } from '../constants/intervenciones'
-import { useEffect, useRef } from 'react'
 import mapPin from '../assets/map-pin.svg'
-function Topbar({
 
+function Topbar({
   busqueda,
   setBusqueda,
   menuAbierto,
   setMenuAbierto,
   exportarKmlActual,
+  exportarExcelActual,
   crearBackup,
   restaurarBackup,
+  restaurarPeriodoActual,
   abrirCarpetaBackups,
+  configurarCarpetaBackups,
+  abrirAbout,
   modoOscuro = false,
-  setModoOscuro = () => { },
+  setModoOscuro = () => {},
   filtroObra = '',
-  setFiltroObra = () => { },
+  setFiltroObra = () => {},
   filtroEstado = '',
-  setFiltroEstado = () => { },
+  setFiltroEstado = () => {},
   filtroBarrio = '',
-  setFiltroBarrio = () => { },
+  setFiltroBarrio = () => {},
   barriosDisponibles = [],
   periodoActivo,
   setPeriodoActivo,
-  restaurarPeriodoActual,
-  exportarExcelActual,
-  configurarCarpetaBackups,
-  abrirAbout,
-
 }) {
-  const hayFiltros =
-    filtroObra || filtroEstado || filtroBarrio
-
+  const [avanzadoAbierto, setAvanzadoAbierto] = useState(false)
   const menuRef = useRef(null)
+
+  const hayFiltros = filtroObra || filtroEstado || filtroBarrio
+
   useEffect(() => {
     function handleClickOutside(event) {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target)
-      ) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
         setMenuAbierto(false)
+        setAvanzadoAbierto(false)
       }
     }
 
-    document.addEventListener(
-      'mousedown',
-      handleClickOutside
-    )
+    document.addEventListener('mousedown', handleClickOutside)
 
     return () => {
-      document.removeEventListener(
-        'mousedown',
-        handleClickOutside
-      )
+      document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [setMenuAbierto])
 
+  function cerrarMenu() {
+    setMenuAbierto(false)
+    setAvanzadoAbierto(false)
+  }
 
   return (
     <header className="topbar">
@@ -66,7 +62,7 @@ function Topbar({
             className="topbar-logo"
           />
 
-          <div>
+          <div className="topbar-title-text">
             <h2>Mapa de intervenciones</h2>
             <span>Mar del Plata / Partido de General Pueyrredon</span>
           </div>
@@ -83,9 +79,8 @@ function Topbar({
             <button
               type="button"
               className="menu-btn"
-              onClick={() =>
-                setMenuAbierto((prev) => !prev)
-              }
+              aria-label="Abrir menú"
+              onClick={() => setMenuAbierto((prev) => !prev)}
             >
               ☰
             </button>
@@ -94,71 +89,109 @@ function Topbar({
               <div className="dropdown-menu">
                 <button
                   type="button"
-                  onClick={() =>
-                    setModoOscuro((prev) => !prev)
-                  }
+                  onClick={() => setModoOscuro((prev) => !prev)}
                 >
-                  {modoOscuro
-                    ? '☀️ Modo claro'
-                    : '🌙 Modo oscuro'}
+                  {modoOscuro ? '☀️ Modo claro' : '🌙 Modo oscuro'}
                 </button>
 
                 <button
                   type="button"
-                  onClick={exportarKmlActual}
+                  onClick={() => {
+                    exportarExcelActual()
+                    cerrarMenu()
+                  }}
+                >
+                  Exportar Excel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    exportarKmlActual()
+                    cerrarMenu()
+                  }}
                 >
                   Exportar KML
                 </button>
 
                 <button
                   type="button"
-                  onClick={crearBackup}
+                  onClick={() => {
+                    crearBackup()
+                    cerrarMenu()
+                  }}
                 >
                   Crear backup
                 </button>
 
                 <button
                   type="button"
-                  onClick={restaurarPeriodoActual}
-                >
-                  Restaurar periodo actual
-                </button>
-
-                <button
-                  type="button"
-                  className="danger"
-                  onClick={restaurarBackup}
-                >
-                  Restaurar backup
-                </button>
-
-                <button
-                  type="button"
-                  onClick={abrirCarpetaBackups}
+                  onClick={() => {
+                    abrirCarpetaBackups()
+                    cerrarMenu()
+                  }}
                 >
                   Abrir carpeta de backups
                 </button>
 
                 <button
                   type="button"
-                  onClick={configurarCarpetaBackups}
+                  onClick={() => {
+                    abrirAbout()
+                    cerrarMenu()
+                  }}
                 >
-                  Configurar carpeta de backups
-                </button>
-                <button type="button" onClick={exportarExcelActual}>
-                  Exportar Excel
+                  Acerca de EMVIAL Geo
                 </button>
 
-                <button
-              type="button"
-              onClick={abrirAbout}
-            >
-              Acerca de EMVIAL Geo
-            </button>
+                <div className="menu-advanced">
+                  <button
+                    type="button"
+                    className="menu-advanced-toggle"
+                    onClick={() => setAvanzadoAbierto((prev) => !prev)}
+                  >
+                    <span>{avanzadoAbierto ? '▾' : '▸'}</span>
+                    Opciones avanzadas
+                  </button>
+
+                  {avanzadoAbierto && (
+                    <div className="menu-advanced-content">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          configurarCarpetaBackups()
+                          cerrarMenu()
+                        }}
+                      >
+                        Configurar carpeta de backups
+                      </button>
+
+                      <button
+                        type="button"
+                        className="danger-menu-item"
+                        onClick={() => {
+                          restaurarBackup()
+                          cerrarMenu()
+                        }}
+                      >
+                        Restaurar backup completo
+                      </button>
+
+                      <button
+                        type="button"
+                        className="danger-menu-item"
+                        onClick={() => {
+                          restaurarPeriodoActual()
+                          cerrarMenu()
+                        }}
+                      >
+                        Restaurar período actual
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
-            
-
           </div>
         </div>
       </div>
@@ -171,15 +204,12 @@ function Topbar({
           title="Seleccionar mes de trabajo"
           className="periodo-input"
         />
+
         <select
           value={filtroObra}
-          onChange={(e) =>
-            setFiltroObra(e.target.value)
-          }
+          onChange={(e) => setFiltroObra(e.target.value)}
         >
-          <option value="">
-            Todas las obras
-          </option>
+          <option value="">Todas las obras</option>
 
           {OBRAS.map((obra) => (
             <option key={obra} value={obra}>
@@ -190,13 +220,9 @@ function Topbar({
 
         <select
           value={filtroEstado}
-          onChange={(e) =>
-            setFiltroEstado(e.target.value)
-          }
+          onChange={(e) => setFiltroEstado(e.target.value)}
         >
-          <option value="">
-            Todos los estados
-          </option>
+          <option value="">Todos los estados</option>
 
           {ESTADOS.map((estado) => (
             <option key={estado} value={estado}>
@@ -207,19 +233,12 @@ function Topbar({
 
         <select
           value={filtroBarrio}
-          onChange={(e) =>
-            setFiltroBarrio(e.target.value)
-          }
+          onChange={(e) => setFiltroBarrio(e.target.value)}
         >
-          <option value="">
-            Todos los barrios
-          </option>
+          <option value="">Todos los barrios</option>
 
           {barriosDisponibles.map((barrio) => (
-            <option
-              key={barrio}
-              value={barrio}
-            >
+            <option key={barrio} value={barrio}>
               {barrio}
             </option>
           ))}
