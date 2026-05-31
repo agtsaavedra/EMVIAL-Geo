@@ -12,15 +12,23 @@ import { obtenerColorIntervencion } from '../../map/mapColors'
 function IntervencionesLayer({
   intervenciones = [],
   editarIntervencion,
+  enfocarIntervencion,
   modoDibujo,
 }) {
-
-  function manejarClickCapa(e) {
+  function manejarClickCapa(e, intervencion) {
+    // Si estamos en modo consulta, el click NO debe crear geometría nueva.
     if (!modoDibujo) {
-      e.originalEvent.stopPropagation()
+      e.originalEvent?.stopPropagation?.()
     }
-  }
 
+    // Enfoca la intervención aunque sea línea/polígono.
+    enfocarIntervencion?.(intervencion)
+
+    // Reabre el popup después del centrado/zoom.
+    setTimeout(() => {
+      e.target?.openPopup?.()
+    }, 180)
+  }
 
   return (
     <>
@@ -37,7 +45,7 @@ function IntervencionesLayer({
               positions={intervencion.geometria}
               pathOptions={{ color, weight: 5 }}
               eventHandlers={{
-                click: manejarClickCapa,
+                click: (e) => manejarClickCapa(e, intervencion),
               }}
             >
               <Popup>
@@ -65,7 +73,7 @@ function IntervencionesLayer({
                 fillOpacity: 0.25,
               }}
               eventHandlers={{
-                click: manejarClickCapa,
+                click: (e) => manejarClickCapa(e, intervencion),
               }}
             >
               <Popup>
@@ -88,7 +96,7 @@ function IntervencionesLayer({
               ]}
               icon={crearIconoColor(color)}
               eventHandlers={{
-                click: manejarClickCapa,
+                click: (e) => manejarClickCapa(e, intervencion),
               }}
             >
               <Popup>

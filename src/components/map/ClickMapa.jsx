@@ -8,29 +8,56 @@ function ClickMapa({
   obtenerDireccion,
   setCursorLinea,
   modoDibujo,
-  
+  setEdicionGeometricaIniciada,
 }) {
   useMapEvents({
     mousemove(e) {
+      // Si el modo dibujo está apagado, nunca mostramos preview.
+      if (!modoDibujo) {
+        setCursorLinea(null)
+        return
+      }
+
       const dibujandoLineaOPoligono = ['Línea', 'Polígono'].includes(
         form.geometriaTipo
       )
 
-      if (!dibujandoLineaOPoligono) return
-      if (!form.geometria || form.geometria.length === 0) return
+      if (!dibujandoLineaOPoligono) {
+        setCursorLinea(null)
+        return
+      }
+
+      if (!form.geometria || form.geometria.length === 0) {
+        setCursorLinea(null)
+        return
+      }
 
       setCursorLinea([e.latlng.lat, e.latlng.lng])
     },
 
     mouseout() {
+      // Cuando el mouse sale del mapa, ocultamos la línea punteada.
       setCursorLinea(null)
     },
 
     async click(e) {
-       if (!modoDibujo) return
+      if (!modoDibujo) {
+        setCursorLinea(null)
+        return
+      }
+
       const originalTarget = e.originalEvent?.target
 
-      if (originalTarget?.closest?.('.leaflet-control')) return
+      if (
+        originalTarget?.closest?.('.leaflet-control') ||
+        originalTarget?.closest?.('.leaflet-popup') ||
+        originalTarget?.closest?.('.popup-content')
+      ) {
+        return
+      }
+
+      // Recién acá sabemos que fue un click real sobre el mapa
+      setEdicionGeometricaIniciada(true)
 
       const lat = e.latlng.lat
       const lon = e.latlng.lng

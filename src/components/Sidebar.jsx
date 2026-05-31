@@ -1,6 +1,6 @@
 
 import InterventionForm from './InterventionForm'
-
+import { useEffect, useRef } from 'react'
 function Sidebar({
   abierto,
   setAbierto,
@@ -15,6 +15,16 @@ function Sidebar({
   cancelarEdicion,
 }) {
   
+const formContainerRef = useRef(null)
+
+useEffect(() => {
+  if (activoEditandoId) {
+    formContainerRef.current?.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
+  }
+}, [activoEditandoId])
 
   return (
     <aside className={`sidebar-panel ${abierto ? 'open' : 'closed'}`}>
@@ -27,7 +37,7 @@ function Sidebar({
         {abierto ? '‹' : '›'}
       </button>
 
-      <div className="sidebar">
+      <div className="sidebar" ref={formContainerRef}>
         <h1>EMVIAL Geo</h1>
         <p className="subtitle">Gestión operativa territorial</p>
 

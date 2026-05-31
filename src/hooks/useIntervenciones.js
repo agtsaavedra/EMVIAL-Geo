@@ -43,20 +43,15 @@ export function useIntervenciones() {
     return nueva
   }
 
-  async function eliminarIntervencion(id) {
-    const confirmar = confirm('¿Seguro que querés eliminar esta intervención?')
+async function eliminarIntervencion(id) {
+  await window.api.eliminarIntervencion(id)
 
-    if (!confirmar) return false
+  setIntervenciones((prev) =>
+    prev.filter((intervencion) => intervencion.id !== id)
+  )
 
-    await window.api.eliminarIntervencion(id)
-
-    setIntervenciones((prev) =>
-      prev.filter((intervencion) => intervencion.id !== id)
-    )
-
-    return true
-  }
-
+  return true
+}
   return {
     intervenciones,
     intervencionEditandoId,

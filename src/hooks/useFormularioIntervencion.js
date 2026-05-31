@@ -180,37 +180,40 @@ export function useFormularioIntervencion({
         parseFloat(intervencion.latitud),
         parseFloat(intervencion.longitud),
       ])
+    } else {
+      setPuntoSeleccionado(null)
     }
   }
 
+
   // ===============================
-// Cancelar edición actual
-// ===============================
+  // Cancelar edición actual
+  // ===============================
 
-function cancelarEdicion() {
-  // salir del modo edición
-  setIntervencionEditandoId(null)
+  function cancelarEdicion() {
+    // salir del modo edición
+    setIntervencionEditandoId(null)
 
-  // limpiar formulario
-  setForm(formInicial)
+    // limpiar formulario
+    setForm(formInicial)
 
-  // limpiar selección temporal del mapa
-  setPuntoSeleccionado(null)
+    // limpiar selección temporal del mapa
+    setPuntoSeleccionado(null)
 
-  // limpiar barrio temporal
-  setBarrioSeleccionado('')
+    // limpiar barrio temporal
+    setBarrioSeleccionado('')
 
-  // limpiar sugerencias de búsqueda
-  setSugerencias([])
+    // limpiar sugerencias de búsqueda
+    setSugerencias([])
 
-  // frenar búsqueda
-  setBuscandoDireccion(false)
+    // frenar búsqueda
+    setBuscandoDireccion(false)
 
-  mostrarToast(
-    'Edición cancelada.',
-    'info'
-  )
-}
+    mostrarToast(
+      'Edición cancelada.',
+      'info'
+    )
+  }
 
   return {
     form,

@@ -118,6 +118,7 @@ function App() {
     setSugerencias,
     setBuscandoDireccion,
     mostrarToast,
+    modoDibujo,
   })
 
   // ===============================
@@ -157,11 +158,23 @@ function App() {
   // ===============================
   // Acciones auxiliares
   // ===============================
+  function manejarEnfocarIntervencion(intervencion) {
+    setIntervencionEnfocada({
+      ...intervencion,
+      __focusKey: Date.now(),
+    })
+  }
 
   function manejarEditarIntervencion(intervencion) {
-    setSidebarAbierto(true)
-    editarIntervencion(intervencion)
-  }
+  // Centrar/zoom sobre la intervención.
+  manejarEnfocarIntervencion(intervencion)
+
+  // Abrir formulario.
+  setSidebarAbierto(true)
+
+  // Cargar datos en modo edición.
+  editarIntervencion(intervencion)
+}
 
   // ===============================
   // Render
@@ -200,7 +213,7 @@ function App() {
       <main className="main">
         <Topbar
           periodoActivo={periodoActivo}
-          
+
           setPeriodoActivo={setPeriodoActivo}
           filtroObra={filtroObra}
           setFiltroObra={setFiltroObra}
@@ -340,6 +353,7 @@ function App() {
             modoDibujo={modoDibujo}
             setModoDibujo={setModoDibujo}
             sidebarAbierto={sidebarAbierto}
+            enfocarIntervencion={manejarEnfocarIntervencion}
           />
 
           <AssetsPanel
@@ -370,7 +384,7 @@ function App() {
                 },
               })
             }}
-            enfocarIntervencion={setIntervencionEnfocada}
+            enfocarIntervencion={manejarEnfocarIntervencion}
           />
         </section>
       </main>

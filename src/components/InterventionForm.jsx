@@ -171,19 +171,6 @@ function InterventionForm({
       <label>Longitud</label>
       <input name="longitud" value={form.longitud} readOnly />
 
-      <label>Tipo de geometría</label>
-      <select
-        name="geometriaTipo"
-        value={form.geometriaTipo}
-        onChange={manejarCambio}
-      >
-        {GEOMETRIAS.map((tipo) => (
-          <option key={tipo} value={tipo}>
-            {tipo}
-          </option>
-        ))}
-      </select>
-
       <label>Observaciones</label>
       <textarea
         name="descripcion"

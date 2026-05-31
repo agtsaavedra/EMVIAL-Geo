@@ -21,14 +21,11 @@ export function obtenerBarriosFiltrados(
 }
 
 export function obtenerIntervencionesVisibles(
-  intervencionesFiltradas,
-  intervencionEditandoId
+  intervencionesFiltradas
 ) {
-  return intervencionesFiltradas.filter(
-    (intervencion) =>
-      intervencion.id !==
-      intervencionEditandoId
-  )
+  // Las intervenciones guardadas SIEMPRE deben verse,
+  // incluso cuando se están editando.
+  return intervencionesFiltradas
 }
 
 export function obtenerStatsMapa(

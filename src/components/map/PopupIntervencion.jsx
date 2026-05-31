@@ -1,9 +1,27 @@
+import { useMap } from 'react-leaflet'
+
 function PopupIntervencion({ intervencion, editarIntervencion }) {
-  const puedeEditar = typeof editarIntervencion === 'function'
+  const map = useMap()
+
+  const puedeEditar =
+    typeof editarIntervencion === 'function'
+
+  function manejarEditar(e) {
+    e.preventDefault()
+    e.stopPropagation()
+
+    // Cerramos el popup para que no tape la geometría.
+    map.closePopup()
+
+    // Cargamos la intervención en el formulario.
+    editarIntervencion(intervencion)
+  }
 
   return (
     <div className="popup-content">
-      <strong>{intervencion.obra || 'Intervención'}</strong>
+      <strong>
+        {intervencion.obra || 'Intervención'}
+      </strong>
 
       {intervencion.nombre && (
         <>
@@ -12,12 +30,14 @@ function PopupIntervencion({ intervencion, editarIntervencion }) {
         </>
       )}
 
-      {(intervencion.ubicacion || intervencion.direccion) && (
-        <>
-          <br />
-          {intervencion.ubicacion || intervencion.direccion}
-        </>
-      )}
+      {(intervencion.ubicacion ||
+        intervencion.direccion) && (
+          <>
+            <br />
+            {intervencion.ubicacion ||
+              intervencion.direccion}
+          </>
+        )}
 
       {puedeEditar && (
         <>
@@ -26,7 +46,7 @@ function PopupIntervencion({ intervencion, editarIntervencion }) {
           <button
             type="button"
             className="popup-edit-btn"
-            onClick={() => editarIntervencion(intervencion)}
+            onClick={manejarEditar}
           >
             Editar
           </button>

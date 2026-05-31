@@ -6,11 +6,12 @@ import {
   GeoJSON,
 } from 'react-leaflet'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import 'leaflet/dist/leaflet.css'
 
 import MapActions from './MapActions'
 import ControlBarrio from './ControlBarrio'
+import GeometryControl from './GeometryControl'
 import ClickMapa from './ClickMapa'
 import MapCenter from './MapCenter'
 import MapInvalidator from './MapInvalidator'
@@ -50,6 +51,7 @@ function MapView({
   modoDibujo,
   setModoDibujo,
   sidebarAbierto,
+  enfocarIntervencion,
 }) {
   // =====================================================
   // ESTADO INTERNO DEL MAPA
@@ -58,7 +60,13 @@ function MapView({
   // dibujando una línea o un polígono.
   // Esto permite mostrar una línea punteada de previsualización.
   const [cursorLinea, setCursorLinea] = useState(null)
+  const [redibujandoGeometria, setRedibujandoGeometria] =
+    useState(false)
 
+  const geometriaOriginalRef = useRef(null)
+
+  const [edicionGeometricaIniciada, setEdicionGeometricaIniciada] =
+    useState(false)
   // =====================================================
   // DATOS DERIVADOS DEL MAPA
   // =====================================================
@@ -76,6 +84,21 @@ function MapView({
     intervencionEditandoId
   )
 
+  const ocultarIntervencionEditada =
+    redibujandoGeometria ||
+    (
+      modoDibujo &&
+      intervencionEditandoId &&
+      form.geometriaTipo === 'Polígono'
+    )
+
+  const intervencionesMapa =
+    ocultarIntervencionEditada
+      ? intervencionesVisibles.filter(
+        (intervencion) =>
+          intervencion.id !== intervencionEditandoId
+      )
+      : intervencionesVisibles
   // Estadísticas compactas por obra para la barra inferior del mapa.
   const statsPorObra = obtenerStatsMapa(intervencionesVisibles)
 
@@ -115,6 +138,7 @@ function MapView({
   function limpiarUbicacion() {
     setForm((prev) => ({
       ...prev,
+
       direccion: '',
       latitud: '',
       longitud: '',
@@ -124,28 +148,128 @@ function MapView({
 
     setPuntoSeleccionado(null)
     setCursorLinea(null)
+
+    // Si estoy editando una intervención existente,
+    // oculto temporalmente la geometría guardada
+    // para redibujarla desde cero.
+    if (intervencionEditandoId) {
+      setRedibujandoGeometria(true)
+    }
   }
 
+  function restaurarGeometriaOriginal() {
+    const original = geometriaOriginalRef.current
+
+    if (!original) return
+
+    setForm((prev) => ({
+      ...prev,
+      geometriaTipo: original.geometriaTipo,
+      geometria: original.geometria,
+      direccion: original.direccion,
+      latitud: original.latitud,
+      longitud: original.longitud,
+      barrio: original.barrio,
+    }))
+
+    setCursorLinea(null)
+    setPuntoSeleccionado(null)
+
+    setRedibujandoGeometria(false)
+  }
+
+  useEffect(() => {
+    if (!intervencionEditandoId) {
+      setRedibujandoGeometria(false)
+    }
+  }, [intervencionEditandoId])
+
+
+useEffect(() => {
+  if (!intervencionEditandoId) {
+    geometriaOriginalRef.current = null
+    setEdicionGeometricaIniciada(false)
+    return
+  }
+
+  const original = intervencionesFiltradas.find(
+    (item) => item.id === intervencionEditandoId
+  )
+
+  if (!original) return
+
+  geometriaOriginalRef.current = {
+    geometriaTipo: original.geometriaTipo || 'Punto',
+    geometria: original.geometria || [],
+    direccion: original.direccion || '',
+    latitud: original.latitud || '',
+    longitud: original.longitud || '',
+    barrio: original.barrio || '',
+  }
+
+  setEdicionGeometricaIniciada(false)
+}, [intervencionEditandoId, intervencionesFiltradas])
+
+  function cambiarGeometriaTipo(tipo) {
+    // Si todavía no empezó a editar geometría,
+    // cambiar tipo NO destruye el original.
+    if (
+      intervencionEditandoId &&
+      !edicionGeometricaIniciada
+    ) {
+      setForm((prev) => ({
+        ...prev,
+        geometriaTipo: tipo,
+      }))
+
+      return
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      geometriaTipo: tipo,
+      geometria: [],
+      latitud: '',
+      longitud: '',
+    }))
+
+    setPuntoSeleccionado(null)
+    setCursorLinea(null)
+  }
   // =====================================================
   // RENDER
   // =====================================================
 
   return (
     <div className="map-area">
-      <div className="map-real">
+      <div
+        className="map-real"
+        onMouseLeave={() => {
+          // Si el mouse sale físicamente del mapa,
+          // ocultamos la preview punteada.
+          setCursorLinea(null)
+        }}
+      >
+        <GeometryControl
+          geometriaTipo={form.geometriaTipo}
+          setGeometriaTipo={cambiarGeometriaTipo}
+        />
         <MapContainer
           center={centroMarDelPlata}
           zoom={13}
           style={{ height: '100%', width: '100%' }}
+          attributionControl={false}
         >
           {/* Recalcula el tamaño real del mapa cuando cambia el layout */}
-          <MapInvalidator refreshKey={sidebarAbierto}/>
+          <MapInvalidator refreshKey={sidebarAbierto} />
 
           {/* Capa base OpenStreetMap */}
           <TileLayer
-            attribution="&copy; OpenStreetMap contributors"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution=""
           />
+
+
 
           {/* Capa GeoJSON de barrios */}
           {mostrarBarrios && (
@@ -176,6 +300,9 @@ function MapView({
             obtenerDireccion={obtenerDireccion}
             setCursorLinea={setCursorLinea}
             modoDibujo={modoDibujo}
+            setEdicionGeometricaIniciada={
+              setEdicionGeometricaIniciada
+            }
           />
 
           {/* Centra el mapa cuando se selecciona un punto */}
@@ -187,14 +314,16 @@ function MapView({
           <MapFocus intervencion={intervencionEnfocada} />
 
           {/* Dibuja línea/polígono en edición y su preview punteada */}
-          <GeometryPreview
-            form={form}
-            cursorLinea={cursorLinea}
-            colorFormulario={colorFormulario}
-          />
+          {modoDibujo && form.geometria?.length > 0 && (
+            <GeometryPreview
+              form={form}
+              cursorLinea={cursorLinea}
+              colorFormulario={colorFormulario}
+            />
+          )}
 
           {/* Marcador temporal cuando se está cargando/editando un punto */}
-          {puntoSeleccionado && form.geometriaTipo === 'Punto' && (
+          {modoDibujo && puntoSeleccionado && form.geometriaTipo === 'Punto' && (
             <Marker
               position={puntoSeleccionado}
               icon={crearIconoColor(colorFormulario)}
@@ -205,8 +334,9 @@ function MapView({
 
           {/* Intervenciones guardadas del periodo/filtros activos */}
           <IntervencionesLayer
-            intervenciones={intervencionesVisibles}
+            intervenciones={intervencionesMapa}
             editarIntervencion={editarIntervencion}
+            enfocarIntervencion={enfocarIntervencion}
             modoDibujo={modoDibujo}
           />
         </MapContainer>
@@ -224,11 +354,39 @@ function MapView({
         modoDibujo={modoDibujo}
         setModoDibujo={(activo) => {
           setModoDibujo(activo)
+          setCursorLinea(null)
 
-          // Si se apaga el modo dibujo,
-          // limpiamos geometría temporal
+          const editando =
+            !!intervencionEditandoId
+
+          // APAGA modo dibujo
           if (!activo) {
-            limpiarUbicacion()
+            // Si todavía no tocó el mapa,
+            // volvemos al estado original.
+            if (
+              editando &&
+              !edicionGeometricaIniciada
+            ) {
+              restaurarGeometriaOriginal()
+              return
+            }
+
+            setRedibujandoGeometria(false)
+            return
+          }
+
+          // ACTIVA modo dibujo
+          if (
+            editando &&
+            form.geometriaTipo === 'Polígono'
+          ) {
+            setForm((prev) => ({
+              ...prev,
+              geometria: [],
+            }))
+
+            setPuntoSeleccionado(null)
+            setRedibujandoGeometria(true)
           }
         }}
         hayUbicacion={

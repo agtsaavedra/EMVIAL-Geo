@@ -27,6 +27,9 @@ function MapFocus({ intervencion }) {
 
     if (!bounds || !bounds.isValid()) return
 
+    // Cierra cualquier popup anterior cuando el foco viene del panel.
+    map.closePopup()
+
     if (
       intervencion.geometriaTipo === 'Punto' ||
       bounds.getNorthEast().equals(bounds.getSouthWest())
@@ -36,7 +39,7 @@ function MapFocus({ intervencion }) {
     }
 
     map.fitBounds(bounds, {
-      padding: [40, 40],
+      padding: [60, 60],
       maxZoom: 17,
     })
   }, [map, intervencion])

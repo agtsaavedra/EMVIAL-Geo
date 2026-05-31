@@ -33,7 +33,7 @@ function ControlBarrio({
     control.onAdd = () => {
       const container = L.DomUtil.create(
         'div',
-        'map-control leaflet-bar'
+        'map-control'
       )
 
       const select = L.DomUtil.create(
