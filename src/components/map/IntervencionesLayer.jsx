@@ -9,8 +9,8 @@ import {
 
 import PopupIntervencion from './PopupIntervencion'
 
-import { crearIconoColor } from '@map//mapIcons'
-import { obtenerColorIntervencion } from '@map//mapColors'
+import { crearIconoColor } from '@map/mapIcons'
+import { obtenerColorIntervencion } from '@map/mapColors'
 
 function IntervencionesLayer({
   intervenciones = [],
@@ -18,6 +18,7 @@ function IntervencionesLayer({
   enfocarIntervencion,
   modoDibujo,
   intervencionEnfocada,
+  intervencionResaltadaId,
 }) {
   // =====================================================
   // ESTADO DE HOVER / FOCO
@@ -32,15 +33,6 @@ function IntervencionesLayer({
   // =====================================================
   // EVENTOS
   // =====================================================
-  // En modo dibujo no abrimos popups de intervenciones,
-  // porque el click del mapa debe interpretarse como dibujo.
-  //
-  // Cuando NO estamos dibujando:
-  // 1. enfocamos la intervención
-  // 2. esperamos un instante
-  // 3. abrimos el popup
-  //
-  // Esto evita que MapFocus cierre el popup al mover el mapa.
 
   function manejarClickCapa(
     e,
@@ -70,7 +62,11 @@ function IntervencionesLayer({
   // =====================================================
 
   function estaEnHover(intervencion) {
-    return hoverId === intervencion.id
+    return (
+      hoverId === intervencion.id ||
+      intervencionResaltadaId ===
+        intervencion.id
+    )
   }
 
   function estaEnfocada(intervencion) {
@@ -81,18 +77,26 @@ function IntervencionesLayer({
     intervencion,
     color
   ) {
+    const enfocada =
+      estaEnfocada(intervencion)
+
+    const hover =
+      estaEnHover(intervencion)
+
     return {
       color,
-      weight: estaEnfocada(intervencion)
+      weight: enfocada
         ? 10
-        : estaEnHover(intervencion)
+        : hover
           ? 9
           : 7,
-      opacity: estaEnfocada(intervencion)
+      opacity: enfocada
         ? 1
-        : estaEnHover(intervencion)
+        : hover
           ? 1
-          : 0.92,
+          : 0.9,
+      lineCap: 'round',
+      lineJoin: 'round',
     }
   }
 
@@ -100,17 +104,23 @@ function IntervencionesLayer({
     intervencion,
     color
   ) {
+    const enfocada =
+      estaEnfocada(intervencion)
+
+    const hover =
+      estaEnHover(intervencion)
+
     return {
       color,
-      weight: estaEnfocada(intervencion)
+      weight: enfocada
         ? 7
-        : estaEnHover(intervencion)
+        : hover
           ? 6
           : 4,
       fillColor: color,
-      fillOpacity: estaEnfocada(intervencion)
+      fillOpacity: enfocada
         ? 0.42
-        : estaEnHover(intervencion)
+        : hover
           ? 0.38
           : 0.25,
     }
@@ -160,10 +170,6 @@ function IntervencionesLayer({
             intervencion
           )
 
-        // ===============================
-        // LÍNEA
-        // ===============================
-
         if (
           intervencion.geometriaTipo ===
             'Línea' &&
@@ -193,10 +199,6 @@ function IntervencionesLayer({
           )
         }
 
-        // ===============================
-        // POLÍGONO
-        // ===============================
-
         if (
           intervencion.geometriaTipo ===
             'Polígono' &&
@@ -225,10 +227,6 @@ function IntervencionesLayer({
             </Polygon>
           )
         }
-
-        // ===============================
-        // PUNTO
-        // ===============================
 
         if (
           intervencion.latitud &&

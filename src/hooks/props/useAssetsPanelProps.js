@@ -5,6 +5,8 @@ export function useAssetsPanelProps({
   eliminarIntervencionProtegida,
   manejarEnfocarIntervencion,
 
+  setIntervencionHoverId,
+
   assetsPanelAbierto,
   setAssetsPanelAbierto,
 }) {
@@ -19,6 +21,8 @@ export function useAssetsPanelProps({
 
     enfocarIntervencion:
       manejarEnfocarIntervencion,
+
+    setIntervencionHoverId,
 
     abierto: assetsPanelAbierto,
     setAbierto: setAssetsPanelAbierto,

@@ -49,6 +49,7 @@ function MapView({
   setMostrarBarrios,
   editarIntervencion,
   intervencionEnfocada,
+  intervencionHoverId,
   modoDibujo,
   setModoDibujo,
   sidebarAbierto,
@@ -298,6 +299,9 @@ function MapView({
             modoDibujo={modoDibujo}
             intervencionEnfocada={
               intervencionEnfocada
+            }
+            intervencionResaltadaId={
+              intervencionHoverId
             }
           />
         </MapContainer>

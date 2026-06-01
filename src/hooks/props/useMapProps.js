@@ -18,6 +18,7 @@ export function useMapProps({
 
   manejarEditarIntervencion,
   intervencionEnfocada,
+  intervencionHoverId,
 
   modoDibujo,
   setModoDibujo,
@@ -49,6 +50,7 @@ export function useMapProps({
       manejarEditarIntervencion,
 
     intervencionEnfocada,
+    intervencionHoverId,
 
     modoDibujo,
     setModoDibujo,

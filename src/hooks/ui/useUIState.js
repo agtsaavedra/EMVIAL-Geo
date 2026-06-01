@@ -110,12 +110,24 @@ export function useUIState() {
   ] = useState('')
 
   // =====================================================
-  // FOCO / SELECCIÓN DE INTERVENCIÓN
+  // FOCO / HOVER DE INTERVENCIÓN
   // =====================================================
+  // intervencionEnfocada:
+  // - selección real
+  // - se usa para centrar mapa / popup / foco fuerte
+  //
+  // intervencionHoverId:
+  // - selección temporal por hover
+  // - se usa para resaltar en mapa sin moverlo
 
   const [
     intervencionEnfocada,
     setIntervencionEnfocada,
+  ] = useState(null)
+
+  const [
+    intervencionHoverId,
+    setIntervencionHoverId,
   ] = useState(null)
 
   // =====================================================
@@ -237,6 +249,9 @@ export function useUIState() {
 
     intervencionEnfocada,
     setIntervencionEnfocada,
+
+    intervencionHoverId,
+    setIntervencionHoverId,
 
     modoDibujo,
     setModoDibujo,

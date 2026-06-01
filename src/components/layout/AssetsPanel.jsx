@@ -3,6 +3,7 @@ function AssetsPanel({
   editarIntervencion,
   eliminarIntervencion,
   enfocarIntervencion,
+  setIntervencionHoverId,
   abierto,
   setAbierto,
 }) {
@@ -37,6 +38,16 @@ function AssetsPanel({
     cerrarPanelMobile()
   }
 
+  function manejarHoverCard(intervencion) {
+    setIntervencionHoverId?.(
+      intervencion?.id || null
+    )
+  }
+
+  function limpiarHoverCard() {
+    setIntervencionHoverId?.(null)
+  }
+
   function manejarEditar(e, intervencion) {
     e.stopPropagation()
     editarIntervencion(intervencion)
@@ -55,6 +66,22 @@ function AssetsPanel({
     return abierto ? '›' : '‹'
   }
 
+  function obtenerTitulo(intervencion) {
+    return (
+      intervencion.nombre ||
+      intervencion.obra ||
+      'Intervención'
+    )
+  }
+
+  function obtenerReferencia(intervencion) {
+    return (
+      intervencion.ubicacion ||
+      intervencion.direccion ||
+      ''
+    )
+  }
+
   // =====================================================
   // RENDER
   // =====================================================
@@ -65,9 +92,6 @@ function AssetsPanel({
         abierto ? 'open' : 'closed'
       }`}
     >
-      {/* Botón para abrir/cerrar panel.
-          En desktop funciona lateral.
-          En mobile funciona como panel inferior. */}
       <button
         type="button"
         className="panel-toggle"
@@ -86,113 +110,95 @@ function AssetsPanel({
             </p>
           ) : (
             intervencionesFiltradas.map(
-              (intervencion) => (
-                <div
-                  key={intervencion.id}
-                  className="card"
-                  onClick={() =>
-                    manejarClickCard(intervencion)
-                  }
-                >
-                  {/* ===============================
-                      CABECERA
-                  ================================ */}
+              (intervencion) => {
+                const referencia =
+                  obtenerReferencia(intervencion)
 
-                  <div className="card-header">
-                    <div>
-                      <strong>
-                        {intervencion.nombre ||
-                          intervencion.obra ||
-                          'Intervención'}
-                      </strong>
+                return (
+                  <div
+                    key={intervencion.id}
+                    className="card"
+                    onClick={() =>
+                      manejarClickCard(intervencion)
+                    }
+                    onMouseEnter={() =>
+                      manejarHoverCard(intervencion)
+                    }
+                    onMouseLeave={limpiarHoverCard}
+                  >
+                    <div className="card-header">
+                      <div>
+                        <strong>
+                          {obtenerTitulo(intervencion)}
+                        </strong>
 
-                      {intervencion.obra && (
                         <small className="card-subtitle">
-                          {intervencion.obra}
+                          {intervencion.obra ||
+                            'Sin obra'}{' '}
+                          ·{' '}
+                          {intervencion.estado ||
+                            'Sin estado'}
                         </small>
+                      </div>
+
+                      <div className="card-actions">
+                        <button
+                          type="button"
+                          className="edit-btn"
+                          onClick={(e) =>
+                            manejarEditar(
+                              e,
+                              intervencion
+                            )
+                          }
+                        >
+                          Editar
+                        </button>
+
+                        <button
+                          type="button"
+                          className="delete-btn"
+                          onClick={(e) =>
+                            manejarEliminar(
+                              e,
+                              intervencion
+                            )
+                          }
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="card-compact-detail">
+                      {intervencion.barrio && (
+                        <span>
+                          📍 {intervencion.barrio}
+                        </span>
+                      )}
+
+                      {referencia && (
+                        <span>
+                          📌 {referencia}
+                        </span>
+                      )}
+
+                      {intervencion.fuente && (
+                        <span>
+                          Fuente: {intervencion.fuente}
+                        </span>
                       )}
                     </div>
 
-                    <div className="card-actions">
-                      <button
-                        type="button"
-                        className="edit-btn"
-                        onClick={(e) =>
-                          manejarEditar(
-                            e,
-                            intervencion
-                          )
-                        }
-                      >
-                        Editar
-                      </button>
-
-                      <button
-                        type="button"
-                        className="delete-btn"
-                        onClick={(e) =>
-                          manejarEliminar(
-                            e,
-                            intervencion
-                          )
-                        }
-                      >
-                        Eliminar
-                      </button>
-                    </div>
+                    <small className="card-geometry">
+                      {intervencion.geometriaTipo ||
+                        'Punto'}{' '}
+                      — {intervencion.latitud},{' '}
+                      {intervencion.longitud}
+                    </small>
                   </div>
-
-                  {/* ===============================
-                      ESTADO
-                  ================================ */}
-
-                  <span>
-                    {intervencion.estado}
-                  </span>
-
-                  {/* ===============================
-                      DETALLE
-                  ================================ */}
-
-                  <p>
-                    {intervencion.barrio && (
-                      <>
-                        <strong>Barrio:</strong>{' '}
-                        {intervencion.barrio}
-                        <br />
-                      </>
-                    )}
-
-                    {(intervencion.ubicacion ||
-                      intervencion.direccion) && (
-                      <>
-                        <strong>Referencia:</strong>{' '}
-                        {intervencion.ubicacion ||
-                          intervencion.direccion}
-                        <br />
-                      </>
-                    )}
-
-                    {intervencion.fuente && (
-                      <>
-                        <strong>Fuente:</strong>{' '}
-                        {intervencion.fuente}
-                      </>
-                    )}
-                  </p>
-
-                  {/* ===============================
-                      GEOMETRÍA / COORDENADAS
-                  ================================ */}
-
-                  <small>
-                    {intervencion.geometriaTipo ||
-                      'Punto'}{' '}
-                    — {intervencion.latitud},{' '}
-                    {intervencion.longitud}
-                  </small>
-                </div>
-              )
+                )
+              }
             )
           )}
         </div>

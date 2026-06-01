@@ -4,7 +4,19 @@ export function useToast() {
   const [toast, setToast] = useState(null)
   const timerRef = useRef(null)
 
-  function mostrarToast(mensaje, tipo = 'info') {
+  function cerrarToast() {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+
+    setToast(null)
+  }
+
+  function mostrarToast(
+    mensaje,
+    tipo = 'info',
+    opciones = {}
+  ) {
     if (timerRef.current) {
       clearTimeout(timerRef.current)
     }
@@ -12,15 +24,18 @@ export function useToast() {
     setToast({
       mensaje,
       tipo,
+      accionTexto: opciones.accionTexto,
+      onAccion: opciones.onAccion,
     })
 
     timerRef.current = setTimeout(() => {
       setToast(null)
-    }, 3200)
+    }, opciones.duracion || 4200)
   }
 
   return {
     toast,
     mostrarToast,
+    cerrarToast,
   }
 }

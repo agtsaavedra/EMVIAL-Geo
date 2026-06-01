@@ -62,6 +62,7 @@ function App() {
     guardarIntervencionEnDB,
     eliminarIntervencion,
     recargarIntervenciones,
+    restaurarIntervencion,
   } = useIntervenciones()
 
   // =====================================================
@@ -110,6 +111,9 @@ function App() {
 
     assetsPanelAbierto,
     setAssetsPanelAbierto,
+
+    intervencionHoverId,
+    setIntervencionHoverId,
   } = useUIState()
 
   // =====================================================
@@ -308,6 +312,8 @@ function App() {
     manejarEnfocarIntervencion,
 
     assetsPanelAbierto,
+
+    intervencionHoverId,
   })
 
   const topbarProps = useTopbarProps({
@@ -360,7 +366,7 @@ function App() {
     hayCambiosSinGuardar,
   })
 
- 
+
   // =====================================================
   // ACCIONES DEL PANEL DE INTERVENCIONES
   // useAssetActions:
@@ -373,10 +379,11 @@ function App() {
     confirmar,
     eliminarIntervencion,
     mostrarToast,
+    restaurarIntervencion,
   })
 
 
-   const assetsPanelProps = useAssetsPanelProps({
+  const assetsPanelProps = useAssetsPanelProps({
     intervencionesFiltradas,
 
     manejarEditarIntervencion,
@@ -385,6 +392,8 @@ function App() {
 
     assetsPanelAbierto,
     setAssetsPanelAbierto,
+
+    setIntervencionHoverId,
   })
 
   // =====================================================
@@ -418,49 +427,49 @@ function App() {
   // RENDER
   // =====================================================
   const { mostrarSplash } =
-  useSplashScreen()
+    useSplashScreen()
 
   return (
-      <>
-     {mostrarSplash && <AppSplash />}
-    <div className={`app ${modoOscuro ? 'dark' : ''}`}>
-      <Sidebar {...sidebarProps} />
+    <>
+      {mostrarSplash && <AppSplash />}
+      <div className={`app ${modoOscuro ? 'dark' : ''}`}>
+        <Sidebar {...sidebarProps} />
 
-      <main className="main">
-        <Topbar {...topbarProps} />
+        <main className="main">
+          <Topbar {...topbarProps} />
 
-        <section className="content">
-          <MapView {...mapProps} />
+          <section className="content">
+            <MapView {...mapProps} />
 
-          <AssetsPanel {...assetsPanelProps} />
-        </section>
-      </main>
+            <AssetsPanel {...assetsPanelProps} />
+          </section>
+        </main>
 
-      <Toast toast={toast} />
+        <Toast toast={toast} />
 
-      <ConfirmDialog
-        abierto={Boolean(dialogo)}
-        titulo={dialogo?.titulo}
-        mensaje={dialogo?.mensaje}
-        detalle={dialogo?.detalle}
-        textoConfirmar={dialogo?.textoConfirmar}
-        textoCancelar={dialogo?.textoCancelar}
-        danger={dialogo?.danger}
-        onCancelar={cerrarDialogo}
-        onConfirmar={() => {
-          dialogo?.onConfirmar?.()
-          cerrarDialogo()
-        }}
-      />
+        <ConfirmDialog
+          abierto={Boolean(dialogo)}
+          titulo={dialogo?.titulo}
+          mensaje={dialogo?.mensaje}
+          detalle={dialogo?.detalle}
+          textoConfirmar={dialogo?.textoConfirmar}
+          textoCancelar={dialogo?.textoCancelar}
+          danger={dialogo?.danger}
+          onCancelar={cerrarDialogo}
+          onConfirmar={() => {
+            dialogo?.onConfirmar?.()
+            cerrarDialogo()
+          }}
+        />
 
-      <AboutDialog
-        abierto={aboutAbierto}
-        onCerrar={cerrarAbout}
-        estadoApp={estadoApp}
-        periodoActivo={periodoActivo}
-      />
-    </div>
-     </>
+        <AboutDialog
+          abierto={aboutAbierto}
+          onCerrar={cerrarAbout}
+          estadoApp={estadoApp}
+          periodoActivo={periodoActivo}
+        />
+      </div>
+    </>
   )
 }
 

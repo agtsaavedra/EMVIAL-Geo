@@ -307,3 +307,23 @@
     transform: translateY(0);
   }
 }
+
+
+/* ===============================
+   MENÚ HAMBURGUESA MOBILE
+   En pantallas chicas vuelve a abrirse pegado al botón
+================================ */
+@media (max-width: 1024px) {
+  .dropdown-menu {
+    position: fixed;
+
+    top: 58px;
+    right: 12px;
+    left: auto;
+
+    min-width: 230px;
+    max-width: calc(100vw - 24px);
+
+    transform-origin: top right;
+  }
+}
