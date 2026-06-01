@@ -10,14 +10,7 @@ function TopbarTitle() {
       />
 
       <div className="topbar-title-text">
-        <h2>
-          Mapa de intervenciones
-        </h2>
-
-        <span>
-          Mar del Plata / Partido de
-          General Pueyrredon
-        </span>
+        <h3>Mapa de Intervenciones MGP</h3>
       </div>
     </div>
   )

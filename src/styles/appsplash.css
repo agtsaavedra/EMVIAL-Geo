@@ -13,7 +13,7 @@
     linear-gradient(135deg, #020617, #0f172a);
 
   animation: splashFadeOut 0.35s ease forwards;
-  animation-delay: 0.95s;
+  animation-delay: 1.65s;
 }
 
 .app-splash-card {

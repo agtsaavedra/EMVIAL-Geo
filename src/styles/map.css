@@ -180,35 +180,35 @@
   background: var(--surface);
   color: var(--text);
 
-  border-radius: 16px;
-  padding: 10px 12px;
+  border-radius: 12px;
+  padding: 6px 7px;
   border: 1px solid var(--border);
 
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
 }
 
 .map-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .map-action-btn {
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
 
   background: var(--surface-2);
   color: var(--text);
 
-  padding: 10px 14px;
+  padding: 6px 8px;
 
   cursor: pointer;
 
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
 
   transition:
     background-color 0.2s ease,
@@ -244,12 +244,12 @@
 .layer-toggle {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 
   width: 180px;
 
   color: var(--text);
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
 }
 
@@ -264,9 +264,9 @@
   color: var(--text);
 
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
 
-  padding: 10px 14px;
+  padding: 6px 8px;
 }
 
 /* ===============================
@@ -277,15 +277,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 6px;
 
-  padding-top: 8px;
+  padding-top: 5px;
   border-top: 1px solid var(--border);
 
   flex-wrap: nowrap;
   overflow: hidden;
 
-  font-size: 12px;
+  font-size: 9px;
   color: var(--text-soft);
   line-height: 1;
 }
@@ -369,11 +369,11 @@
 .map-stats-panel {
   position: absolute;
 
-  right: 30px;
-  bottom: 16px;
+  right: 16px;
+  bottom: calc(100% + 10px);
 
-  width: 360px;
-  max-height: 440px;
+  width: min(400px, calc(100vw - 48px));
+  max-height: min(480px, 62vh);
   overflow-y: auto;
 
   background: var(--surface);
@@ -386,11 +386,17 @@
 
   padding: 16px;
 
-  z-index: 2000;
+  z-index: 3000;
 
   transform-origin: bottom right;
 
   animation: statsPanelIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* En desktop NO desplazamos por el panel de intervenciones.
+   El panel de estadísticas queda dentro del área del mapa. */
+.map-stats-panel.with-assets-panel {
+  right: 16px;
 }
 
 .map-stats-panel-header {
@@ -492,6 +498,59 @@
   flex-shrink: 0;
 }
 
+.stats-detail-row-button {
+  width: 100%;
+
+  border: none;
+  background: transparent;
+  color: inherit;
+
+  cursor: pointer;
+  text-align: left;
+}
+
+.stats-detail-row-button:hover {
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.map-stats-open-btn {
+  margin-left: 8px;
+  margin-top: 4px;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  background: var(--surface-2);
+  color: var(--text);
+
+  padding: 5px 8px;
+
+  cursor: pointer;
+
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+
+  transition:
+    background-color 0.18s ease,
+    transform 0.14s ease,
+    border-color 0.18s ease;
+}
+
+.map-stats-open-btn:hover {
+  background: var(--surface);
+  transform: translateY(-1px);
+}
+
+.map-stats-open-btn:active {
+  transform: scale(0.97);
+}
+
 @keyframes statsPanelIn {
   from {
     opacity: 0;
@@ -514,69 +573,6 @@
     opacity: 1;
     transform: translateX(0);
   }
-}
-
-.stats-detail-row-button {
-  width: 100%;
-  border: none;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  text-align: left;
-}
-
-.stats-detail-row-button:hover {
-  background: var(--surface-2);
-  border-radius: 10px;
-  padding-left: 8px;
-  padding-right: 8px;
-}
-
-.map-stats-open-btn {
-  margin-left: 12px;
-  margin-top: 4px;
-
-  border: 1px solid var(--border);
-  border-radius: 999px;
-
-  background: var(--surface-2);
-  color: var(--text);
-
-  padding: 6px 11px;
-
-  cursor: pointer;
-
-  font-size: 11px;
-  font-weight: 700;
-  white-space: nowrap;
-
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
-
-  transition:
-    background-color 0.18s ease,
-    transform 0.14s ease,
-    border-color 0.18s ease;
-}
-
-.map-stats-open-btn:hover {
-  background: var(--surface);
-  transform: translateY(-1px);
-}
-
-.map-stats-open-btn:active {
-  transform: scale(0.97);
-}
-
-.map-stats-panel {
-  transition:
-    right 0.34s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.22s ease,
-    opacity 0.22s ease;
-}
-
-/* panel abierto → mover dashboard */
-.map-stats-panel.with-assets-panel {
-  right: 345px;
 }
 
 .leaflet-interactive {
@@ -635,6 +631,38 @@
   opacity: 0.45;
   cursor: not-allowed;
   transform: none;
+}
+
+
+/* ===============================
+   ESTADÍSTICAS EN PANTALLAS MEDIANAS
+   Evita que el panel se corte contra el topbar.
+================================ */
+
+@media (min-width: 1025px) and (max-width: 1366px) {
+  .map-stats-panel,
+  .map-stats-panel.with-assets-panel {
+    position: fixed;
+
+    top: 124px;
+    right: 24px;
+    bottom: auto;
+
+    width: min(380px, calc(100vw - 48px));
+    max-height: calc(100vh - 150px);
+
+    z-index: 5000;
+  }
+
+  .map-stats-panel.with-assets-panel {
+    right: 320px;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1200px) {
+  .map-stats-panel.with-assets-panel {
+    right: 300px;
+  }
 }
 
 @media (max-width: 1024px) {
