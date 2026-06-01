@@ -73,59 +73,74 @@ function IntervencionesLayer({
     return idEnfocado === intervencion.id
   }
 
-  function obtenerOpcionesLinea(
-    intervencion,
-    color
-  ) {
-    const enfocada =
-      estaEnfocada(intervencion)
+function obtenerOpcionesLinea(
+  intervencion,
+  color
+) {
+  const enfocada =
+    estaEnfocada(intervencion)
 
-    const hover =
-      estaEnHover(intervencion)
+  const hover =
+    estaEnHover(intervencion)
 
-    return {
-      color,
-      weight: enfocada
-        ? 10
-        : hover
-          ? 9
-          : 7,
-      opacity: enfocada
-        ? 1
-        : hover
-          ? 1
-          : 0.9,
-      lineCap: 'round',
-      lineJoin: 'round',
-    }
+  return {
+    color,
+    weight: enfocada
+      ? 13
+      : hover
+        ? 11
+        : 7,
+
+    opacity: enfocada || hover
+      ? 1
+      : 0.82,
+
+    lineCap: 'round',
+    lineJoin: 'round',
+
+    className:
+      enfocada || hover
+        ? 'leaflet-path-glow'
+        : '',
   }
+}
 
-  function obtenerOpcionesPoligono(
-    intervencion,
-    color
-  ) {
-    const enfocada =
-      estaEnfocada(intervencion)
+function obtenerOpcionesPoligono(
+  intervencion,
+  color
+) {
+  const enfocada =
+    estaEnfocada(intervencion)
 
-    const hover =
-      estaEnHover(intervencion)
+  const hover =
+    estaEnHover(intervencion)
 
-    return {
-      color,
-      weight: enfocada
+  return {
+    color,
+    weight: enfocada
+      ? 9
+      : hover
         ? 7
-        : hover
-          ? 6
-          : 4,
-      fillColor: color,
-      fillOpacity: enfocada
-        ? 0.42
-        : hover
-          ? 0.38
-          : 0.25,
-    }
-  }
+        : 4,
 
+    fillColor: color,
+
+    fillOpacity: enfocada
+      ? 0.5
+      : hover
+        ? 0.44
+        : 0.22,
+
+    opacity: enfocada || hover
+      ? 1
+      : 0.82,
+
+    className:
+      enfocada || hover
+        ? 'leaflet-path-glow'
+        : '',
+  }
+}
   function obtenerTamanoIcono(
     intervencion
   ) {
