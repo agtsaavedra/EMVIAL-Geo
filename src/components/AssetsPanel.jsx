@@ -6,9 +6,9 @@ function AssetsPanel({
   eliminarIntervencion,
   enfocarIntervencion,
   abierto,
-setAbierto,
+  setAbierto,
 }) {
-  
+
 
   return (
     <aside className={`assets-panel ${abierto ? 'open' : 'closed'}`}>
@@ -40,7 +40,21 @@ setAbierto,
             <p className="empty">Todavía no hay intervenciones cargadas.</p>
           ) : (
             intervencionesFiltradas.map((intervencion) => (
-              <div className="card" key={intervencion.id} onClick={() => enfocarIntervencion?.(intervencion)}>
+              <div
+                className="card"
+                key={intervencion.id}
+                onClick={() => {
+                  enfocarIntervencion?.(intervencion)
+
+                  if (window.innerWidth <= 1024) {
+                    setAbierto(false)
+
+                    setTimeout(() => {
+                      window.dispatchEvent(new Event('resize'))
+                    }, 320)
+                  }
+                }}
+              >
                 <div className="card-header">
                   <div>
                     <strong>
