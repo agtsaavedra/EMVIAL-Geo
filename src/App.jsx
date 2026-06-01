@@ -1,5 +1,5 @@
 import './App.css'
-import { useState, useEffect } from 'react'
+
 import Sidebar from './components/Sidebar.jsx'
 import MapView from './components/map/MapView.jsx'
 import AssetsPanel from './components/AssetsPanel'
@@ -18,20 +18,29 @@ import { useFormularioIntervencion } from './hooks/useFormularioIntervencion'
 import { useGeocoding } from './hooks/useGeocoding'
 import { useFiltrosIntervenciones } from './hooks/useFiltrosIntervenciones'
 
-import { exportarExcelPeriodo } from './services/exportExcel.js'
-import { exportarKml } from './utils/exportKML.js'
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
+import { useAppCloseProtection } from './hooks/useAppCloseProtection'
+import { useAboutDialog } from './hooks/useAboutDialog'
+import { useAppActions } from './hooks/useAppActions'
+import { useTopbarActions } from './hooks/useTopbarActions'
+import { useAssetActions } from './hooks/useAssetActions'
 
 function App() {
-  // ===============================
-  // Hooks globales de UI
-  // ===============================
+  // =====================================================
+  // UI GLOBAL
+  // =====================================================
 
   const { toast, mostrarToast } = useToast()
-  const { dialogo, confirmar, cerrarDialogo } = useConfirmDialog()
 
-  // ===============================
-  // Datos persistentes
-  // ===============================
+  const {
+    dialogo,
+    confirmar,
+    cerrarDialogo,
+  } = useConfirmDialog()
+
+  // =====================================================
+  // DATOS PRINCIPALES / INTERVENCIONES
+  // =====================================================
 
   const {
     intervenciones,
@@ -42,52 +51,76 @@ function App() {
     recargarIntervenciones,
   } = useIntervenciones()
 
-  // ===============================
-  // Estado visual general
-  // ===============================
+  // =====================================================
+  // ESTADO VISUAL GENERAL
+  // =====================================================
 
   const {
     modoOscuro,
     setModoOscuro,
+
     busqueda,
     setBusqueda,
+
     sugerencias,
     setSugerencias,
+
     buscandoDireccion,
     setBuscandoDireccion,
+
     puntoSeleccionado,
     setPuntoSeleccionado,
+
     barrioSeleccionado,
     setBarrioSeleccionado,
+
     mostrarBarrios,
     setMostrarBarrios,
+
     menuAbierto,
     setMenuAbierto,
+
     filtroObra,
     setFiltroObra,
+
     filtroEstado,
     setFiltroEstado,
+
     filtroBarrio,
     setFiltroBarrio,
+
     intervencionEnfocada,
     setIntervencionEnfocada,
+
     modoDibujo,
     setModoDibujo,
+
     sidebarAbierto,
     setSidebarAbierto,
+
     assetsPanelAbierto,
     setAssetsPanelAbierto,
   } = useUIState()
 
-  // ===============================
-  // Periodo activo
-  // ===============================
+  // =====================================================
+  // PERÍODO ACTIVO
+  // usePeriodo:
+  // - mantiene el período activo
+  // - recuerda el último período usado con localStorage
+  // =====================================================
 
-  const { periodoActivo, setPeriodoActivo } = usePeriodo()
+  const {
+    periodoActivo,
+    setPeriodoActivo,
+  } = usePeriodo()
 
-  // ===============================
-  // Backups
-  // ===============================
+  // =====================================================
+  // BACKUPS
+  // useBackups:
+  // - crear backup
+  // - restaurar backup completo
+  // - restaurar período actual
+  // =====================================================
 
   const {
     crearBackup,
@@ -98,9 +131,13 @@ function App() {
     recargarIntervenciones,
   })
 
-  // ===============================
-  // Formulario
-  // ===============================
+  // =====================================================
+  // FORMULARIO DE INTERVENCIÓN
+  // useFormularioIntervencion:
+  // - form
+  // - guardar / editar / cancelar
+  // - dirty state: hayCambiosSinGuardar
+  // =====================================================
 
   const {
     form,
@@ -122,12 +159,15 @@ function App() {
     setSugerencias,
     setBuscandoDireccion,
     mostrarToast,
-    modoDibujo,
   })
 
-  // ===============================
-  // Geocoding
-  // ===============================
+  // =====================================================
+  // GEOCODING
+  // useGeocoding:
+  // - buscar dirección
+  // - obtener dirección por lat/lon
+  // - seleccionar sugerencia
+  // =====================================================
 
   const {
     obtenerDireccion,
@@ -142,9 +182,13 @@ function App() {
     mostrarToast,
   })
 
-  // ===============================
-  // Filtros
-  // ===============================
+  // =====================================================
+  // FILTROS / DATOS DERIVADOS
+  // useFiltrosIntervenciones:
+  // - intervenciones del período
+  // - intervenciones filtradas
+  // - barrios disponibles
+  // =====================================================
 
   const {
     intervencionesDelPeriodo,
@@ -159,239 +203,120 @@ function App() {
     filtroBarrio,
   })
 
-  // ===============================
-  // Acciones auxiliares
-  // ===============================
-  function manejarEnfocarIntervencion(intervencion) {
-    setIntervencionEnfocada({
-      ...intervencion,
-      __focusKey: Date.now(),
-    })
-  }
+  // =====================================================
+  // ABOUT / ACERCA DE
+  // useAboutDialog:
+  // - abre/cierra modal About
+  // - obtiene estado de app desde Electron
+  // =====================================================
 
-  function manejarEditarIntervencion(intervencion) {
-    manejarEnfocarIntervencion(intervencion)
+  const {
+    aboutAbierto,
+    estadoApp,
+    abrirAbout,
+    cerrarAbout,
+  } = useAboutDialog()
 
-    setSidebarAbierto(true)
+  // =====================================================
+  // ACCIONES PRINCIPALES DE APP
+  // useAppActions:
+  // - enfocar intervención
+  // - editar intervención
+  // - cancelar edición protegido
+  // - cambiar período protegido
+  // =====================================================
 
-    if (window.innerWidth <= 1024) {
-      setAssetsPanelAbierto(false)
-
-      setTimeout(() => {
-        window.dispatchEvent(new Event('resize'))
-      }, 320)
-    }
-
-    editarIntervencion(intervencion)
-  }
-
-  function manejarCancelarEdicion() {
-    if (!hayCambiosSinGuardar) {
-      cancelarEdicion()
-      return
-    }
-
-    confirmar({
-      titulo: 'Descartar cambios',
-      mensaje:
-        'Hay cambios sin guardar en la intervención actual.',
-      detalle:
-        'Si continuás, se perderán las modificaciones realizadas.',
-      textoConfirmar: 'Descartar cambios',
-      textoCancelar: 'Seguir editando',
-      danger: true,
-      onConfirmar: cancelarEdicion,
-    })
-  }
-
-
-  function manejarCambioPeriodo(nuevoPeriodo) {
-    if (!hayCambiosSinGuardar) {
-      setPeriodoActivo(nuevoPeriodo)
-      return
-    }
-
-    confirmar({
-      titulo: 'Cambiar período',
-      mensaje:
-        'Hay cambios sin guardar en la intervención actual.',
-      detalle:
-        'Si cambiás de período, se descartarán las modificaciones no guardadas.',
-      textoConfirmar: 'Cambiar período',
-      textoCancelar: 'Seguir editando',
-      danger: true,
-      onConfirmar: () => {
-        cancelarEdicion()
-        setPeriodoActivo(nuevoPeriodo)
-      },
-    })
-  }
-
-  useEffect(() => {
-    function manejarSolicitudCierre() {
-      if (!hayCambiosSinGuardar) {
-        window.api.confirmarCierreApp()
-        return
-      }
-
-      confirmar({
-        titulo: 'Salir sin guardar',
-        mensaje:
-          'Hay cambios sin guardar en la intervención actual.',
-        detalle:
-          'Si salís ahora, se perderán las modificaciones realizadas.',
-        textoConfirmar: 'Salir igual',
-        textoCancelar: 'Seguir editando',
-        danger: true,
-        onConfirmar: () => {
-          window.api.confirmarCierreApp()
-        },
-      })
-    }
-
-    const cleanup =
-      window.api.onAppCloseRequest(
-        manejarSolicitudCierre
-      )
-
-    return () => {
-      cleanup?.()
-    }
-  }, [
+  const {
+    manejarEnfocarIntervencion,
+    manejarEditarIntervencion,
+    manejarCancelarEdicion,
+    manejarCambioPeriodo,
+  } = useAppActions({
+    setIntervencionEnfocada,
+    setSidebarAbierto,
+    setAssetsPanelAbierto,
+    editarIntervencion,
+    cancelarEdicion,
     hayCambiosSinGuardar,
     confirmar,
-  ])
-
-  useEffect(() => {
-  function manejarAtajos(event) {
-    const tag =
-      document.activeElement?.tagName?.toLowerCase()
-
-    const escribiendo =
-      tag === 'input' ||
-      tag === 'textarea' ||
-      tag === 'select'
-
-    // ==========================
-    // Ctrl + S → guardar
-    // ==========================
-    if (
-      event.ctrlKey &&
-      event.key.toLowerCase() === 's'
-    ) {
-      event.preventDefault()
-
-      const formElement =
-        document.querySelector('form')
-
-      formElement?.requestSubmit?.()
-
-      return
-    }
-
-    // ==========================
-    // Ctrl + F → búsqueda
-    // ==========================
-    if (
-      event.ctrlKey &&
-      event.key.toLowerCase() === 'f'
-    ) {
-      event.preventDefault()
-
-      const buscador =
-        document.querySelector(
-          '.topbar-actions input'
-        )
-
-      buscador?.focus?.()
-      buscador?.select?.()
-
-      return
-    }
-
-    // ==========================
-// Ctrl + M → modo dibujo
-// ==========================
-if (
-  event.ctrlKey &&
-  event.key.toLowerCase() === 'd'
-) {
-  event.preventDefault()
-
-  setModoDibujo((prev) => {
-    const nuevoEstado = !prev
-
-    mostrarToast(
-      nuevoEstado
-        ? 'Modo dibujo activado.'
-        : 'Modo dibujo desactivado.',
-      'info'
-    )
-
-    return nuevoEstado
+    setPeriodoActivo,
   })
 
-  return
-}
+  // =====================================================
+  // ACCIONES DEL TOPBAR
+  // useTopbarActions:
+  // - exportar Excel
+  // - exportar KML
+  // - crear/restaurar backups
+  // - abrir About desde menú
+  // =====================================================
 
+  const {
+    exportarKmlActual,
+    exportarExcelActual,
+    crearBackupActual,
+    restaurarBackupActual,
+    restaurarPeriodoActualProtegido,
+    abrirCarpetaBackups,
+    configurarCarpetaBackups,
+    abrirAboutDesdeMenu,
+  } = useTopbarActions({
+    periodoActivo,
+    intervencionesDelPeriodo,
+    setMenuAbierto,
+    mostrarToast,
+    confirmar,
+    crearBackup,
+    restaurarBackup,
+    restaurarPeriodoActual,
+    abrirAbout,
+  })
 
-    // ==========================
-    // Esc → salir modo dibujo
-    // ==========================
-    if (
-      event.key === 'Escape' &&
-      modoDibujo &&
-      !escribiendo
-    ) {
-      setModoDibujo(false)
+  // =====================================================
+  // ACCIONES DEL PANEL DE INTERVENCIONES
+  // useAssetActions:
+  // - eliminar intervención con modal de confirmación
+  // =====================================================
 
-      mostrarToast(
-        'Modo dibujo desactivado.',
-        'info'
-      )
-    }
-  }
+  const {
+    eliminarIntervencionProtegida,
+  } = useAssetActions({
+    confirmar,
+    eliminarIntervencion,
+    mostrarToast,
+  })
 
-  window.addEventListener(
-    'keydown',
-    manejarAtajos
-  )
+  // =====================================================
+  // ATAJOS DE TECLADO
+  // useKeyboardShortcuts:
+  // - Ctrl + S guardar
+  // - Ctrl + F buscar
+  // - Ctrl + D modo dibujo
+  // - Esc salir de modo dibujo
+  // =====================================================
 
-  return () => {
-    window.removeEventListener(
-      'keydown',
-      manejarAtajos
-    )
+  useKeyboardShortcuts({
+    modoDibujo,
+    setModoDibujo,
+    mostrarToast,
+  })
 
+  // =====================================================
+  // PROTECCIÓN DE CIERRE
+  // useAppCloseProtection:
+  // - intercepta cierre de ventana Electron
+  // - muestra modal si hay cambios sin guardar
+  // =====================================================
 
-    
-  }
+  useAppCloseProtection({
+    hayCambiosSinGuardar,
+    confirmar,
+  })
 
+  // =====================================================
+  // RENDER
+  // =====================================================
 
-  
-}, [
-  modoDibujo,
-  setModoDibujo,
-  mostrarToast,
-])
-  // ===============================
-  // Render
-  // ===============================
-
-
-  const [aboutAbierto, setAboutAbierto] =
-    useState(false)
-
-  const [estadoApp, setEstadoApp] =
-    useState(null)
-
-  async function abrirAbout() {
-    const estado =
-      await window.api.obtenerEstadoApp()
-
-    setEstadoApp(estado)
-    setAboutAbierto(true)
-  }
   return (
     <div className={`app ${modoOscuro ? 'dark' : ''}`}>
       <Sidebar
@@ -412,7 +337,6 @@ if (
       <main className="main">
         <Topbar
           periodoActivo={periodoActivo}
-
           setPeriodoActivo={manejarCambioPeriodo}
           filtroObra={filtroObra}
           setFiltroObra={setFiltroObra}
@@ -427,115 +351,18 @@ if (
           setModoOscuro={setModoOscuro}
           menuAbierto={menuAbierto}
           setMenuAbierto={setMenuAbierto}
-          abrirAbout={() => {
-            setMenuAbierto(false)
-            abrirAbout()
-          }}
-          exportarKmlActual={() => {
-            setMenuAbierto(false)
-
-            const ok = exportarKml(intervencionesDelPeriodo)
-
-            mostrarToast(
-              ok
-                ? 'KML exportado correctamente.'
-                : 'No hay intervenciones para exportar en este período.',
-              ok ? 'success' : 'error'
-            )
-          }}
-
-          exportarExcelActual={() => {
-            setMenuAbierto(false)
-
-            const ok = exportarExcelPeriodo(
-              intervencionesDelPeriodo,
-              periodoActivo
-            )
-
-            mostrarToast(
-              ok
-                ? 'Excel exportado correctamente.'
-                : 'No hay intervenciones para exportar en este período.',
-              ok ? 'success' : 'error'
-            )
-          }}
-
-          crearBackup={async () => {
-            setMenuAbierto(false)
-
-            const resultado = await crearBackup()
-
-            mostrarToast(
-              resultado?.message || 'Backup creado correctamente.',
-              resultado?.ok === false ? 'error' : 'success'
-            )
-          }}
-
-          restaurarBackup={() => {
-            setMenuAbierto(false)
-
-            confirmar({
-              titulo: 'Restaurar backup',
-              mensaje:
-                'Se reemplazará la base actual por el backup seleccionado.',
-              detalle:
-                'Esta acción sobrescribirá la información actual.',
-              textoConfirmar: 'Restaurar',
-              textoCancelar: 'Cancelar',
-              danger: true,
-              onConfirmar: async () => {
-                const resultado = await restaurarBackup()
-
-                mostrarToast(
-                  resultado?.message || 'Backup restaurado correctamente.',
-                  resultado?.ok === false ? 'error' : 'success'
-                )
-              },
-            })
-          }}
-
-          restaurarPeriodoActual={() => {
-            setMenuAbierto(false)
-
-            confirmar({
-              titulo: 'Restaurar período',
-              mensaje: `Se restaurarán únicamente las intervenciones del período ${periodoActivo}.`,
-              detalle: 'Los demás períodos no se modificarán.',
-              textoConfirmar: 'Restaurar período',
-              textoCancelar: 'Cancelar',
-              danger: true,
-              onConfirmar: async () => {
-                const resultado = await restaurarPeriodoActual()
-
-                mostrarToast(
-                  resultado?.message || 'Período restaurado correctamente.',
-                  resultado?.ok === false ? 'error' : 'success'
-                )
-              },
-            })
-          }}
-
-          abrirCarpetaBackups={() => {
-            setMenuAbierto(false)
-            window.api.abrirCarpetaBackups()
-          }}
-
-          configurarCarpetaBackups={async () => {
-            setMenuAbierto(false)
-
-            const resultado =
-              await window.api.configurarCarpetaBackups()
-
-            mostrarToast(
-              resultado?.message || 'Carpeta de backups configurada.',
-              resultado?.ok ? 'success' : 'error'
-            )
-          }}
+          abrirAbout={abrirAboutDesdeMenu}
+          exportarKmlActual={exportarKmlActual}
+          exportarExcelActual={exportarExcelActual}
+          crearBackup={crearBackupActual}
+          restaurarBackup={restaurarBackupActual}
+          restaurarPeriodoActual={restaurarPeriodoActualProtegido}
+          abrirCarpetaBackups={abrirCarpetaBackups}
+          configurarCarpetaBackups={configurarCarpetaBackups}
         />
 
         <section className="content">
           <MapView
-
             form={form}
             intervencionesFiltradas={intervencionesFiltradas}
             intervencionEditandoId={intervencionEditandoId}
@@ -553,39 +380,13 @@ if (
             setModoDibujo={setModoDibujo}
             sidebarAbierto={sidebarAbierto}
             enfocarIntervencion={manejarEnfocarIntervencion}
-            assetsPanelAbierto={
-              assetsPanelAbierto
-            }
+            assetsPanelAbierto={assetsPanelAbierto}
           />
 
           <AssetsPanel
             intervencionesFiltradas={intervencionesFiltradas}
             editarIntervencion={manejarEditarIntervencion}
-            eliminarIntervencion={(intervencion) => {
-              confirmar({
-                titulo: 'Eliminar intervención',
-                mensaje:
-                  'Se eliminará esta intervención del período actual.',
-                detalle: 'Esta acción no puede deshacerse.',
-                textoConfirmar: 'Eliminar',
-                textoCancelar: 'Cancelar',
-                danger: true,
-                onConfirmar: async () => {
-                  try {
-                    await eliminarIntervencion(intervencion.id)
-                    mostrarToast(
-                      'Intervención eliminada correctamente.',
-                      'success'
-                    )
-                  } catch {
-                    mostrarToast(
-                      'No se pudo eliminar la intervención.',
-                      'error'
-                    )
-                  }
-                },
-              })
-            }}
+            eliminarIntervencion={eliminarIntervencionProtegida}
             enfocarIntervencion={manejarEnfocarIntervencion}
             abierto={assetsPanelAbierto}
             setAbierto={setAssetsPanelAbierto}
@@ -612,9 +413,7 @@ if (
 
       <AboutDialog
         abierto={aboutAbierto}
-        onCerrar={() =>
-          setAboutAbierto(false)
-        }
+        onCerrar={cerrarAbout}
         estadoApp={estadoApp}
         periodoActivo={periodoActivo}
       />
