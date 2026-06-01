@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 export function useMapProps({
   form,
   setForm,
@@ -28,38 +30,61 @@ export function useMapProps({
 
   assetsPanelAbierto,
 }) {
-  return {
-    form,
-    setForm,
+  return useMemo(
+    () => ({
+      form,
+      setForm,
 
-    intervencionesFiltradas,
-    intervencionEditandoId,
+      intervencionesFiltradas,
+      intervencionEditandoId,
 
-    puntoSeleccionado,
-    setPuntoSeleccionado,
+      puntoSeleccionado,
+      setPuntoSeleccionado,
 
-    obtenerDireccion,
+      obtenerDireccion,
 
-    barrioSeleccionado,
-    setBarrioSeleccionado,
+      barrioSeleccionado,
+      setBarrioSeleccionado,
 
-    mostrarBarrios,
-    setMostrarBarrios,
+      mostrarBarrios,
+      setMostrarBarrios,
 
-    editarIntervencion:
+      editarIntervencion:
+        manejarEditarIntervencion,
+
+      intervencionEnfocada,
+      intervencionHoverId,
+
+      modoDibujo,
+      setModoDibujo,
+
+      sidebarAbierto,
+
+      enfocarIntervencion:
+        manejarEnfocarIntervencion,
+
+      assetsPanelAbierto,
+    }),
+    [
+      form,
+      setForm,
+      intervencionesFiltradas,
+      intervencionEditandoId,
+      puntoSeleccionado,
+      setPuntoSeleccionado,
+      obtenerDireccion,
+      barrioSeleccionado,
+      setBarrioSeleccionado,
+      mostrarBarrios,
+      setMostrarBarrios,
       manejarEditarIntervencion,
-
-    intervencionEnfocada,
-    intervencionHoverId,
-
-    modoDibujo,
-    setModoDibujo,
-
-    sidebarAbierto,
-
-    enfocarIntervencion:
+      intervencionEnfocada,
+      intervencionHoverId,
+      modoDibujo,
+      setModoDibujo,
+      sidebarAbierto,
       manejarEnfocarIntervencion,
-
-    assetsPanelAbierto,
-  }
+      assetsPanelAbierto,
+    ]
+  )
 }

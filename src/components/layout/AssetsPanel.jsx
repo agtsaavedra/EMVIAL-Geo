@@ -1,3 +1,7 @@
+
+import { memo } from 'react'
+
+
 function AssetsPanel({
   intervencionesFiltradas = [],
   editarIntervencion,
@@ -86,6 +90,7 @@ function AssetsPanel({
   // RENDER
   // =====================================================
 
+  console.count('AssetsPanel render')
   return (
     <aside
       className={`assets-panel ${
@@ -207,4 +212,6 @@ function AssetsPanel({
   )
 }
 
-export default AssetsPanel
+export default memo(AssetsPanel)
+
+

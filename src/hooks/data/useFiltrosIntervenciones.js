@@ -1,54 +1,7 @@
+import { useMemo } from 'react'
+
 function normalizarTexto(valor) {
-  return String(valor || '').toLowerCase()
-}
-
-function obtenerTextoBuscable(intervencion) {
-  return `
-    ${intervencion.nombre || ''}
-    ${intervencion.obra || ''}
-    ${intervencion.ubicacion || ''}
-    ${intervencion.barrio || ''}
-    ${intervencion.estado || ''}
-    ${intervencion.fuente || ''}
-    ${intervencion.inspector || ''}
-    ${intervencion.realizo || ''}
-    ${intervencion.descripcion || ''}
-  `.toLowerCase()
-}
-
-function coincideConBusqueda(
-  intervencion,
-  busqueda
-) {
-  const textoBuscable =
-    obtenerTextoBuscable(intervencion)
-
-  const busquedaNormalizada =
-    normalizarTexto(busqueda)
-
-  return textoBuscable.includes(
-    busquedaNormalizada
-  )
-}
-
-function coincideConObra(
-  intervencion,
-  filtroObra
-) {
-  return (
-    !filtroObra ||
-    intervencion.obra === filtroObra
-  )
-}
-
-function coincideConEstado(
-  intervencion,
-  filtroEstado
-) {
-  return (
-    !filtroEstado ||
-    intervencion.estado === filtroEstado
-  )
+  return String(valor || '').toLowerCase().trim()
 }
 
 export function useFiltrosIntervenciones({
@@ -58,56 +11,48 @@ export function useFiltrosIntervenciones({
   filtroObra = '',
   filtroEstado = '',
 }) {
-  // =====================================================
-  // INTERVENCIONES DEL PERÍODO ACTIVO
-  // =====================================================
-
   const intervencionesDelPeriodo =
-    intervenciones.filter(
-      (intervencion) =>
-        intervencion.periodo ===
-        periodoActivo
-    )
-
-  // =====================================================
-  // INTERVENCIONES FILTRADAS
-  // =====================================================
-  // Filtros actuales:
-  // - búsqueda libre
-  // - obra
-  // - estado
-  //
-  // El barrio ya no se filtra desde Topbar.
-  // Ahora se usa como navegación espacial desde el mapa.
+    useMemo(() => {
+      return intervenciones.filter(
+        (intervencion) =>
+          intervencion.periodo === periodoActivo
+      )
+    }, [intervenciones, periodoActivo])
 
   const intervencionesFiltradas =
-    intervencionesDelPeriodo.filter(
-      (intervencion) => {
-        const coincideBusqueda =
-          coincideConBusqueda(
-            intervencion,
-            busqueda
-          )
+    useMemo(() => {
+      const busquedaNormalizada =
+        normalizarTexto(busqueda)
 
-        const coincideObra =
-          coincideConObra(
-            intervencion,
-            filtroObra
-          )
+      return intervencionesDelPeriodo.filter(
+        (intervencion) => {
+          const texto = normalizarTexto(`
+            ${intervencion.nombre || ''}
+            ${intervencion.obra || ''}
+            ${intervencion.ubicacion || ''}
+            ${intervencion.barrio || ''}
+            ${intervencion.estado || ''}
+            ${intervencion.fuente || ''}
+            ${intervencion.inspector || ''}
+            ${intervencion.realizo || ''}
+            ${intervencion.descripcion || ''}
+          `)
 
-        const coincideEstado =
-          coincideConEstado(
-            intervencion,
-            filtroEstado
+          return (
+            texto.includes(busquedaNormalizada) &&
+            (!filtroObra ||
+              intervencion.obra === filtroObra) &&
+            (!filtroEstado ||
+              intervencion.estado === filtroEstado)
           )
-
-        return (
-          coincideBusqueda &&
-          coincideObra &&
-          coincideEstado
-        )
-      }
-    )
+        }
+      )
+    }, [
+      intervencionesDelPeriodo,
+      busqueda,
+      filtroObra,
+      filtroEstado,
+    ])
 
   return {
     intervencionesDelPeriodo,

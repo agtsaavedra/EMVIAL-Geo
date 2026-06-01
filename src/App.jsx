@@ -15,6 +15,7 @@ import { useToast } from '@hooks/ui/useToast'
 import { useConfirmDialog } from '@hooks/ui/useConfirmDialog'
 import { useUIState } from '@hooks/ui/useUIState'
 import { useSplashScreen } from '@hooks/ui/useSplashScreen'
+import { useDebouncedValue } from '@hooks/ui/useDebouncedValue'
 
 import { useIntervenciones } from '@hooks/data/useIntervenciones'
 import { usePeriodo } from '@hooks/data/usePeriodo'
@@ -69,6 +70,7 @@ function App() {
   // ESTADO VISUAL GENERAL
   // =====================================================
 
+
   const {
     modoOscuro,
     setModoOscuro,
@@ -115,6 +117,11 @@ function App() {
     intervencionHoverId,
     setIntervencionHoverId,
   } = useUIState()
+
+
+  const busquedaDebounced =
+    useDebouncedValue(busqueda, 220)
+
 
   // =====================================================
   // PERÍODO ACTIVO
@@ -206,10 +213,11 @@ function App() {
   const {
     intervencionesDelPeriodo,
     intervencionesFiltradas,
+
   } = useFiltrosIntervenciones({
     intervenciones,
     periodoActivo,
-    busqueda,
+    busqueda: busquedaDebounced,
     filtroObra,
     filtroEstado,
   })

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 
 import {
   Marker,
@@ -176,7 +176,7 @@ function obtenerOpcionesPoligono(
   // =====================================================
   // RENDER
   // =====================================================
-
+  console.count('IntervencionesLayer render')
   return (
     <>
       {intervenciones.map((intervencion) => {
@@ -286,4 +286,4 @@ function obtenerOpcionesPoligono(
   )
 }
 
-export default IntervencionesLayer
+export default memo(IntervencionesLayer)

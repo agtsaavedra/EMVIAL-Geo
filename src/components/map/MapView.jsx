@@ -7,7 +7,7 @@ import {
 } from 'react-leaflet'
 
 import 'leaflet/dist/leaflet.css'
-
+import { memo } from 'react'
 import MapBarrioFocus from './MapBarrioFocus'
 import MapActions from './MapActions'
 import ControlBarrio from './ControlBarrio'
@@ -134,7 +134,7 @@ function MapView({
   // =====================================================
   // RENDER
   // =====================================================
-
+console.count('MapView render')
   return (
     <div className="map-area">
       <div
@@ -343,4 +343,4 @@ function MapView({
   )
 }
 
-export default MapView
+export default memo(MapView)
