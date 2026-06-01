@@ -134,7 +134,7 @@ function MapView({
   // =====================================================
   // RENDER
   // =====================================================
-console.count('MapView render')
+
   return (
     <div className="map-area">
       <div

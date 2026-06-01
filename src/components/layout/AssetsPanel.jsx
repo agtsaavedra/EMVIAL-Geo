@@ -90,7 +90,7 @@ function AssetsPanel({
   // RENDER
   // =====================================================
 
-  console.count('AssetsPanel render')
+
   return (
     <aside
       className={`assets-panel ${

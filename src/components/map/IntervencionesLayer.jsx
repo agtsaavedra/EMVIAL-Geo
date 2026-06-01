@@ -176,7 +176,7 @@ function obtenerOpcionesPoligono(
   // =====================================================
   // RENDER
   // =====================================================
-  console.count('IntervencionesLayer render')
+ 
   return (
     <>
       {intervenciones.map((intervencion) => {
