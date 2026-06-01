@@ -313,12 +313,15 @@
    MENÚ HAMBURGUESA MOBILE
    En pantallas chicas vuelve a abrirse pegado al botón
 ================================ */
-@media (max-width: 1024px) {
-  .dropdown-menu {
-    position: fixed;
 
-    top: 58px;
-    right: 12px;
+@media (max-width: 1024px) {
+  .menu-wrapper {
+    position: relative;
+  }
+
+  .dropdown-menu {
+    top: calc(100% + 8px);
+    right: 0;
     left: auto;
 
     min-width: 230px;
