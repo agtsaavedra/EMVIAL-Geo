@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import {
   Marker,
   Popup,
@@ -6,9 +8,9 @@ import {
 } from 'react-leaflet'
 
 import PopupIntervencion from './PopupIntervencion'
+
 import { crearIconoColor } from '../../map/mapIcons'
 import { obtenerColorIntervencion } from '../../map/mapColors'
-import { useState } from 'react'
 
 function IntervencionesLayer({
   intervenciones = [],
@@ -17,133 +19,248 @@ function IntervencionesLayer({
   modoDibujo,
   intervencionEnfocada,
 }) {
+  // =====================================================
+  // ESTADO DE HOVER / FOCO
+  // =====================================================
 
-  const [hoverId, setHoverId] = useState(null)
-  const idEnfocado = intervencionEnfocada?.id
+  const [hoverId, setHoverId] =
+    useState(null)
 
-  function manejarClickCapa(e, intervencion) {
+  const idEnfocado =
+    intervencionEnfocada?.id
+
+  // =====================================================
+  // EVENTOS
+  // =====================================================
+  // En modo dibujo no abrimos popups de intervenciones,
+  // porque el click del mapa debe interpretarse como dibujo.
+  //
+  // Cuando NO estamos dibujando:
+  // 1. enfocamos la intervención
+  // 2. esperamos un instante
+  // 3. abrimos el popup
+  //
+  // Esto evita que MapFocus cierre el popup al mover el mapa.
+
+  function manejarClickCapa(
+    e,
+    intervencion
+  ) {
     e.originalEvent?.stopPropagation?.()
 
     if (modoDibujo) return
 
-    // Primero enfocamos. MapFocus puede cerrar popup anterior.
     enfocarIntervencion?.(intervencion)
 
-    // Después abrimos el popup, cuando el mapa ya se movió.
     setTimeout(() => {
       e.target?.openPopup?.()
     }, 250)
   }
 
+  function manejarMouseOver(id) {
+    setHoverId(id)
+  }
+
+  function manejarMouseOut() {
+    setHoverId(null)
+  }
+
+  // =====================================================
+  // HELPERS VISUALES
+  // =====================================================
+
+  function estaEnHover(intervencion) {
+    return hoverId === intervencion.id
+  }
+
+  function estaEnfocada(intervencion) {
+    return idEnfocado === intervencion.id
+  }
+
+  function obtenerOpcionesLinea(
+    intervencion,
+    color
+  ) {
+    return {
+      color,
+      weight: estaEnfocada(intervencion)
+        ? 10
+        : estaEnHover(intervencion)
+          ? 9
+          : 7,
+      opacity: estaEnfocada(intervencion)
+        ? 1
+        : estaEnHover(intervencion)
+          ? 1
+          : 0.92,
+    }
+  }
+
+  function obtenerOpcionesPoligono(
+    intervencion,
+    color
+  ) {
+    return {
+      color,
+      weight: estaEnfocada(intervencion)
+        ? 7
+        : estaEnHover(intervencion)
+          ? 6
+          : 4,
+      fillColor: color,
+      fillOpacity: estaEnfocada(intervencion)
+        ? 0.42
+        : estaEnHover(intervencion)
+          ? 0.38
+          : 0.25,
+    }
+  }
+
+  function obtenerTamanoIcono(
+    intervencion
+  ) {
+    if (estaEnfocada(intervencion)) {
+      return 28
+    }
+
+    if (estaEnHover(intervencion)) {
+      return 22
+    }
+
+    return 16
+  }
+
+  function obtenerEventos(intervencion) {
+    return {
+      click: (e) =>
+        manejarClickCapa(
+          e,
+          intervencion
+        ),
+
+      mouseover: () =>
+        manejarMouseOver(
+          intervencion.id
+        ),
+
+      mouseout:
+        manejarMouseOut,
+    }
+  }
+
+  // =====================================================
+  // RENDER
+  // =====================================================
+
   return (
     <>
       {intervenciones.map((intervencion) => {
-        const color = obtenerColorIntervencion(intervencion)
+        const color =
+          obtenerColorIntervencion(
+            intervencion
+          )
+
+        // ===============================
+        // LÍNEA
+        // ===============================
 
         if (
-          intervencion.geometriaTipo === 'Línea' &&
+          intervencion.geometriaTipo ===
+            'Línea' &&
           intervencion.geometria?.length > 1
         ) {
           return (
             <Polyline
               key={intervencion.id}
               positions={intervencion.geometria}
-              pathOptions={{
-                color,
-                weight:
-                  idEnfocado === intervencion.id
-                    ? 10
-                    : hoverId === intervencion.id
-                      ? 9
-                      : 7,
-                opacity:
-                  idEnfocado === intervencion.id
-                    ? 1
-                    : hoverId === intervencion.id
-                      ? 1
-                      : 0.92,
-              }}
-              eventHandlers={{
-                click: (e) => manejarClickCapa(e, intervencion),
-                mouseover: () => setHoverId(intervencion.id),
-                mouseout: () => setHoverId(null),
-              }}
+              pathOptions={obtenerOpcionesLinea(
+                intervencion,
+                color
+              )}
+              eventHandlers={obtenerEventos(
+                intervencion
+              )}
             >
               <Popup>
                 <PopupIntervencion
                   intervencion={intervencion}
-                  editarIntervencion={editarIntervencion}
+                  editarIntervencion={
+                    editarIntervencion
+                  }
                 />
               </Popup>
             </Polyline>
           )
         }
 
+        // ===============================
+        // POLÍGONO
+        // ===============================
+
         if (
-          intervencion.geometriaTipo === 'Polígono' &&
+          intervencion.geometriaTipo ===
+            'Polígono' &&
           intervencion.geometria?.length > 2
         ) {
           return (
             <Polygon
               key={intervencion.id}
               positions={intervencion.geometria}
-              pathOptions={{
-                color,
-                weight:
-                  idEnfocado === intervencion.id
-                    ? 7
-                    : hoverId === intervencion.id
-                      ? 6
-                      : 4,
-                fillOpacity:
-                  idEnfocado === intervencion.id
-                    ? 0.42
-                    : hoverId === intervencion.id
-                      ? 0.38
-                      : 0.25,
-              }}
-              eventHandlers={{
-                click: (e) => manejarClickCapa(e, intervencion),
-                mouseover: () => setHoverId(intervencion.id),
-                mouseout: () => setHoverId(null),
-              }}
+              pathOptions={obtenerOpcionesPoligono(
+                intervencion,
+                color
+              )}
+              eventHandlers={obtenerEventos(
+                intervencion
+              )}
             >
               <Popup>
                 <PopupIntervencion
                   intervencion={intervencion}
-                  editarIntervencion={editarIntervencion}
+                  editarIntervencion={
+                    editarIntervencion
+                  }
                 />
               </Popup>
             </Polygon>
           )
         }
 
-        if (intervencion.latitud && intervencion.longitud) {
+        // ===============================
+        // PUNTO
+        // ===============================
+
+        if (
+          intervencion.latitud &&
+          intervencion.longitud
+        ) {
           return (
             <Marker
               key={intervencion.id}
               position={[
-                parseFloat(intervencion.latitud),
-                parseFloat(intervencion.longitud),
+                parseFloat(
+                  intervencion.latitud
+                ),
+                parseFloat(
+                  intervencion.longitud
+                ),
               ]}
               icon={crearIconoColor(
                 color,
-                idEnfocado === intervencion.id
-                  ? 28
-                  : hoverId === intervencion.id
-                    ? 22
-                    : 16
+                obtenerTamanoIcono(
+                  intervencion
+                )
               )}
-              eventHandlers={{
-                click: (e) => manejarClickCapa(e, intervencion),
-                mouseover: () => setHoverId(intervencion.id),
-                mouseout: () => setHoverId(null),
-              }}
+              eventHandlers={obtenerEventos(
+                intervencion
+              )}
             >
               <Popup>
                 <PopupIntervencion
                   intervencion={intervencion}
-                  editarIntervencion={editarIntervencion}
+                  editarIntervencion={
+                    editarIntervencion
+                  }
                 />
               </Popup>
             </Marker>

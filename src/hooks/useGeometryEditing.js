@@ -7,19 +7,40 @@ export function useGeometryEditing({
   intervencionEditandoId,
   setPuntoSeleccionado,
 }) {
-  const [cursorLinea, setCursorLinea] = useState(null)
+  // =====================================================
+  // ESTADO DE PREVIEW / EDICIÓN
+  // =====================================================
 
+  // Posición actual del mouse mientras se dibuja
+  // una línea o un polígono.
+  const [cursorLinea, setCursorLinea] =
+    useState(null)
+
+  // Indica que la geometría guardada debe ocultarse
+  // porque el usuario está redibujando una intervención existente.
   const [
     redibujandoGeometria,
     setRedibujandoGeometria,
   ] = useState(false)
 
+  // Indica si el usuario ya modificó realmente
+  // la geometría durante una edición.
   const [
     edicionGeometricaIniciada,
     setEdicionGeometricaIniciada,
   ] = useState(false)
 
+  // Snapshot de la geometría original al entrar en edición.
+  // Sirve para restaurar si el usuario activa/desactiva dibujo
+  // sin haber modificado la geometría.
   const geometriaOriginalRef = useRef(null)
+
+  // =====================================================
+  // DESHACER ÚLTIMO PUNTO
+  // =====================================================
+  // Elimina el último punto de una línea/polígono activo.
+  // Si estamos editando una intervención existente,
+  // oculta la versión guardada para mostrar solo la editable.
 
   function deshacerPunto() {
     let nuevoUltimoPunto = null
@@ -29,17 +50,22 @@ export function useGeometryEditing({
         (prev.geometria || []).slice(0, -1)
 
       nuevoUltimoPunto =
-        nuevaGeometria[nuevaGeometria.length - 1] || null
+        nuevaGeometria[
+          nuevaGeometria.length - 1
+        ] || null
 
       return {
         ...prev,
         geometria: nuevaGeometria,
+
         latitud: nuevoUltimoPunto
           ? nuevoUltimoPunto[0].toFixed(6)
           : '',
+
         longitud: nuevoUltimoPunto
           ? nuevoUltimoPunto[1].toFixed(6)
           : '',
+
         barrio:
           nuevaGeometria.length === 0
             ? ''
@@ -56,9 +82,17 @@ export function useGeometryEditing({
     }
   }
 
+  // =====================================================
+  // LIMPIAR UBICACIÓN / GEOMETRÍA
+  // =====================================================
+  // Limpia dirección, coordenadas, barrio y geometría.
+  // En edición, marca que se está redibujando para ocultar
+  // la geometría guardada anterior.
+
   function limpiarUbicacion() {
     setForm((prev) => ({
       ...prev,
+
       direccion: '',
       latitud: '',
       longitud: '',
@@ -75,25 +109,53 @@ export function useGeometryEditing({
     }
   }
 
+  // =====================================================
+  // RESTAURAR GEOMETRÍA ORIGINAL
+  // =====================================================
+  // Devuelve el formulario a la geometría original
+  // guardada al iniciar edición.
+
   function restaurarGeometriaOriginal() {
-    const original = geometriaOriginalRef.current
+    const original =
+      geometriaOriginalRef.current
 
     if (!original) return
 
     setForm((prev) => ({
       ...prev,
-      geometriaTipo: original.geometriaTipo,
-      geometria: original.geometria,
-      direccion: original.direccion,
-      latitud: original.latitud,
-      longitud: original.longitud,
-      barrio: original.barrio,
+
+      geometriaTipo:
+        original.geometriaTipo,
+
+      geometria:
+        original.geometria,
+
+      direccion:
+        original.direccion,
+
+      latitud:
+        original.latitud,
+
+      longitud:
+        original.longitud,
+
+      barrio:
+        original.barrio,
     }))
 
     setCursorLinea(null)
     setPuntoSeleccionado(null)
     setRedibujandoGeometria(false)
   }
+
+  // =====================================================
+  // CAMBIAR TIPO DE GEOMETRÍA
+  // =====================================================
+  // Si estamos editando y todavía no se modificó la geometría,
+  // permite cambiar visualmente el tipo sin destruir el original.
+  //
+  // Si ya hubo edición real, cambiar tipo limpia geometría
+  // para evitar combinaciones inconsistentes.
 
   function cambiarGeometriaTipo(tipo) {
     if (
@@ -124,6 +186,18 @@ export function useGeometryEditing({
       setEdicionGeometricaIniciada(true)
     }
   }
+
+  // =====================================================
+  // ACTIVAR / DESACTIVAR MODO DIBUJO
+  // =====================================================
+  // Centraliza el comportamiento del toggle de modo dibujo.
+  //
+  // Al apagar:
+  // - limpia preview
+  // - si no hubo cambios reales, restaura la geometría original
+  //
+  // Al activar:
+  // - si se edita un polígono, limpia la geometría para redibujarla
 
   function manejarCambioModoDibujo({
     activo,
@@ -162,11 +236,21 @@ export function useGeometryEditing({
     }
   }
 
+  // =====================================================
+  // RESET AL SALIR DE EDICIÓN
+  // =====================================================
+
   useEffect(() => {
     if (!intervencionEditandoId) {
       setRedibujandoGeometria(false)
     }
   }, [intervencionEditandoId])
+
+  // =====================================================
+  // SNAPSHOT DE GEOMETRÍA ORIGINAL
+  // =====================================================
+  // Cada vez que se entra a editar una intervención,
+  // guardamos una copia de su geometría original.
 
   useEffect(() => {
     if (!intervencionEditandoId) {
@@ -175,19 +259,34 @@ export function useGeometryEditing({
       return
     }
 
-    const original = intervencionesFiltradas.find(
-      (item) => item.id === intervencionEditandoId
-    )
+    const original =
+      intervencionesFiltradas.find(
+        (item) =>
+          item.id ===
+          intervencionEditandoId
+      )
 
     if (!original) return
 
     geometriaOriginalRef.current = {
-      geometriaTipo: original.geometriaTipo || 'Punto',
-      geometria: original.geometria || [],
-      direccion: original.direccion || '',
-      latitud: original.latitud || '',
-      longitud: original.longitud || '',
-      barrio: original.barrio || '',
+      geometriaTipo:
+        original.geometriaTipo ||
+        'Punto',
+
+      geometria:
+        original.geometria || [],
+
+      direccion:
+        original.direccion || '',
+
+      latitud:
+        original.latitud || '',
+
+      longitud:
+        original.longitud || '',
+
+      barrio:
+        original.barrio || '',
     }
 
     setEdicionGeometricaIniciada(false)
@@ -195,6 +294,10 @@ export function useGeometryEditing({
     intervencionEditandoId,
     intervencionesFiltradas,
   ])
+
+  // =====================================================
+  // API DEL HOOK
+  // =====================================================
 
   return {
     cursorLinea,

@@ -4,19 +4,11 @@ export function useFiltrosIntervenciones({
   busqueda,
   filtroObra,
   filtroEstado,
-  filtroBarrio,
 }) {
   const intervencionesDelPeriodo = intervenciones.filter((intervencion) => {
     return intervencion.periodo === periodoActivo
   })
 
-  const barriosDisponibles = [
-    ...new Set(
-      intervencionesDelPeriodo
-        .map((intervencion) => intervencion.barrio)
-        .filter(Boolean)
-    ),
-  ].sort()
 
   const intervencionesFiltradas = intervencionesDelPeriodo.filter(
     (intervencion) => {
@@ -40,14 +32,10 @@ export function useFiltrosIntervenciones({
       const coincideEstado =
         !filtroEstado || intervencion.estado === filtroEstado
 
-      const coincideBarrio =
-        !filtroBarrio || intervencion.barrio === filtroBarrio
-
       return (
         coincideBusqueda &&
         coincideObra &&
-        coincideEstado &&
-        coincideBarrio
+        coincideEstado
       )
     }
   )
@@ -55,6 +43,5 @@ export function useFiltrosIntervenciones({
   return {
     intervencionesDelPeriodo,
     intervencionesFiltradas,
-    barriosDisponibles,
   }
 }

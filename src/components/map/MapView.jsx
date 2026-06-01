@@ -226,6 +226,7 @@ function MapView({
               setPuntoSeleccionado={
                 setPuntoSeleccionado
               }
+              intervenciones={intervencionesVisibles}
             />
           )}
 

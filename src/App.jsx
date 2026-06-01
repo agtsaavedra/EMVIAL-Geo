@@ -86,9 +86,6 @@ function App() {
     filtroEstado,
     setFiltroEstado,
 
-    filtroBarrio,
-    setFiltroBarrio,
-
     intervencionEnfocada,
     setIntervencionEnfocada,
 
@@ -155,7 +152,6 @@ function App() {
     setBarrioSeleccionado,
     setFiltroObra,
     setFiltroEstado,
-    setFiltroBarrio,
     setSugerencias,
     setBuscandoDireccion,
     mostrarToast,
@@ -193,14 +189,12 @@ function App() {
   const {
     intervencionesDelPeriodo,
     intervencionesFiltradas,
-    barriosDisponibles,
   } = useFiltrosIntervenciones({
     intervenciones,
     periodoActivo,
     busqueda,
     filtroObra,
     filtroEstado,
-    filtroBarrio,
   })
 
   // =====================================================
@@ -342,9 +336,6 @@ function App() {
           setFiltroObra={setFiltroObra}
           filtroEstado={filtroEstado}
           setFiltroEstado={setFiltroEstado}
-          filtroBarrio={filtroBarrio}
-          setFiltroBarrio={setFiltroBarrio}
-          barriosDisponibles={barriosDisponibles}
           busqueda={busqueda}
           setBusqueda={setBusqueda}
           modoOscuro={modoOscuro}

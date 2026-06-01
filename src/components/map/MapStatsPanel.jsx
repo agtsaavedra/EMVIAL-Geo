@@ -6,10 +6,33 @@ function MapStatsPanel({
   seleccionarBarrioEstadistica,
   assetsPanelAbierto,
 }) {
+  // =====================================================
+  // RENDER CONDICIONAL
+  // =====================================================
+  // Si el panel no está abierto, no renderizamos nada.
+  // Esto evita capas invisibles interceptando clicks.
+
   if (!abierto) return null
+
+  // =====================================================
+  // ACCIONES
+  // =====================================================
+
+  function manejarClickBarrio(barrio) {
+    if (barrio === 'Sin barrio') return
+
+    seleccionarBarrioEstadistica?.(barrio)
+    cerrar()
+  }
+
+  // =====================================================
+  // RENDER
+  // =====================================================
 
   return (
     <>
+      {/* Backdrop transparente/oscuro según CSS.
+          Permite cerrar el dashboard haciendo click afuera. */}
       <div
         className="map-stats-backdrop"
         onClick={cerrar}
@@ -22,6 +45,10 @@ function MapStatsPanel({
             : ''
         }`}
       >
+        {/* ===============================
+            HEADER
+        ================================ */}
+
         <div className="map-stats-panel-header">
           <div>
             <strong>
@@ -35,52 +62,54 @@ function MapStatsPanel({
           </div>
 
           <button
+            type="button"
             className="close-btn"
             onClick={cerrar}
+            title="Cerrar estadísticas"
           >
             ×
           </button>
         </div>
 
-        {/* ===================== */}
-        {/* POR OBRA */}
-        {/* ===================== */}
+        {/* ===============================
+            POR OBRA
+        ================================ */}
 
         <section className="map-stats-panel-section">
-          <h4>POR OBRA</h4>
+          <h4>Por obra</h4>
 
           {statsPorObra.map((item) => (
             <div
               key={item.obra}
               className="stats-detail-row"
             >
-              <span>
-                {item.obra}
-              </span>
-
-              <strong>
-                {item.total}
-              </strong>
+              <span>{item.obra}</span>
+              <strong>{item.total}</strong>
             </div>
           ))}
         </section>
 
-        {/* ===================== */}
-        {/* POR BARRIO */}
-        {/* ===================== */}
+        {/* ===============================
+            POR BARRIO
+        ================================ */}
 
         <section className="map-stats-panel-section">
-          <h4>POR BARRIO</h4>
+          <h4>Por barrio</h4>
 
           {statsDetalle.porBarrio.map(
             ([barrio, total]) => (
               <button
                 key={barrio}
-                className="stats-detail-row clickable"
+                type="button"
+                className="stats-detail-row stats-detail-row-button"
                 onClick={() =>
-                  seleccionarBarrioEstadistica?.(
-                    barrio
-                  )
+                  manejarClickBarrio(barrio)
+                }
+                disabled={barrio === 'Sin barrio'}
+                title={
+                  barrio === 'Sin barrio'
+                    ? 'Intervenciones sin barrio asignado'
+                    : `Ver barrio ${barrio}`
                 }
               >
                 <span>{barrio}</span>
@@ -90,12 +119,12 @@ function MapStatsPanel({
           )}
         </section>
 
-        {/* ===================== */}
-        {/* POR ESTADO */}
-        {/* ===================== */}
+        {/* ===============================
+            POR ESTADO
+        ================================ */}
 
         <section className="map-stats-panel-section">
-          <h4>POR ESTADO</h4>
+          <h4>Por estado</h4>
 
           {statsDetalle.porEstado.map(
             ([estado, total]) => (
@@ -110,20 +139,20 @@ function MapStatsPanel({
           )}
         </section>
 
-        {/* ===================== */}
-        {/* POR GEOMETRÍA */}
-        {/* ===================== */}
+        {/* ===============================
+            POR GEOMETRÍA
+        ================================ */}
 
         <section className="map-stats-panel-section">
-          <h4>POR GEOMETRÍA</h4>
+          <h4>Por geometría</h4>
 
           {statsDetalle.porGeometria.map(
-            ([geo, total]) => (
+            ([geometria, total]) => (
               <div
-                key={geo}
+                key={geometria}
                 className="stats-detail-row"
               >
-                <span>{geo}</span>
+                <span>{geometria}</span>
                 <strong>{total}</strong>
               </div>
             )

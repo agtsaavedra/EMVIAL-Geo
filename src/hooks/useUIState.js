@@ -11,7 +11,6 @@ export function useUIState() {
     const [menuAbierto, setMenuAbierto] = useState(false)
     const [filtroObra, setFiltroObra] = useState('')
     const [filtroEstado, setFiltroEstado] = useState('')
-    const [filtroBarrio, setFiltroBarrio] = useState('')
     const [intervencionEnfocada, setIntervencionEnfocada] = useState(null)
     const [modoDibujo, setModoDibujo] = useState(true)
     const [sidebarAbierto, setSidebarAbierto] = useState(true)
@@ -37,8 +36,6 @@ export function useUIState() {
         setFiltroObra,
         filtroEstado,
         setFiltroEstado,
-        filtroBarrio,
-        setFiltroBarrio,
         intervencionEnfocada,
         setIntervencionEnfocada,
         modoDibujo,
