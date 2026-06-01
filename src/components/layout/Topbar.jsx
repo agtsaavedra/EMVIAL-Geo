@@ -1,6 +1,6 @@
-import TopbarTitle from './topbar/TopbarTitle'
-import TopbarFilters from './topbar/TopbarFilters'
-import TopbarMenu from './topbar/TopbarMenu'
+import TopbarTitle from '@components/topbar/TopbarTitle'
+import TopbarFilters from '@components/topbar/TopbarFilters'
+import TopbarMenu from '@components/topbar/TopbarMenu'
 
 function Topbar({
   busqueda,

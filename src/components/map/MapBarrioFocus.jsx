@@ -5,7 +5,7 @@ import L from 'leaflet'
 import {
   barriosGeojson,
   obtenerNombreBarrio,
-} from '../../map/barrios'
+} from '@map/barrios'
 
 function MapBarrioFocus({ barrioSeleccionado }) {
   const map = useMap()

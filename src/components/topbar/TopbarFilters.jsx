@@ -1,7 +1,7 @@
 import {
   OBRAS,
   ESTADOS,
-} from '../../constants/intervenciones'
+} from '@constants/intervenciones'
 
 function TopbarFilters({
   periodoActivo,

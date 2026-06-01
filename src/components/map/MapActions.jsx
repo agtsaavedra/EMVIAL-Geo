@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-import { obtenerColorIntervencion } from '../../map/mapColors'
-import { useMapStatsDetail } from '../../hooks/useMapStatsDetail'
+import { obtenerColorIntervencion } from '@map/mapColors'
+import { useMapStatsDetail } from '@hooks/map/useMapStatsDetail'
 
 import MapStatsPanel from './MapStatsPanel'
 

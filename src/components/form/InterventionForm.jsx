@@ -3,7 +3,7 @@ import {
   ESTADOS,
   FUENTES,
   GEOMETRIAS,
-} from '../constants/intervenciones'
+} from '@constants/intervenciones'
 
 
 function InterventionForm({

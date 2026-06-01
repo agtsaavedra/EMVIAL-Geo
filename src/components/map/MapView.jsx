@@ -19,21 +19,21 @@ import IntervencionesLayer from './IntervencionesLayer'
 import GeometryPreview from './GeometryPreview'
 import MapFocus from './MapFocus'
 
-import { useGeometryEditing } from '../../hooks/useGeometryEditing'
+import { useGeometryEditing } from '@hooks/map/useGeometryEditing'
 
-import { crearIconoColor } from '../../map/mapIcons'
-import { obtenerColorIntervencion } from '../../map/mapColors'
+import { crearIconoColor } from '@map/mapIcons'
+import { obtenerColorIntervencion } from '@map/mapColors'
 
 import {
   centroMarDelPlata,
   estiloBarrio,
-} from '../../map/barrios'
+} from '@map/barrios'
 
 import {
   obtenerBarriosFiltrados,
   obtenerIntervencionesVisibles,
   obtenerStatsMapa,
-} from '../../map/mapViewData'
+} from '@map/mapViewData'
 
 function MapView({
   form,

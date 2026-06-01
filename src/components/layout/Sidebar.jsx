@@ -1,5 +1,5 @@
 
-import InterventionForm from './InterventionForm'
+import InterventionForm from '@components/form/InterventionForm'
 import { useEffect, useRef } from 'react'
 function Sidebar({
   abierto,

@@ -1,29 +1,37 @@
 import './App.css'
 
-import Sidebar from './components/Sidebar.jsx'
-import MapView from './components/map/MapView.jsx'
-import AssetsPanel from './components/AssetsPanel'
-import Topbar from './components/Topbar'
-import Toast from './components/Toast'
-import ConfirmDialog from './components/ConfirmDialog'
-import AboutDialog from './components/AboutDialog'
+import Sidebar from '@components/layout/Sidebar'
+import AssetsPanel from '@components/layout/AssetsPanel'
+import Topbar from '@components/layout/Topbar'
+import MapView from '@components/map/MapView'
 
-import { useToast } from './hooks/useToast'
-import { useConfirmDialog } from './hooks/useConfirmDialog'
-import { useIntervenciones } from './hooks/useIntervenciones'
-import { useUIState } from './hooks/useUIState'
-import { usePeriodo } from './hooks/usePeriodo'
-import { useBackups } from './hooks/useBackups'
-import { useFormularioIntervencion } from './hooks/useFormularioIntervencion'
-import { useGeocoding } from './hooks/useGeocoding'
-import { useFiltrosIntervenciones } from './hooks/useFiltrosIntervenciones'
+import Toast from '@components/common/Toast'
+import ConfirmDialog from '@components/common/ConfirmDialog'
+import AboutDialog from '@components/common/AboutDialog'
 
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
-import { useAppCloseProtection } from './hooks/useAppCloseProtection'
-import { useAboutDialog } from './hooks/useAboutDialog'
-import { useAppActions } from './hooks/useAppActions'
-import { useTopbarActions } from './hooks/useTopbarActions'
-import { useAssetActions } from './hooks/useAssetActions'
+import { useToast } from '@hooks/ui/useToast'
+import { useConfirmDialog } from '@hooks/ui/useConfirmDialog'
+import { useUIState } from '@hooks/ui/useUIState'
+
+import { useIntervenciones } from '@hooks/data/useIntervenciones'
+import { usePeriodo } from '@hooks/data/usePeriodo'
+import { useBackups } from '@hooks/data/useBackups'
+import { useFiltrosIntervenciones } from '@hooks/data/useFiltrosIntervenciones'
+
+import { useFormularioIntervencion } from '@hooks/form/useFormularioIntervencion'
+import { useGeocoding } from '@hooks/form/useGeocoding'
+
+import { useKeyboardShortcuts } from '@hooks/app/useKeyboardShortcuts'
+import { useAppCloseProtection } from '@hooks/app/useAppCloseProtection'
+import { useAboutDialog } from '@hooks/app/useAboutDialog'
+import { useAppActions } from '@hooks/app/useAppActions'
+import { useTopbarActions } from '@hooks/app/useTopbarActions'
+import { useAssetActions } from '@hooks/app/useAssetActions'
+
+import { useMapProps } from '@hooks/props/useMapProps'
+import { useTopbarProps } from '@hooks/props/useTopbarProps'
+import { useSidebarProps } from '@hooks/props/useSidebarProps'
+import { useAssetsPanelProps } from '@hooks/props/useAssetsPanelProps'
 
 function App() {
   // =====================================================
@@ -266,6 +274,88 @@ function App() {
     abrirAbout,
   })
 
+
+  const mapProps = useMapProps({
+    form,
+    setForm,
+
+    intervencionesFiltradas,
+    intervencionEditandoId,
+
+    puntoSeleccionado,
+    setPuntoSeleccionado,
+
+    obtenerDireccion,
+
+    barrioSeleccionado,
+    setBarrioSeleccionado,
+
+    mostrarBarrios,
+    setMostrarBarrios,
+
+    manejarEditarIntervencion,
+    intervencionEnfocada,
+
+    modoDibujo,
+    setModoDibujo,
+
+    sidebarAbierto,
+    manejarEnfocarIntervencion,
+
+    assetsPanelAbierto,
+  })
+
+  const topbarProps = useTopbarProps({
+    periodoActivo,
+    manejarCambioPeriodo,
+
+    filtroObra,
+    setFiltroObra,
+
+    filtroEstado,
+    setFiltroEstado,
+
+    busqueda,
+    setBusqueda,
+
+    modoOscuro,
+    setModoOscuro,
+
+    menuAbierto,
+    setMenuAbierto,
+
+    abrirAboutDesdeMenu,
+
+    exportarKmlActual,
+    exportarExcelActual,
+
+    crearBackupActual,
+    restaurarBackupActual,
+    restaurarPeriodoActualProtegido,
+
+    abrirCarpetaBackups,
+    configurarCarpetaBackups,
+  })
+
+  const sidebarProps = useSidebarProps({
+    sidebarAbierto,
+    setSidebarAbierto,
+
+    form,
+    manejarCambio,
+    guardarIntervencion,
+
+    buscarDireccion,
+    sugerencias,
+    buscandoDireccion,
+    seleccionarSugerencia,
+
+    intervencionEditandoId,
+    manejarCancelarEdicion,
+    hayCambiosSinGuardar,
+  })
+
+ 
   // =====================================================
   // ACCIONES DEL PANEL DE INTERVENCIONES
   // useAssetActions:
@@ -278,6 +368,18 @@ function App() {
     confirmar,
     eliminarIntervencion,
     mostrarToast,
+  })
+
+
+   const assetsPanelProps = useAssetsPanelProps({
+    intervencionesFiltradas,
+
+    manejarEditarIntervencion,
+    eliminarIntervencionProtegida,
+    manejarEnfocarIntervencion,
+
+    assetsPanelAbierto,
+    setAssetsPanelAbierto,
   })
 
   // =====================================================
@@ -313,75 +415,15 @@ function App() {
 
   return (
     <div className={`app ${modoOscuro ? 'dark' : ''}`}>
-      <Sidebar
-        abierto={sidebarAbierto}
-        setAbierto={setSidebarAbierto}
-        form={form}
-        manejarCambio={manejarCambio}
-        guardarIntervencion={guardarIntervencion}
-        buscarDireccion={buscarDireccion}
-        sugerencias={sugerencias}
-        buscandoDireccion={buscandoDireccion}
-        seleccionarSugerencia={seleccionarSugerencia}
-        activoEditandoId={intervencionEditandoId}
-        cancelarEdicion={manejarCancelarEdicion}
-        hayCambiosSinGuardar={hayCambiosSinGuardar}
-      />
+      <Sidebar {...sidebarProps} />
 
       <main className="main">
-        <Topbar
-          periodoActivo={periodoActivo}
-          setPeriodoActivo={manejarCambioPeriodo}
-          filtroObra={filtroObra}
-          setFiltroObra={setFiltroObra}
-          filtroEstado={filtroEstado}
-          setFiltroEstado={setFiltroEstado}
-          busqueda={busqueda}
-          setBusqueda={setBusqueda}
-          modoOscuro={modoOscuro}
-          setModoOscuro={setModoOscuro}
-          menuAbierto={menuAbierto}
-          setMenuAbierto={setMenuAbierto}
-          abrirAbout={abrirAboutDesdeMenu}
-          exportarKmlActual={exportarKmlActual}
-          exportarExcelActual={exportarExcelActual}
-          crearBackup={crearBackupActual}
-          restaurarBackup={restaurarBackupActual}
-          restaurarPeriodoActual={restaurarPeriodoActualProtegido}
-          abrirCarpetaBackups={abrirCarpetaBackups}
-          configurarCarpetaBackups={configurarCarpetaBackups}
-        />
+        <Topbar {...topbarProps} />
 
         <section className="content">
-          <MapView
-            form={form}
-            intervencionesFiltradas={intervencionesFiltradas}
-            intervencionEditandoId={intervencionEditandoId}
-            puntoSeleccionado={puntoSeleccionado}
-            setPuntoSeleccionado={setPuntoSeleccionado}
-            setForm={setForm}
-            obtenerDireccion={obtenerDireccion}
-            barrioSeleccionado={barrioSeleccionado}
-            setBarrioSeleccionado={setBarrioSeleccionado}
-            mostrarBarrios={mostrarBarrios}
-            setMostrarBarrios={setMostrarBarrios}
-            editarIntervencion={manejarEditarIntervencion}
-            intervencionEnfocada={intervencionEnfocada}
-            modoDibujo={modoDibujo}
-            setModoDibujo={setModoDibujo}
-            sidebarAbierto={sidebarAbierto}
-            enfocarIntervencion={manejarEnfocarIntervencion}
-            assetsPanelAbierto={assetsPanelAbierto}
-          />
+          <MapView {...mapProps} />
 
-          <AssetsPanel
-            intervencionesFiltradas={intervencionesFiltradas}
-            editarIntervencion={manejarEditarIntervencion}
-            eliminarIntervencion={eliminarIntervencionProtegida}
-            enfocarIntervencion={manejarEnfocarIntervencion}
-            abierto={assetsPanelAbierto}
-            setAbierto={setAssetsPanelAbierto}
-          />
+          <AssetsPanel {...assetsPanelProps} />
         </section>
       </main>
 

@@ -1,4 +1,4 @@
-import mapPin from '../../assets/map-pin.svg'
+import mapPin from '@assets/map-pin.svg'
 
 function TopbarTitle() {
   return (

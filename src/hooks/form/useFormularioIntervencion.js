@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { formInicial } from '../constants/formInicial'
+import { formInicial } from '@constants/formInicial'
 
 export function useFormularioIntervencion({
   periodoActivo,

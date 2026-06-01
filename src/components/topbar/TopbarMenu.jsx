@@ -1,4 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 
 function TopbarMenu({
   menuAbierto,
@@ -19,13 +23,23 @@ function TopbarMenu({
 
   abrirAbout,
 }) {
-  const [avanzadoAbierto, setAvanzadoAbierto] =
-    useState(false)
+  // =====================================================
+  // ESTADO LOCAL
+  // =====================================================
+
+  const [
+    avanzadoAbierto,
+    setAvanzadoAbierto,
+  ] = useState(false)
 
   const menuRef = useRef(null)
 
+  // =====================================================
+  // CERRAR AL HACER CLICK AFUERA
+  // =====================================================
+
   useEffect(() => {
-    function handleClickOutside(event) {
+    function manejarClickAfuera(event) {
       if (
         menuRef.current &&
         !menuRef.current.contains(event.target)
@@ -36,20 +50,32 @@ function TopbarMenu({
 
     document.addEventListener(
       'mousedown',
-      handleClickOutside
+      manejarClickAfuera
     )
 
     return () => {
       document.removeEventListener(
         'mousedown',
-        handleClickOutside
+        manejarClickAfuera
       )
     }
   }, [])
 
+  // =====================================================
+  // HELPERS
+  // =====================================================
+
   function cerrarMenu() {
     setMenuAbierto(false)
     setAvanzadoAbierto(false)
+  }
+
+  function alternarMenu() {
+    setMenuAbierto((prev) => !prev)
+  }
+
+  function alternarAvanzado() {
+    setAvanzadoAbierto((prev) => !prev)
   }
 
   function ejecutarYCerrar(accion) {
@@ -57,31 +83,48 @@ function TopbarMenu({
     cerrarMenu()
   }
 
+  function cambiarTemaYCerrar() {
+    setModoOscuro((prev) => !prev)
+    cerrarMenu()
+  }
+
+  // =====================================================
+  // RENDER
+  // =====================================================
+
   return (
-    <div className="menu-wrapper" ref={menuRef}>
+    <div
+      className="menu-wrapper"
+      ref={menuRef}
+    >
+      {/* Botón principal del menú hamburguesa */}
       <button
         type="button"
         className="menu-btn"
         aria-label="Abrir menú"
-        onClick={() =>
-          setMenuAbierto((prev) => !prev)
-        }
+        onClick={alternarMenu}
       >
         ☰
       </button>
 
       {menuAbierto && (
         <div className="dropdown-menu">
+          {/* ===============================
+              TEMA
+          ================================ */}
+
           <button
             type="button"
-            onClick={() =>
-              setModoOscuro((prev) => !prev)
-            }
+            onClick={cambiarTemaYCerrar}
           >
             {modoOscuro
               ? '☀️ Modo claro'
               : '🌙 Modo oscuro'}
           </button>
+
+          {/* ===============================
+              EXPORTACIONES
+          ================================ */}
 
           <button
             type="button"
@@ -101,6 +144,10 @@ function TopbarMenu({
             Exportar KML
           </button>
 
+          {/* ===============================
+              BACKUPS BÁSICOS
+          ================================ */}
+
           <button
             type="button"
             onClick={() =>
@@ -113,11 +160,17 @@ function TopbarMenu({
           <button
             type="button"
             onClick={() =>
-              ejecutarYCerrar(abrirCarpetaBackups)
+              ejecutarYCerrar(
+                abrirCarpetaBackups
+              )
             }
           >
             Abrir carpeta de backups
           </button>
+
+          {/* ===============================
+              ACERCA DE
+          ================================ */}
 
           <button
             type="button"
@@ -128,16 +181,20 @@ function TopbarMenu({
             Acerca de EMVIAL Geo
           </button>
 
+          {/* ===============================
+              OPCIONES AVANZADAS
+          ================================ */}
+
           <div className="menu-advanced">
             <button
               type="button"
               className="menu-advanced-toggle"
-              onClick={() =>
-                setAvanzadoAbierto((prev) => !prev)
-              }
+              onClick={alternarAvanzado}
             >
               <span>
-                {avanzadoAbierto ? '▾' : '▸'}
+                {avanzadoAbierto
+                  ? '▾'
+                  : '▸'}
               </span>
 
               Opciones avanzadas
@@ -160,7 +217,9 @@ function TopbarMenu({
                   type="button"
                   className="danger-menu-item"
                   onClick={() =>
-                    ejecutarYCerrar(restaurarBackup)
+                    ejecutarYCerrar(
+                      restaurarBackup
+                    )
                   }
                 >
                   Restaurar backup completo

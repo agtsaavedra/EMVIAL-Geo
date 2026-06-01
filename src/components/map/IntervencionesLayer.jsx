@@ -9,8 +9,8 @@ import {
 
 import PopupIntervencion from './PopupIntervencion'
 
-import { crearIconoColor } from '../../map/mapIcons'
-import { obtenerColorIntervencion } from '../../map/mapColors'
+import { crearIconoColor } from '@map//mapIcons'
+import { obtenerColorIntervencion } from '@map//mapColors'
 
 function IntervencionesLayer({
   intervenciones = [],
