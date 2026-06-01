@@ -15,10 +15,11 @@ function IntervencionesLayer({
   editarIntervencion,
   enfocarIntervencion,
   modoDibujo,
+  intervencionEnfocada,
 }) {
 
   const [hoverId, setHoverId] = useState(null)
-
+  const idEnfocado = intervencionEnfocada?.id
 
   function manejarClickCapa(e, intervencion) {
     e.originalEvent?.stopPropagation?.()
@@ -49,8 +50,18 @@ function IntervencionesLayer({
               positions={intervencion.geometria}
               pathOptions={{
                 color,
-                weight: hoverId === intervencion.id ? 9 : 7,
-                opacity: hoverId === intervencion.id ? 1 : 0.92,
+                weight:
+                  idEnfocado === intervencion.id
+                    ? 10
+                    : hoverId === intervencion.id
+                      ? 9
+                      : 7,
+                opacity:
+                  idEnfocado === intervencion.id
+                    ? 1
+                    : hoverId === intervencion.id
+                      ? 1
+                      : 0.92,
               }}
               eventHandlers={{
                 click: (e) => manejarClickCapa(e, intervencion),
@@ -78,9 +89,18 @@ function IntervencionesLayer({
               positions={intervencion.geometria}
               pathOptions={{
                 color,
-                weight: hoverId === intervencion.id ? 6 : 4,
-                fillColor: color,
-                fillOpacity: hoverId === intervencion.id ? 0.38 : 0.25,
+                weight:
+                  idEnfocado === intervencion.id
+                    ? 7
+                    : hoverId === intervencion.id
+                      ? 6
+                      : 4,
+                fillOpacity:
+                  idEnfocado === intervencion.id
+                    ? 0.42
+                    : hoverId === intervencion.id
+                      ? 0.38
+                      : 0.25,
               }}
               eventHandlers={{
                 click: (e) => manejarClickCapa(e, intervencion),
@@ -106,7 +126,14 @@ function IntervencionesLayer({
                 parseFloat(intervencion.latitud),
                 parseFloat(intervencion.longitud),
               ]}
-              icon={crearIconoColor(color)}
+              icon={crearIconoColor(
+                color,
+                idEnfocado === intervencion.id
+                  ? 28
+                  : hoverId === intervencion.id
+                    ? 22
+                    : 16
+              )}
               eventHandlers={{
                 click: (e) => manejarClickCapa(e, intervencion),
                 mouseover: () => setHoverId(intervencion.id),

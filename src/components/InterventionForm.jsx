@@ -18,6 +18,29 @@ function InterventionForm({
   cancelarEdicion,
   hayCambiosSinGuardar,
 }) {
+
+  const cantidadPuntos = form.geometria?.length || 0
+
+  let mensajeGuardar = activoEditandoId
+    ? 'Actualizar intervención'
+    : 'Guardar intervención'
+
+  let guardarDeshabilitado = false
+
+  if (form.geometriaTipo === 'Punto' && cantidadPuntos < 1) {
+    mensajeGuardar = 'Marcá una ubicación'
+    guardarDeshabilitado = true
+  }
+
+  if (form.geometriaTipo === 'Línea' && cantidadPuntos < 2) {
+    mensajeGuardar = 'Marcá al menos 2 puntos'
+    guardarDeshabilitado = true
+  }
+
+  if (form.geometriaTipo === 'Polígono' && cantidadPuntos < 3) {
+    mensajeGuardar = 'Marcá al menos 3 puntos'
+    guardarDeshabilitado = true
+  }
   return (
 
 
@@ -204,10 +227,12 @@ function InterventionForm({
       />
 
       <div className="form-actions">
-        <button className="primary" type="submit">
-          {activoEditandoId
-            ? 'Actualizar intervención'
-            : 'Guardar intervención'}
+        <button
+          className="primary"
+          type="submit"
+          disabled={guardarDeshabilitado}
+        >
+          {mensajeGuardar}
         </button>
       </div>
     </form>

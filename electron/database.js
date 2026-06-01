@@ -367,6 +367,29 @@ function limpiarBackupsAntiguos(carpeta) {
   })
 }
 
+function crearBackupPreRestauracion() {
+  if (!fs.existsSync(dbPath)) return null
+
+  const backupsGeneralDir =
+    obtenerCarpetaBackupsGeneral()
+
+  asegurarCarpeta(backupsGeneralDir)
+
+  const fecha = new Date()
+    .toISOString()
+    .replaceAll(':', '-')
+    .replaceAll('.', '-')
+
+  const backupPath = path.join(
+    backupsGeneralDir,
+    `emvial_pre_restauracion_${fecha}.sqlite`
+  )
+
+  fs.copyFileSync(dbPath, backupPath)
+
+  return backupPath
+}
+
 // =====================================================
 // BACKUP MANUAL / RESTAURACIÓN GENERAL
 // =====================================================
@@ -422,16 +445,18 @@ async function restaurarBackupManual() {
   }
 
   const backupPath = resultado.filePaths[0]
+  const backupSeguridad =
+    crearBackupPreRestauracion()
 
   fs.copyFileSync(backupPath, dbPath)
 
-  // Reiniciar conexión en memoria para leer la base restaurada.
   db = null
   await iniciarDB()
 
   return {
     ok: true,
     path: backupPath,
+    backupSeguridad,
   }
 }
 
@@ -477,6 +502,9 @@ async function restaurarPeriodoManual(periodo) {
     SELECT id, data, created_at, updated_at
     FROM intervenciones
   `)
+  const backupSeguridad =
+    crearBackupPreRestauracion()
+
 
   db.run(
     `DELETE FROM intervenciones WHERE json_extract(data, '$.periodo') = ?`,
@@ -507,6 +535,7 @@ async function restaurarPeriodoManual(periodo) {
   return {
     ok: true,
     path: backupPath,
+    backupSeguridad,
   }
 }
 
