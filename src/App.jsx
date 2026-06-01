@@ -1,4 +1,5 @@
 import './App.css'
+import { useEffect, useState } from 'react'
 
 import Sidebar from '@components/layout/Sidebar'
 import AssetsPanel from '@components/layout/AssetsPanel'
@@ -8,10 +9,12 @@ import MapView from '@components/map/MapView'
 import Toast from '@components/common/Toast'
 import ConfirmDialog from '@components/common/ConfirmDialog'
 import AboutDialog from '@components/common/AboutDialog'
+import AppSplash from '@components/common/AppSplash'
 
 import { useToast } from '@hooks/ui/useToast'
 import { useConfirmDialog } from '@hooks/ui/useConfirmDialog'
 import { useUIState } from '@hooks/ui/useUIState'
+import { useSplashScreen } from '@hooks/ui/useSplashScreen'
 
 import { useIntervenciones } from '@hooks/data/useIntervenciones'
 import { usePeriodo } from '@hooks/data/usePeriodo'
@@ -32,6 +35,8 @@ import { useMapProps } from '@hooks/props/useMapProps'
 import { useTopbarProps } from '@hooks/props/useTopbarProps'
 import { useSidebarProps } from '@hooks/props/useSidebarProps'
 import { useAssetsPanelProps } from '@hooks/props/useAssetsPanelProps'
+
+
 
 function App() {
   // =====================================================
@@ -412,8 +417,12 @@ function App() {
   // =====================================================
   // RENDER
   // =====================================================
+  const { mostrarSplash } =
+  useSplashScreen()
 
   return (
+      <>
+     {mostrarSplash && <AppSplash />}
     <div className={`app ${modoOscuro ? 'dark' : ''}`}>
       <Sidebar {...sidebarProps} />
 
@@ -451,6 +460,7 @@ function App() {
         periodoActivo={periodoActivo}
       />
     </div>
+     </>
   )
 }
 
