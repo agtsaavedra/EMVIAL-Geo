@@ -17,21 +17,28 @@ export function useIntervenciones() {
     const datos =
       await window.api.obtenerIntervenciones()
 
-    setIntervenciones(datos)
+    setIntervenciones(datos || [])
   }
 
   async function guardarIntervencionEnDB(form) {
     if (intervencionEditandoId) {
       const actualizada =
         await window.api.guardarIntervencion({
-          id: intervencionEditandoId,
           ...form,
+
+          id: intervencionEditandoId,
+
+          updatedAt:
+            new Date().toISOString(),
+
+          version:
+            (form.version || 1) + 1,
         })
 
       setIntervenciones((prev) =>
         prev.map((intervencion) =>
           intervencion.id ===
-          intervencionEditandoId
+            intervencionEditandoId
             ? actualizada
             : intervencion
         )
@@ -44,9 +51,21 @@ export function useIntervenciones() {
 
     const nueva =
       await window.api.guardarIntervencion({
-        id: Date.now(),
         ...form,
+
+        id: crypto.randomUUID(),
+
+        createdAt:
+          new Date().toISOString(),
+
+        updatedAt:
+          new Date().toISOString(),
+
+        deletedAt: null,
+
+        version: 1,
       })
+
 
     setIntervenciones((prev) => [
       nueva,

@@ -1,5 +1,4 @@
 import './App.css'
-import { useEffect, useState } from 'react'
 
 import Sidebar from '@components/layout/Sidebar'
 import AssetsPanel from '@components/layout/AssetsPanel'

@@ -61,4 +61,3 @@ contextBridge.exposeInMainWorld('api', {
 
 
 
-console.log('PRELOAD CARGADO')

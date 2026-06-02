@@ -43,7 +43,7 @@ export function useKeyboardShortcuts({
 
         const buscador =
           document.querySelector(
-            '.topbar-actions input'
+            '.topbar-main > input'
           )
 
         buscador?.focus?.()

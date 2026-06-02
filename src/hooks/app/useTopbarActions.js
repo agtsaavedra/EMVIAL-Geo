@@ -1,4 +1,4 @@
-import { exportarExcelPeriodo } from '../../services/exportExcel'
+import { exportarExcelPeriodo } from '@services/exportExcel'
 import { exportarKml } from '@utils/exportKML'
 
 export function useTopbarActions({
