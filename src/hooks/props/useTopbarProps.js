@@ -28,6 +28,8 @@ export function useTopbarProps({
 
   abrirCarpetaBackups,
   configurarCarpetaBackups,
+
+  cargarImagenGuia,
 }) {
   return {
     periodoActivo,
@@ -66,5 +68,7 @@ export function useTopbarProps({
 
     abrirCarpetaBackups,
     configurarCarpetaBackups,
+
+    cargarImagenGuia,
   }
 }

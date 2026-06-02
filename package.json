@@ -13,8 +13,10 @@
     "dist": "npm run build && electron-builder"
   },
   "dependencies": {
+    "@react-leaflet/core": "^3.0.0",
     "@turf/turf": "^7.3.5",
     "leaflet": "^1.9.4",
+    "pdfjs-dist": "^6.0.227",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-leaflet": "^5.0.0",

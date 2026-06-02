@@ -2,7 +2,6 @@ import TopbarTitle from '@components/topbar/TopbarTitle'
 import TopbarFilters from '@components/topbar/TopbarFilters'
 import TopbarMenu from '@components/topbar/TopbarMenu'
 
-
 function Topbar({
   busqueda,
   setBusqueda,
@@ -22,6 +21,8 @@ function Topbar({
 
   abrirAbout,
 
+  cargarImagenGuia,
+
   modoOscuro = false,
   setModoOscuro = () => {},
 
@@ -37,31 +38,11 @@ function Topbar({
   // =====================================================
   // RENDER
   // =====================================================
-  // Este componente ahora solo orquesta:
-  //
-  // - título/logo
-  // - búsqueda
-  // - menú hamburguesa
-  // - filtros superiores
-  //
-  // La lógica pesada fue movida a:
-  // - TopbarTitle
-  // - TopbarMenu
-  // - TopbarFilters
 
   return (
     <header className="topbar">
-      {/* ==========================================
-          CABECERA PRINCIPAL
-      =========================================== */}
-
       <div className="topbar-main">
-        {/* Logo + título */}
         <TopbarTitle />
-
-        {/* ======================================
-            BUSCADOR GLOBAL
-        ======================================= */}
 
         <input
           value={busqueda}
@@ -70,10 +51,6 @@ function Topbar({
           }
           placeholder="Buscar por obra, barrio, estado o ubicación..."
         />
-
-        {/* ======================================
-            MENÚ HAMBURGUESA
-        ======================================= */}
 
         <TopbarMenu
           menuAbierto={menuAbierto}
@@ -98,12 +75,11 @@ function Topbar({
             configurarCarpetaBackups
           }
           abrirAbout={abrirAbout}
+          cargarImagenGuia={
+            cargarImagenGuia
+          }
         />
       </div>
-
-      {/* ==========================================
-          FILTROS SUPERIORES
-      =========================================== */}
 
       <TopbarFilters
         periodoActivo={periodoActivo}
@@ -118,11 +94,9 @@ function Topbar({
         setFiltroEstado={
           setFiltroEstado
         }
-        
       />
     </header>
   )
 }
 
 export default Topbar
-

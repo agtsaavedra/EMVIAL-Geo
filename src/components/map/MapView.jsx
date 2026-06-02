@@ -18,6 +18,8 @@ import MapInvalidator from './MapInvalidator'
 import IntervencionesLayer from './IntervencionesLayer'
 import GeometryPreview from './GeometryPreview'
 import MapFocus from './MapFocus'
+import GuideImageOverlay from './GuideImageOverlay'
+import GuideOverlayControls from './GuideOverlayControls'
 
 import { useGeometryEditing } from '@hooks/map/useGeometryEditing'
 
@@ -55,6 +57,7 @@ function MapView({
   sidebarAbierto,
   enfocarIntervencion,
   assetsPanelAbierto,
+  guideOverlay,
 }) {
   // =====================================================
   // LÓGICA DE EDICIÓN GEOMÉTRICA
@@ -169,6 +172,10 @@ function MapView({
           </div>
         )}
 
+        <GuideOverlayControls
+          {...guideOverlay}
+        />
+
         <MapContainer
           center={centroMarDelPlata}
           zoom={13}
@@ -194,6 +201,10 @@ function MapView({
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution=""
+          />
+
+          <GuideImageOverlay
+            {...guideOverlay}
           />
 
           {/* Capa GeoJSON de barrios.

@@ -1,0 +1,205 @@
+import { useRef, useState } from 'react'
+
+function GuideOverlayControls({
+  guideUrl,
+  guideName,
+  guideOpacity,
+  setGuideOpacity,
+  guideVisible,
+  setGuideVisible,
+  quitarImagenGuia,
+  moverImagenGuia,
+  escalarImagenGuia,
+}) {
+  const panelRef = useRef(null)
+
+
+  function obtenerPosicionInicial() {
+  return {
+    x: Math.max(
+      16,
+      window.innerWidth - 270
+    ),
+    y: 110,
+  }
+}
+
+const [posicion, setPosicion] = useState(
+  obtenerPosicionInicial
+)
+
+
+  const dragRef = useRef({
+    activo: false,
+    offsetX: 0,
+    offsetY: 0,
+  })
+
+  if (!guideUrl) return null
+
+  function iniciarArrastre(e) {
+    const panel = panelRef.current
+    if (!panel) return
+
+    const rect = panel.getBoundingClientRect()
+
+    dragRef.current = {
+      activo: true,
+      offsetX: e.clientX - rect.left,
+      offsetY: e.clientY - rect.top,
+    }
+
+    window.addEventListener('mousemove', moverPanel)
+    window.addEventListener('mouseup', soltarPanel)
+  }
+
+  function moverPanel(e) {
+    if (!dragRef.current.activo) return
+
+    const nuevoX =
+      e.clientX - dragRef.current.offsetX
+
+    const nuevoY =
+      e.clientY - dragRef.current.offsetY
+
+    const margen = 8
+
+    setPosicion({
+      x: Math.max(margen, nuevoX),
+      y: Math.max(margen, nuevoY),
+    })
+  }
+
+  function soltarPanel() {
+    dragRef.current.activo = false
+
+    window.removeEventListener('mousemove', moverPanel)
+    window.removeEventListener('mouseup', soltarPanel)
+  }
+
+  return (
+    <div
+      ref={panelRef}
+      className="guide-overlay-controls draggable"
+      style={{
+        left: posicion.x,
+        top: posicion.y,
+      }}
+    >
+      <div
+        className="guide-panel-drag-handle"
+        onMouseDown={iniciarArrastre}
+      >
+        <span>Imagen guía</span>
+        <small>arrastrar</small>
+      </div>
+
+      <div className="guide-panel">
+        <div className="guide-panel-header">
+          <strong>Imagen guía</strong>
+
+          <span title={guideName}>
+            {guideName}
+          </span>
+        </div>
+
+        <div className="guide-row">
+          <button
+            type="button"
+            onClick={() =>
+              setGuideVisible((prev) => !prev)
+            }
+          >
+            {guideVisible ? 'Ocultar' : 'Mostrar'}
+          </button>
+
+          <button
+            type="button"
+            className="danger"
+            onClick={quitarImagenGuia}
+          >
+            Quitar
+          </button>
+        </div>
+
+        <label className="guide-opacity">
+          Opacidad
+          <input
+            type="range"
+            min="0.15"
+            max="0.9"
+            step="0.05"
+            value={guideOpacity}
+            onChange={(e) =>
+              setGuideOpacity(Number(e.target.value))
+            }
+          />
+        </label>
+
+        <div className="guide-move-grid">
+          <span />
+
+          <button
+            type="button"
+            onClick={() =>
+              moverImagenGuia('norte')
+            }
+          >
+            ↑
+          </button>
+
+          <span />
+
+          <button
+            type="button"
+            onClick={() =>
+              moverImagenGuia('oeste')
+            }
+          >
+            ←
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              escalarImagenGuia(1.12)
+            }
+          >
+            +
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              moverImagenGuia('este')
+            }
+          >
+            →
+          </button>
+
+          <span />
+
+          <button
+            type="button"
+            onClick={() =>
+              moverImagenGuia('sur')
+            }
+          >
+            ↓
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              escalarImagenGuia(0.9)
+            }
+          >
+            -
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default GuideOverlayControls

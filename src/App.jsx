@@ -1,4 +1,5 @@
 import './App.css'
+import { useEffect, useState } from 'react'
 
 import Sidebar from '@components/layout/Sidebar'
 import AssetsPanel from '@components/layout/AssetsPanel'
@@ -35,6 +36,7 @@ import { useMapProps } from '@hooks/props/useMapProps'
 import { useTopbarProps } from '@hooks/props/useTopbarProps'
 import { useSidebarProps } from '@hooks/props/useSidebarProps'
 import { useAssetsPanelProps } from '@hooks/props/useAssetsPanelProps'
+import { useGuideOverlay } from '@hooks/map/useGuideOverlay'
 
 
 
@@ -120,6 +122,9 @@ function App() {
 
   const busquedaDebounced =
     useDebouncedValue(busqueda, 220)
+
+  const guideOverlay =
+    useGuideOverlay()
 
 
   // =====================================================
@@ -321,6 +326,8 @@ function App() {
     assetsPanelAbierto,
 
     intervencionHoverId,
+
+    guideOverlay,
   })
 
   const topbarProps = useTopbarProps({
@@ -353,6 +360,9 @@ function App() {
 
     abrirCarpetaBackups,
     configurarCarpetaBackups,
+
+    cargarImagenGuia:
+      guideOverlay.cargarImagenGuia,
   })
 
   const sidebarProps = useSidebarProps({

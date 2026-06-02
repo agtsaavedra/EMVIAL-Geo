@@ -22,6 +22,8 @@ function TopbarMenu({
   configurarCarpetaBackups,
 
   abrirAbout,
+
+  cargarImagenGuia,
 }) {
   // =====================================================
   // ESTADO LOCAL
@@ -33,6 +35,7 @@ function TopbarMenu({
   ] = useState(false)
 
   const menuRef = useRef(null)
+  const guideInputRef = useRef(null)
 
   // =====================================================
   // CERRAR AL HACER CLICK AFUERA
@@ -88,6 +91,24 @@ function TopbarMenu({
     cerrarMenu()
   }
 
+function abrirSelectorGuia() {
+  guideInputRef.current?.click()
+}
+
+function manejarArchivoGuia(e) {
+  const file = e.target.files?.[0]
+
+  console.log('ARCHIVO GUIA:', file)
+  console.log('cargarImagenGuia:', cargarImagenGuia)
+
+  if (!file) return
+
+  cargarImagenGuia?.(file)
+
+  e.target.value = ''
+  cerrarMenu()
+}
+
   // =====================================================
   // RENDER
   // =====================================================
@@ -97,6 +118,14 @@ function TopbarMenu({
       className="menu-wrapper"
       ref={menuRef}
     >
+      <input
+        ref={guideInputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/jpg,image/webp"
+        onChange={manejarArchivoGuia}
+        hidden
+      />
+
       {/* Botón principal del menú hamburguesa */}
       <button
         type="button"
@@ -120,6 +149,17 @@ function TopbarMenu({
             {modoOscuro
               ? '☀️ Modo claro'
               : '🌙 Modo oscuro'}
+          </button>
+
+          {/* ===============================
+              GUÍA / HOJA DE CALCAR
+          ================================ */}
+
+          <button
+            type="button"
+            onClick={abrirSelectorGuia}
+          >
+            Cargar imagen guía
           </button>
 
           {/* ===============================
