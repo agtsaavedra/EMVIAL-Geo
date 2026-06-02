@@ -1,286 +1,299 @@
 import { useState } from 'react'
 
 import {
-  getDocument,
-  GlobalWorkerOptions,
+    getDocument,
+    GlobalWorkerOptions,
 } from 'pdfjs-dist'
 
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.mjs?url'
 
 GlobalWorkerOptions.workerSrc =
-  pdfWorker
+    pdfWorker
 
 async function convertirPdfAImagen(file) {
-  const arrayBuffer =
-    await file.arrayBuffer()
+    const arrayBuffer =
+        await file.arrayBuffer()
 
-  const pdf =
-    await getDocument({
-      data: arrayBuffer,
+    const pdf =
+        await getDocument({
+            data: arrayBuffer,
+        }).promise
+
+    const page =
+        await pdf.getPage(1)
+
+    const viewport =
+        page.getViewport({
+            scale: 2,
+        })
+
+    const canvas =
+        document.createElement('canvas')
+
+    const context =
+        canvas.getContext('2d')
+
+    canvas.width =
+        viewport.width
+
+    canvas.height =
+        viewport.height
+
+    await page.render({
+        canvasContext: context,
+        viewport,
     }).promise
 
-  const page =
-    await pdf.getPage(1)
+    const blob =
+        await new Promise((resolve) => {
+            canvas.toBlob(
+                resolve,
+                'image/png'
+            )
+        })
 
-  const viewport =
-    page.getViewport({
-      scale: 2,
-    })
-
-  const canvas =
-    document.createElement('canvas')
-
-  const context =
-    canvas.getContext('2d')
-
-  canvas.width =
-    viewport.width
-
-  canvas.height =
-    viewport.height
-
-  await page.render({
-    canvasContext: context,
-    viewport,
-  }).promise
-
-  const blob =
-    await new Promise((resolve) => {
-      canvas.toBlob(
-        resolve,
-        'image/png'
-      )
-    })
-
-  return URL.createObjectURL(blob)
+    return URL.createObjectURL(blob)
 }
 
 export function useGuideOverlay() {
-  const [guideUrl, setGuideUrl] =
-    useState(null)
+    const [guideUrl, setGuideUrl] =
+        useState(null)
 
-  const [guideName, setGuideName] =
-    useState('')
+    const [guideName, setGuideName] =
+        useState('')
 
-  const [guideBounds, setGuideBounds] =
-    useState(null)
+    const [guideBounds, setGuideBounds] =
+        useState(null)
 
-  const [guideOpacity, setGuideOpacity] =
-    useState(0.45)
+    const [guideOpacity, setGuideOpacity] =
+        useState(0.45)
 
-  const [guideVisible, setGuideVisible] =
-    useState(true)
+    const [guideVisible, setGuideVisible] =
+        useState(true)
 
-  const [
-    guideLoading,
-    setGuideLoading,
-  ] = useState(false)
+    const [
+        guideLoading,
+        setGuideLoading,
+    ] = useState(false)
 
-  async function cargarImagenGuia(file) {
-    if (!file) return
+    const [guideLocked, setGuideLocked] =
+        useState(false)
 
-    try {
-      setGuideLoading(true)
-
-      if (guideUrl) {
-        URL.revokeObjectURL(
-          guideUrl
-        )
-      }
-
-      const esPdf =
-        file.type ===
-          'application/pdf' ||
-        file.name
-          .toLowerCase()
-          .endsWith('.pdf')
-
-      const url = esPdf
-        ? await convertirPdfAImagen(
-            file
-          )
-        : URL.createObjectURL(file)
-
-      setGuideUrl(url)
-
-      setGuideName(file.name)
-
-      setGuideBounds(null)
-
-      setGuideVisible(true)
-
-      setGuideOpacity(0.45)
-    } catch (error) {
-      console.error(
-        'Error cargando guía:',
-        error
-      )
-    } finally {
-      setGuideLoading(false)
-    }
-  }
-
-  function quitarImagenGuia() {
-    if (guideUrl) {
-      URL.revokeObjectURL(
-        guideUrl
-      )
+    function centrarImagenGuia() {
+        setGuideBounds(null)
     }
 
-    setGuideUrl(null)
-    setGuideName('')
-    setGuideBounds(null)
-    setGuideVisible(true)
-    setGuideOpacity(0.45)
-  }
+    async function cargarImagenGuia(file) {
 
-  function moverImagenGuia(
-    direccion
-  ) {
-    setGuideBounds((prev) => {
-      if (!prev) return prev
+        setGuideLocked(false)
+        if (!file) return
 
-      const [
-        [south, west],
-        [north, east],
-      ] = prev
+        try {
+            setGuideLoading(true)
 
-      const alto =
-        north - south
+            if (guideUrl) {
+                URL.revokeObjectURL(
+                    guideUrl
+                )
+            }
 
-      const ancho =
-        east - west
+            const esPdf =
+                file.type ===
+                'application/pdf' ||
+                file.name
+                    .toLowerCase()
+                    .endsWith('.pdf')
 
-      const pasoLat =
-        alto * 0.12
+            const url = esPdf
+                ? await convertirPdfAImagen(
+                    file
+                )
+                : URL.createObjectURL(file)
 
-      const pasoLng =
-        ancho * 0.12
+            setGuideUrl(url)
 
-      if (
-        direccion === 'norte'
-      ) {
-        return [
-          [
-            south + pasoLat,
-            west,
-          ],
-          [
-            north + pasoLat,
-            east,
-          ],
-        ]
-      }
+            setGuideName(file.name)
 
-      if (
-        direccion === 'sur'
-      ) {
-        return [
-          [
-            south - pasoLat,
-            west,
-          ],
-          [
-            north - pasoLat,
-            east,
-          ],
-        ]
-      }
+            setGuideBounds(null)
 
-      if (
-        direccion === 'este'
-      ) {
-        return [
-          [
-            south,
-            west + pasoLng,
-          ],
-          [
-            north,
-            east + pasoLng,
-          ],
-        ]
-      }
+            setGuideVisible(true)
 
-      if (
-        direccion === 'oeste'
-      ) {
-        return [
-          [
-            south,
-            west - pasoLng,
-          ],
-          [
-            north,
-            east - pasoLng,
-          ],
-        ]
-      }
+            setGuideOpacity(0.45)
+        } catch (error) {
+            console.error(
+                'Error cargando guía:',
+                error
+            )
+        } finally {
+            setGuideLoading(false)
+        }
+    }
 
-      return prev
-    })
-  }
+    function quitarImagenGuia() {
 
-  function escalarImagenGuia(
-    factor
-  ) {
-    setGuideBounds((prev) => {
-      if (!prev) return prev
+        setGuideLocked(false)
+        if (guideUrl) {
+            URL.revokeObjectURL(
+                guideUrl
+            )
+        }
 
-      const [
-        [south, west],
-        [north, east],
-      ] = prev
+        setGuideUrl(null)
+        setGuideName('')
+        setGuideBounds(null)
+        setGuideVisible(true)
+        setGuideOpacity(0.45)
+    }
 
-      const centroLat =
-        (south + north) / 2
+    function moverImagenGuia(direccion) {
+        if (guideLocked) return
+        setGuideBounds((prev) => {
+            if (!prev) return prev
 
-      const centroLng =
-        (west + east) / 2
+            const [
+                [south, west],
+                [north, east],
+            ] = prev
 
-      const semiAlto =
-        ((north - south) / 2) *
-        factor
+            const alto =
+                north - south
 
-      const semiAncho =
-        ((east - west) / 2) *
-        factor
+            const ancho =
+                east - west
 
-      return [
-        [
-          centroLat -
-            semiAlto,
-          centroLng -
-            semiAncho,
-        ],
-        [
-          centroLat +
-            semiAlto,
-          centroLng +
-            semiAncho,
-        ],
-      ]
-    })
-  }
+            const pasoLat =
+                alto * 0.12
 
-  return {
-    guideUrl,
-    guideName,
+            const pasoLng =
+                ancho * 0.12
 
-    guideBounds,
-    setGuideBounds,
+            if (
+                direccion === 'norte'
+            ) {
+                return [
+                    [
+                        south + pasoLat,
+                        west,
+                    ],
+                    [
+                        north + pasoLat,
+                        east,
+                    ],
+                ]
+            }
 
-    guideOpacity,
-    setGuideOpacity,
+            if (
+                direccion === 'sur'
+            ) {
+                return [
+                    [
+                        south - pasoLat,
+                        west,
+                    ],
+                    [
+                        north - pasoLat,
+                        east,
+                    ],
+                ]
+            }
 
-    guideVisible,
-    setGuideVisible,
+            if (
+                direccion === 'este'
+            ) {
+                return [
+                    [
+                        south,
+                        west + pasoLng,
+                    ],
+                    [
+                        north,
+                        east + pasoLng,
+                    ],
+                ]
+            }
 
-    guideLoading,
+            if (
+                direccion === 'oeste'
+            ) {
+                return [
+                    [
+                        south,
+                        west - pasoLng,
+                    ],
+                    [
+                        north,
+                        east - pasoLng,
+                    ],
+                ]
+            }
 
-    cargarImagenGuia,
-    quitarImagenGuia,
-    moverImagenGuia,
-    escalarImagenGuia,
-  }
+            return prev
+        })
+    }
+
+    function escalarImagenGuia(factor) {
+        if (guideLocked) return
+        setGuideBounds((prev) => {
+            if (!prev) return prev
+
+            const [
+                [south, west],
+                [north, east],
+            ] = prev
+
+            const centroLat =
+                (south + north) / 2
+
+            const centroLng =
+                (west + east) / 2
+
+            const semiAlto =
+                ((north - south) / 2) *
+                factor
+
+            const semiAncho =
+                ((east - west) / 2) *
+                factor
+
+            return [
+                [
+                    centroLat -
+                    semiAlto,
+                    centroLng -
+                    semiAncho,
+                ],
+                [
+                    centroLat +
+                    semiAlto,
+                    centroLng +
+                    semiAncho,
+                ],
+            ]
+        })
+    }
+
+    return {
+        guideUrl,
+        guideName,
+
+        guideBounds,
+        setGuideBounds,
+
+        guideOpacity,
+        setGuideOpacity,
+
+        guideVisible,
+        setGuideVisible,
+
+        guideLoading,
+
+        cargarImagenGuia,
+        quitarImagenGuia,
+        moverImagenGuia,
+        escalarImagenGuia,
+
+        guideLocked,
+        setGuideLocked,
+        centrarImagenGuia,
+    }
 }

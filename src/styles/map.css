@@ -661,6 +661,7 @@
 ================================ */
 
 @media (min-width: 1025px) and (max-width: 1366px) {
+
   .map-stats-panel,
   .map-stats-panel.with-assets-panel {
     position: fixed;
@@ -685,7 +686,9 @@
     right: 300px;
   }
 }
+
 @media (max-width: 1024px) {
+
   .map-stats-panel,
   .map-stats-panel.with-assets-panel {
     position: fixed;
@@ -708,7 +711,7 @@
     animation: statsPanelInFromButton 0.18s ease;
   }
 
-  .assets-panel.open ~ .map-stats-panel {
+  .assets-panel.open~.map-stats-panel {
     bottom: 320px;
   }
 
@@ -737,8 +740,7 @@
 
 .leaflet-path-glow {
   filter:
-    drop-shadow(0 0 5px rgba(255, 255, 255, 0.65))
-    drop-shadow(0 0 12px rgba(37, 99, 235, 0.45));
+    drop-shadow(0 0 5px rgba(255, 255, 255, 0.65)) drop-shadow(0 0 12px rgba(37, 99, 235, 0.45));
 
   transition:
     stroke-width 0.16s ease,
@@ -754,13 +756,11 @@
 
 .guide-overlay-controls {
   position: fixed;
-
   z-index: 9500;
 
   width: 230px;
 
   pointer-events: auto;
-
   user-select: none;
 }
 
@@ -772,6 +772,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 8px;
 
   padding: 7px 10px;
@@ -821,6 +822,7 @@
 .guide-panel-header {
   display: flex;
   flex-direction: column;
+
   gap: 2px;
 
   margin-bottom: 8px;
@@ -840,44 +842,106 @@
   text-overflow: ellipsis;
 }
 
+/* =====================================
+   FILAS SUPERIORES
+===================================== */
+
 .guide-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
   gap: 6px;
 
   margin-bottom: 8px;
 }
 
+.guide-secondary-row {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 6px;
+
+  margin-bottom: 8px;
+}
+
+/* =====================================
+   TODOS LOS BOTONES MISMO ALTO
+===================================== */
+
 .guide-row button,
-.guide-move-grid button {
+.guide-secondary-row button,
+.guide-move-grid button,
+.guide-source-btn {
+  min-width: 0;
+  width: 100%;
+  height: 31px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   border: 1px solid var(--border);
   border-radius: 9px;
 
   background: var(--surface-2);
   color: var(--text);
 
-  padding: 6px 8px;
+  padding: 0 8px;
 
   font-size: 12px;
   font-weight: 700;
+  line-height: 1.1;
+
+  text-align: center;
 
   cursor: pointer;
+
+  
 }
 
 .guide-row button:hover,
+.guide-secondary-row button:hover,
 .guide-move-grid button:hover {
   background: var(--surface);
 }
 
 .guide-row button.danger {
   color: #fecaca;
-  background: rgba(239, 68, 68, 0.18);
-  border-color: rgba(239, 68, 68, 0.35);
+
+  background:
+    rgba(239, 68, 68, 0.18);
+
+  border-color:
+    rgba(239, 68, 68, 0.35);
 }
+
+/* =====================================
+   BOTÓN FUENTE
+===================================== */
+
+.guide-source-btn {
+  margin: 0;
+
+  background: #2563eb;
+  color: white;
+}
+
+.guide-source-btn:hover {
+  background: #1d4ed8;
+}
+
+/* =====================================
+   SLIDER
+===================================== */
 
 .guide-opacity {
   display: flex;
   flex-direction: column;
+
   gap: 5px;
 
   color: var(--text-soft);
@@ -891,23 +955,43 @@
   padding: 0;
 }
 
+/* =====================================
+   GRID MOVIMIENTO
+===================================== */
+
 .guide-move-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
   gap: 5px;
 
   margin-top: 9px;
 }
 
+.guide-move-grid button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* =====================================
+   ANIMACIÓN
+===================================== */
+
 @keyframes guidePanelIn {
   from {
     opacity: 0;
-    transform: translateY(-6px) scale(0.98);
+    transform:
+      translateY(-6px)
+      scale(0.98);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform:
+      translateY(0)
+      scale(1);
   }
 }
 

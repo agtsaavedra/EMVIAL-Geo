@@ -185,6 +185,24 @@ function App() {
     mostrarToast,
   })
 
+ const guideOverlayConAcciones = {
+  ...guideOverlay,
+
+  usarGuiaComoFuente: () => {
+    if (!guideOverlay.guideName) return
+
+    setForm((prev) => ({
+      ...prev,
+      fuente: guideOverlay.guideName,
+    }))
+
+    mostrarToast(
+      'Fuente cargada desde la guía.',
+      'success'
+    )
+  },
+}
+
   // =====================================================
   // GEOCODING
   // useGeocoding:
@@ -327,7 +345,7 @@ function App() {
 
     intervencionHoverId,
 
-    guideOverlay,
+    guideOverlay: guideOverlayConAcciones,
   })
 
   const topbarProps = useTopbarProps({

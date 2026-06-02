@@ -10,24 +10,23 @@ function GuideOverlayControls({
   quitarImagenGuia,
   moverImagenGuia,
   escalarImagenGuia,
+  guideLocked,
+  setGuideLocked,
+  centrarImagenGuia,
+  usarGuiaComoFuente,
 }) {
   const panelRef = useRef(null)
 
-
   function obtenerPosicionInicial() {
-  return {
-    x: Math.max(
-      16,
-      window.innerWidth - 270
-    ),
-    y: 110,
+    return {
+      x: Math.max(16, window.innerWidth - 270),
+      y: 110,
+    }
   }
-}
 
-const [posicion, setPosicion] = useState(
-  obtenerPosicionInicial
-)
-
+  const [posicion, setPosicion] = useState(
+    obtenerPosicionInicial
+  )
 
   const dragRef = useRef({
     activo: false,
@@ -56,11 +55,8 @@ const [posicion, setPosicion] = useState(
   function moverPanel(e) {
     if (!dragRef.current.activo) return
 
-    const nuevoX =
-      e.clientX - dragRef.current.offsetX
-
-    const nuevoY =
-      e.clientY - dragRef.current.offsetY
+    const nuevoX = e.clientX - dragRef.current.offsetX
+    const nuevoY = e.clientY - dragRef.current.offsetY
 
     const margen = 8
 
@@ -122,6 +118,34 @@ const [posicion, setPosicion] = useState(
           </button>
         </div>
 
+        <div className="guide-secondary-row">
+          <button
+            type="button"
+            onClick={() =>
+              setGuideLocked((prev) => !prev)
+            }
+          >
+            {guideLocked ? 'Desbloq.' : 'Bloquear'}
+          </button>
+
+          <button
+            type="button"
+            onClick={centrarImagenGuia}
+          >
+            Centrar
+          </button>
+
+          {usarGuiaComoFuente && (
+            <button
+              type="button"
+              className="guide-source-btn"
+              onClick={usarGuiaComoFuente}
+            >
+              Fuente
+            </button>
+          )}
+        </div>
+
         <label className="guide-opacity">
           Opacidad
           <input
@@ -141,9 +165,8 @@ const [posicion, setPosicion] = useState(
 
           <button
             type="button"
-            onClick={() =>
-              moverImagenGuia('norte')
-            }
+            onClick={() => moverImagenGuia('norte')}
+            disabled={guideLocked}
           >
             ↑
           </button>
@@ -152,27 +175,24 @@ const [posicion, setPosicion] = useState(
 
           <button
             type="button"
-            onClick={() =>
-              moverImagenGuia('oeste')
-            }
+            onClick={() => moverImagenGuia('oeste')}
+            disabled={guideLocked}
           >
             ←
           </button>
 
           <button
             type="button"
-            onClick={() =>
-              escalarImagenGuia(1.12)
-            }
+            onClick={() => escalarImagenGuia(1.12)}
+            disabled={guideLocked}
           >
             +
           </button>
 
           <button
             type="button"
-            onClick={() =>
-              moverImagenGuia('este')
-            }
+            onClick={() => moverImagenGuia('este')}
+            disabled={guideLocked}
           >
             →
           </button>
@@ -181,18 +201,16 @@ const [posicion, setPosicion] = useState(
 
           <button
             type="button"
-            onClick={() =>
-              moverImagenGuia('sur')
-            }
+            onClick={() => moverImagenGuia('sur')}
+            disabled={guideLocked}
           >
             ↓
           </button>
 
           <button
             type="button"
-            onClick={() =>
-              escalarImagenGuia(0.9)
-            }
+            onClick={() => escalarImagenGuia(0.9)}
+            disabled={guideLocked}
           >
             -
           </button>

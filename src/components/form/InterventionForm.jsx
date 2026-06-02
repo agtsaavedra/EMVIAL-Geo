@@ -163,14 +163,25 @@ function InterventionForm({
       />
 
       <label>Fuente</label>
-      <select name="fuente" value={form.fuente} onChange={manejarCambio}>
+
+      <select
+        name="fuente"
+        value={form.fuente}
+        onChange={manejarCambio}
+      >
         {FUENTES.map((fuente) => (
           <option key={fuente} value={fuente}>
             {fuente}
           </option>
         ))}
-      </select>
 
+        {form.fuente &&
+          !FUENTES.includes(form.fuente) && (
+            <option value={form.fuente}>
+              {form.fuente}
+            </option>
+          )}
+      </select>
       <label>Dirección / búsqueda geográfica</label>
 
       <div className="address-wrapper">
