@@ -48,6 +48,73 @@ let SQL
 let db
 
 // =====================================================
+// ESQUEMA / MIGRACIONES
+// =====================================================
+
+function crearTablaIntervenciones() {
+  db.run(`
+    CREATE TABLE IF NOT EXISTS intervenciones (
+      id TEXT PRIMARY KEY,
+      data TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `)
+}
+
+function obtenerTipoColumnaId() {
+  const result = db.exec(`PRAGMA table_info(intervenciones)`)
+
+  if (!result.length) return null
+
+  const columnas = result[0].values
+  const columnaId = columnas.find((columna) => columna[1] === 'id')
+
+  return columnaId ? String(columnaId[2] || '').toUpperCase() : null
+}
+
+function asegurarEsquemaIntervenciones() {
+  const existeTabla = db.exec(`
+    SELECT name
+    FROM sqlite_master
+    WHERE type = 'table'
+      AND name = 'intervenciones'
+  `)
+
+  if (!existeTabla.length) {
+    crearTablaIntervenciones()
+    return
+  }
+
+  const tipoId = obtenerTipoColumnaId()
+
+  // Versiones anteriores usaban INTEGER PRIMARY KEY.
+  // Para soportar crypto.randomUUID(), migramos id a TEXT.
+  if (tipoId === 'INTEGER') {
+    db.run(`ALTER TABLE intervenciones RENAME TO intervenciones_old`)
+
+    crearTablaIntervenciones()
+
+    db.run(`
+      INSERT INTO intervenciones (
+        id,
+        data,
+        created_at,
+        updated_at
+      )
+      SELECT
+        CAST(id AS TEXT),
+        data,
+        created_at,
+        updated_at
+      FROM intervenciones_old
+    `)
+
+    db.run(`DROP TABLE intervenciones_old`)
+  }
+}
+
+// =====================================================
 // INICIALIZACIÓN DB
 // =====================================================
 
@@ -57,19 +124,16 @@ async function iniciarDB() {
   if (fs.existsSync(dbPath)) {
     const fileBuffer = fs.readFileSync(dbPath)
     db = new SQL.Database(fileBuffer)
+
+    asegurarEsquemaIntervenciones()
+    guardarArchivo()
+
     return
   }
 
   db = new SQL.Database()
 
-  db.run(`
-    CREATE TABLE IF NOT EXISTS intervenciones (
-      id INTEGER PRIMARY KEY,
-      data TEXT NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    )
-  `)
+  crearTablaIntervenciones()
 
   guardarArchivo()
 }
@@ -178,7 +242,7 @@ async function obtenerIntervenciones() {
   const result = db.exec(`
     SELECT data
     FROM intervenciones
-    ORDER BY id DESC
+    ORDER BY updated_at DESC, created_at DESC
   `)
 
   if (!result.length) return []
@@ -193,16 +257,22 @@ async function guardarIntervencion(intervencion) {
 
   const nueva = {
     ...intervencion,
-    id: intervencion.id || Date.now(),
+    id: String(intervencion.id || Date.now()),
   }
 
-  const existente = db.exec(`
+  const buscarExistente = db.prepare(`
     SELECT id
     FROM intervenciones
-    WHERE id = ${nueva.id}
+    WHERE id = ?
   `)
 
-  if (existente.length) {
+  buscarExistente.bind([nueva.id])
+
+  const existe = buscarExistente.step()
+
+  buscarExistente.free()
+
+  if (existe) {
     db.run(
       `
       UPDATE intervenciones
@@ -232,20 +302,32 @@ async function guardarIntervencion(intervencion) {
 async function eliminarIntervencion(id) {
   if (!db) await iniciarDB()
 
-  const result = db.exec(`
+  const idNormalizado = String(id)
+
+  const buscarIntervencion = db.prepare(`
     SELECT data
     FROM intervenciones
-    WHERE id = ${id}
+    WHERE id = ?
   `)
+
+  buscarIntervencion.bind([idNormalizado])
 
   let periodo = null
 
-  if (result.length && result[0].values.length) {
-    const data = JSON.parse(result[0].values[0][0])
+  if (buscarIntervencion.step()) {
+    const data = JSON.parse(
+      buscarIntervencion.get()[0]
+    )
+
     periodo = data.periodo
   }
 
-  db.run(`DELETE FROM intervenciones WHERE id = ?`, [id])
+  buscarIntervencion.free()
+
+  db.run(
+    `DELETE FROM intervenciones WHERE id = ?`,
+    [idNormalizado]
+  )
 
   guardarArchivo()
   crearBackupGeneralAutomatico()
@@ -289,7 +371,7 @@ function crearBackupAutomatico(periodo) {
 
   backupPeriodo.run(`
     CREATE TABLE IF NOT EXISTS intervenciones (
-      id INTEGER PRIMARY KEY,
+      id TEXT PRIMARY KEY,
       data TEXT NOT NULL,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL

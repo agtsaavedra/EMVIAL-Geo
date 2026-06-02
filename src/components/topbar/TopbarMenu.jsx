@@ -91,23 +91,23 @@ function TopbarMenu({
     cerrarMenu()
   }
 
-function abrirSelectorGuia() {
-  guideInputRef.current?.click()
-}
+  function abrirSelectorGuia() {
+    guideInputRef.current?.click()
+  }
 
-function manejarArchivoGuia(e) {
-  const file = e.target.files?.[0]
+  function manejarArchivoGuia(e) {
+    const file = e.target.files?.[0]
 
-  console.log('ARCHIVO GUIA:', file)
-  console.log('cargarImagenGuia:', cargarImagenGuia)
+    console.log('ARCHIVO GUIA:', file)
+    console.log('cargarImagenGuia:', cargarImagenGuia)
 
-  if (!file) return
+    if (!file) return
 
-  cargarImagenGuia?.(file)
+    cargarImagenGuia?.(file)
 
-  e.target.value = ''
-  cerrarMenu()
-}
+    e.target.value = ''
+    cerrarMenu()
+  }
 
   // =====================================================
   // RENDER
@@ -121,7 +121,7 @@ function manejarArchivoGuia(e) {
       <input
         ref={guideInputRef}
         type="file"
-        accept="image/png,image/jpeg,image/jpg,image/webp"
+        accept="image/png,image/jpeg,image/jpg,image/webp,application/pdf,.pdf"
         onChange={manejarArchivoGuia}
         hidden
       />
