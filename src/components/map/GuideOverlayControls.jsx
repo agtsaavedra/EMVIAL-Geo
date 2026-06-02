@@ -1,223 +1,254 @@
 import { useRef, useState } from 'react'
 
 function GuideOverlayControls({
-  guideUrl,
-  guideName,
-  guideOpacity,
-  setGuideOpacity,
-  guideVisible,
-  setGuideVisible,
-  quitarImagenGuia,
-  moverImagenGuia,
-  escalarImagenGuia,
-  guideLocked,
-  setGuideLocked,
-  centrarImagenGuia,
-  usarGuiaComoFuente,
+    guideUrl,
+    guideName,
+    guideOpacity,
+    setGuideOpacity,
+    guideVisible,
+    setGuideVisible,
+    quitarImagenGuia,
+    moverImagenGuia,
+    escalarImagenGuia,
+    guideLocked,
+    setGuideLocked,
+    centrarImagenGuia,
+    usarGuiaComoFuente,
+    guideRotation,
+    rotarImagenGuia,
+    resetearRotacionGuia,
 }) {
-  const panelRef = useRef(null)
+    const panelRef = useRef(null)
 
-  function obtenerPosicionInicial() {
-    return {
-      x: Math.max(16, window.innerWidth - 270),
-      y: 110,
-    }
-  }
-
-  const [posicion, setPosicion] = useState(
-    obtenerPosicionInicial
-  )
-
-  const dragRef = useRef({
-    activo: false,
-    offsetX: 0,
-    offsetY: 0,
-  })
-
-  if (!guideUrl) return null
-
-  function iniciarArrastre(e) {
-    const panel = panelRef.current
-    if (!panel) return
-
-    const rect = panel.getBoundingClientRect()
-
-    dragRef.current = {
-      activo: true,
-      offsetX: e.clientX - rect.left,
-      offsetY: e.clientY - rect.top,
+    function obtenerPosicionInicial() {
+        return {
+            x: Math.max(16, window.innerWidth - 270),
+            y: 110,
+        }
     }
 
-    window.addEventListener('mousemove', moverPanel)
-    window.addEventListener('mouseup', soltarPanel)
-  }
+    const [posicion, setPosicion] = useState(
+        obtenerPosicionInicial
+    )
 
-  function moverPanel(e) {
-    if (!dragRef.current.activo) return
-
-    const nuevoX = e.clientX - dragRef.current.offsetX
-    const nuevoY = e.clientY - dragRef.current.offsetY
-
-    const margen = 8
-
-    setPosicion({
-      x: Math.max(margen, nuevoX),
-      y: Math.max(margen, nuevoY),
+    const dragRef = useRef({
+        activo: false,
+        offsetX: 0,
+        offsetY: 0,
     })
-  }
 
-  function soltarPanel() {
-    dragRef.current.activo = false
+    if (!guideUrl) return null
 
-    window.removeEventListener('mousemove', moverPanel)
-    window.removeEventListener('mouseup', soltarPanel)
-  }
+    function iniciarArrastre(e) {
+        const panel = panelRef.current
+        if (!panel) return
 
-  return (
-    <div
-      ref={panelRef}
-      className="guide-overlay-controls draggable"
-      style={{
-        left: posicion.x,
-        top: posicion.y,
-      }}
-    >
-      <div
-        className="guide-panel-drag-handle"
-        onMouseDown={iniciarArrastre}
-      >
-        <span>Imagen guía</span>
-        <small>arrastrar</small>
-      </div>
+        const rect = panel.getBoundingClientRect()
 
-      <div className="guide-panel">
-        <div className="guide-panel-header">
-          <strong>Imagen guía</strong>
+        dragRef.current = {
+            activo: true,
+            offsetX: e.clientX - rect.left,
+            offsetY: e.clientY - rect.top,
+        }
 
-          <span title={guideName}>
-            {guideName}
-          </span>
-        </div>
+        window.addEventListener('mousemove', moverPanel)
+        window.addEventListener('mouseup', soltarPanel)
+    }
 
-        <div className="guide-row">
-          <button
-            type="button"
-            onClick={() =>
-              setGuideVisible((prev) => !prev)
-            }
-          >
-            {guideVisible ? 'Ocultar' : 'Mostrar'}
-          </button>
+    function moverPanel(e) {
+        if (!dragRef.current.activo) return
 
-          <button
-            type="button"
-            className="danger"
-            onClick={quitarImagenGuia}
-          >
-            Quitar
-          </button>
-        </div>
+        const nuevoX = e.clientX - dragRef.current.offsetX
+        const nuevoY = e.clientY - dragRef.current.offsetY
 
-        <div className="guide-secondary-row">
-          <button
-            type="button"
-            onClick={() =>
-              setGuideLocked((prev) => !prev)
-            }
-          >
-            {guideLocked ? 'Desbloq.' : 'Bloquear'}
-          </button>
+        const margen = 8
 
-          <button
-            type="button"
-            onClick={centrarImagenGuia}
-          >
-            Centrar
-          </button>
+        setPosicion({
+            x: Math.max(margen, nuevoX),
+            y: Math.max(margen, nuevoY),
+        })
+    }
 
-          {usarGuiaComoFuente && (
-            <button
-              type="button"
-              className="guide-source-btn"
-              onClick={usarGuiaComoFuente}
+    function soltarPanel() {
+        dragRef.current.activo = false
+
+        window.removeEventListener('mousemove', moverPanel)
+        window.removeEventListener('mouseup', soltarPanel)
+    }
+
+    return (
+        <div
+            ref={panelRef}
+            className="guide-overlay-controls draggable"
+            style={{
+                left: posicion.x,
+                top: posicion.y,
+            }}
+        >
+            <div
+                className="guide-panel-drag-handle"
+                onMouseDown={iniciarArrastre}
             >
-              Fuente
-            </button>
-          )}
+                <span>Imagen guía</span>
+                <small>arrastrar</small>
+            </div>
+
+            <div className="guide-panel">
+                <div className="guide-panel-header">
+                    <strong>Imagen guía</strong>
+
+                    <span title={guideName}>
+                        {guideName}
+                    </span>
+                </div>
+
+                <div className="guide-row">
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setGuideVisible((prev) => !prev)
+                        }
+                    >
+                        {guideVisible ? 'Ocultar' : 'Mostrar'}
+                    </button>
+
+                    <button
+                        type="button"
+                        className="danger"
+                        onClick={quitarImagenGuia}
+                    >
+                        Quitar
+                    </button>
+                </div>
+
+                <div className="guide-secondary-row">
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setGuideLocked((prev) => !prev)
+                        }
+                    >
+                        {guideLocked ? 'Desbloq.' : 'Bloquear'}
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={centrarImagenGuia}
+                    >
+                        Centrar
+                    </button>
+
+                    {usarGuiaComoFuente && (
+                        <button
+                            type="button"
+                            className="guide-source-btn"
+                            onClick={usarGuiaComoFuente}
+                        >
+                            Fuente
+                        </button>
+                    )}
+                </div>
+                <div className="guide-secondary-row">
+                    <button
+                        type="button"
+                        onClick={() =>
+                            rotarImagenGuia(-2)
+                        }
+                    >
+                        ↺
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={
+                            resetearRotacionGuia
+                        }
+                    >
+                        {guideRotation}°
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            rotarImagenGuia(2)
+                        }
+                    >
+                        ↻
+                    </button>
+                </div>
+
+                <label className="guide-opacity">
+                    Opacidad
+                    <input
+                        type="range"
+                        min="0.15"
+                        max="0.9"
+                        step="0.05"
+                        value={guideOpacity}
+                        onChange={(e) =>
+                            setGuideOpacity(Number(e.target.value))
+                        }
+                    />
+                </label>
+
+                <div className="guide-move-grid">
+                    <span />
+
+                    <button
+                        type="button"
+                        onClick={() => moverImagenGuia('norte')}
+                        disabled={guideLocked}
+                    >
+                        ↑
+                    </button>
+
+                    <span />
+
+                    <button
+                        type="button"
+                        onClick={() => moverImagenGuia('oeste')}
+                        disabled={guideLocked}
+                    >
+                        ←
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => escalarImagenGuia(1.12)}
+                        disabled={guideLocked}
+                    >
+                        +
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => moverImagenGuia('este')}
+                        disabled={guideLocked}
+                    >
+                        →
+                    </button>
+
+                    <span />
+
+                    <button
+                        type="button"
+                        onClick={() => moverImagenGuia('sur')}
+                        disabled={guideLocked}
+                    >
+                        ↓
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => escalarImagenGuia(0.9)}
+                        disabled={guideLocked}
+                    >
+                        -
+                    </button>
+                </div>
+            </div>
         </div>
-
-        <label className="guide-opacity">
-          Opacidad
-          <input
-            type="range"
-            min="0.15"
-            max="0.9"
-            step="0.05"
-            value={guideOpacity}
-            onChange={(e) =>
-              setGuideOpacity(Number(e.target.value))
-            }
-          />
-        </label>
-
-        <div className="guide-move-grid">
-          <span />
-
-          <button
-            type="button"
-            onClick={() => moverImagenGuia('norte')}
-            disabled={guideLocked}
-          >
-            ↑
-          </button>
-
-          <span />
-
-          <button
-            type="button"
-            onClick={() => moverImagenGuia('oeste')}
-            disabled={guideLocked}
-          >
-            ←
-          </button>
-
-          <button
-            type="button"
-            onClick={() => escalarImagenGuia(1.12)}
-            disabled={guideLocked}
-          >
-            +
-          </button>
-
-          <button
-            type="button"
-            onClick={() => moverImagenGuia('este')}
-            disabled={guideLocked}
-          >
-            →
-          </button>
-
-          <span />
-
-          <button
-            type="button"
-            onClick={() => moverImagenGuia('sur')}
-            disabled={guideLocked}
-          >
-            ↓
-          </button>
-
-          <button
-            type="button"
-            onClick={() => escalarImagenGuia(0.9)}
-            disabled={guideLocked}
-          >
-            -
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+    )
 }
 
 export default GuideOverlayControls
