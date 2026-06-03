@@ -1,0 +1,280 @@
+/* ===============================
+   MAPA PRINCIPAL
+================================ */
+
+.map-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.map-real {
+  position: relative;
+
+  height: 100%;
+  width: 100%;
+
+  border-radius: 16px;
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+
+
+/* ===============================
+   CONTROL DE BARRIOS
+================================ */
+
+.map-control {
+  background: var(--surface);
+  padding: 8px;
+
+  border-radius: 10px;
+  border: 1px solid var(--border);
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.map-control select {
+  width: 260px;
+
+  padding: 9px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+
+  background: var(--input-bg);
+  color: var(--input-text);
+}
+
+
+/* ===============================
+   SWITCH FLOTANTE DE GEOMETRÍA
+================================ */
+
+.map-floating-geometry {
+  position: absolute;
+
+  top: 18px;
+  left: 74px;
+
+  z-index: 1200;
+}
+
+.geometry-switch-btn {
+  width: 134px;
+  height: 38px;
+
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  align-items: center;
+  column-gap: 9px;
+
+  padding: 0 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.14s ease,
+    box-shadow 0.18s ease;
+}
+
+.geometry-switch-btn:hover {
+  background: var(--surface-2);
+  transform: translateY(-1px);
+}
+
+.geometry-switch-btn:active {
+  transform: scale(0.96);
+}
+
+.geometry-switch-icon {
+  width: 24px;
+  height: 24px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  background: #2563eb;
+  color: white;
+
+  flex-shrink: 0;
+}
+
+.geometry-switch-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.geometry-switch-label {
+  display: block;
+
+  width: 76px;
+
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ===============================
+   ACCIONES BAJO EL MAPA
+================================ */
+
+.map-actions-wrapper {
+  background: var(--surface);
+  color: var(--text);
+
+  border-radius: 12px;
+  padding: 6px 7px;
+  border: 1px solid var(--border);
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.map-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.map-action-btn {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: var(--surface-2);
+  color: var(--text);
+
+  padding: 6px 8px;
+
+  cursor: pointer;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.map-action-btn:hover {
+  background: var(--surface);
+  transform: translateY(-1px);
+}
+
+.map-action-btn:active {
+  transform: scale(0.98);
+}
+
+.map-action-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+.map-action-info {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-soft);
+}
+
+/* ===============================
+   TOGGLE CAPAS / BARRIOS
+================================ */
+
+.layer-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  width: 180px;
+
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.layer-toggle input {
+  width: auto;
+}
+
+.layer-toggle.external {
+  width: auto;
+
+  background: var(--surface-2);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  padding: 6px 8px;
+}
+
+
+
+/* ===============================
+   POPUP
+================================ */
+
+.popup-edit-btn {
+  margin-top: 8px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #2563eb;
+  color: white;
+
+  padding: 6px 10px;
+
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.popup-edit-btn:hover {
+  background: #1d4ed8;
+}
+
+
+
+
+
+.map-action-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+
+
+
+
+
+

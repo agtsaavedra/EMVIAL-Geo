@@ -1,0 +1,382 @@
+/* ===============================
+   ESTADÍSTICAS DEL MAPA
+================================ */
+
+.map-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  width: 100%;
+
+  padding-top: 6px;
+
+  border-top: 1px solid var(--border);
+}
+
+
+.map-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  flex: 1;
+  min-width: 0;
+
+  overflow: hidden;
+
+  font-size: 9px;
+  line-height: 1;
+}
+
+.map-stats.medium {
+  gap: 8px;
+  font-size: 10px;
+}
+
+.map-stats.compact {
+  gap: 5px;
+  font-size: 8px;
+}
+
+.map-stat-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+
+  flex: 0 1 auto;
+  min-width: 0;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+
+  opacity: 0.92;
+}
+
+.map-stat-item strong {
+  font-size: inherit;
+  font-weight: 700;
+}
+
+.map-stat-color {
+  width: 0.75em;
+  height: 0.75em;
+
+  border-radius: 999px;
+  flex-shrink: 0;
+
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.map-actions-wrapper {
+  position: relative;
+}
+
+.map-stats-backdrop {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1900;
+
+  background: transparent;
+}
+
+.map-stats-panel {
+  position: absolute;
+
+  right: 16px;
+  bottom: calc(100% + 10px);
+
+  width: min(400px, calc(100vw - 48px));
+  max-height: min(480px, 62vh);
+  overflow-y: auto;
+
+  background: var(--surface);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+  border-radius: 18px;
+
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.38);
+
+  padding: 16px;
+
+  z-index: 3000;
+
+  transform-origin: bottom right;
+
+  animation: statsPanelIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* En desktop NO desplazamos por el panel de intervenciones.
+   El panel de estadísticas queda dentro del área del mapa. */
+.map-stats-panel.with-assets-panel {
+  right: 16px;
+}
+
+.map-stats-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+
+  margin-bottom: 16px;
+}
+
+.map-stats-panel-header div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.map-stats-panel-header strong {
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+.map-stats-panel-header span {
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.map-stats-panel-header button {
+  width: 32px;
+  height: 32px;
+
+  border: none;
+  border-radius: 999px;
+
+  background: var(--surface-2);
+  color: var(--text);
+
+  cursor: pointer;
+
+  font-size: 20px;
+  line-height: 1;
+
+  flex-shrink: 0;
+}
+
+.map-stats-panel-section {
+  margin-top: 16px;
+}
+
+.map-stats-panel-section h4 {
+  margin: 0 0 8px;
+
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stats-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 8px 0;
+
+  border-bottom: 1px solid var(--border);
+
+  animation: statsRowIn 0.22s ease both;
+}
+
+.stats-detail-row:last-child {
+  border-bottom: none;
+}
+
+.stats-detail-row span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  min-width: 0;
+
+  color: var(--text);
+  font-size: 14px;
+}
+
+.stats-detail-row strong {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.stats-detail-row i {
+  width: 10px;
+  height: 10px;
+
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.stats-detail-row-button {
+  width: 100%;
+
+  border: none;
+  background: transparent;
+  color: inherit;
+
+  cursor: pointer;
+  text-align: left;
+}
+
+.stats-detail-row-button:hover {
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.map-stats-open-btn {
+  margin: 0;
+
+  flex-shrink: 0;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  background: var(--surface-2);
+  color: var(--text);
+
+  padding: 5px 10px;
+
+  cursor: pointer;
+
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+
+  transition:
+    background-color 0.18s ease,
+    transform 0.14s ease,
+    border-color 0.18s ease;
+}
+
+
+.map-stats-row .map-stats-open-btn {
+  margin-left: auto;
+}
+
+.map-stats-row .map-stats {
+  flex-wrap: nowrap;
+}
+
+.map-stats-open-btn:hover {
+  background: var(--surface);
+  transform: translateY(-1px);
+}
+
+.map-stats-open-btn:active {
+  transform: scale(0.97);
+}
+
+@keyframes statsPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes statsRowIn {
+  from {
+    opacity: 0;
+    transform: translateX(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+
+/* ===============================
+   ESTADÍSTICAS EN PANTALLAS MEDIANAS
+   Evita que el panel se corte contra el topbar.
+================================ */
+
+@media (min-width: 1025px) and (max-width: 1366px) {
+
+  .map-stats-panel,
+  .map-stats-panel.with-assets-panel {
+    position: fixed;
+
+    top: auto;
+    right: 24px;
+    bottom: 40px;
+
+    width: min(380px, calc(100vw - 48px));
+    max-height: calc(100vh - 150px);
+
+    z-index: 5000;
+  }
+
+  .map-stats-panel.with-assets-panel {
+    right: 320px;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1200px) {
+  .map-stats-panel.with-assets-panel {
+    right: 300px;
+  }
+}
+
+@media (max-width: 1024px) {
+
+  .map-stats-panel,
+  .map-stats-panel.with-assets-panel {
+    position: fixed;
+
+    right: 18px;
+    bottom: 65px;
+    left: auto;
+    top: auto;
+
+    width: min(88vw, 360px);
+    max-height: 58vh;
+
+    transform: none;
+    padding: 12px;
+
+    border-radius: 16px;
+
+    z-index: 9000;
+
+    animation: statsPanelInFromButton 0.18s ease;
+  }
+
+  .assets-panel.open~.map-stats-panel {
+    bottom: 320px;
+  }
+
+  .map-stats-backdrop {
+    background: transparent;
+    z-index: 8900;
+  }
+
+  @keyframes statsPanelInFromButton {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.97);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}

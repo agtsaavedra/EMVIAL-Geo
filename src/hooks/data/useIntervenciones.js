@@ -14,109 +14,152 @@ export function useIntervenciones() {
   }, [])
 
   async function recargarIntervenciones() {
-    const datos =
-      await window.api.obtenerIntervenciones()
+    try {
+      const datos =
+        await window.api.obtenerIntervenciones()
 
-    setIntervenciones(datos || [])
+      setIntervenciones(datos || [])
+    } catch (error) {
+      console.error(
+        'Error al obtener intervenciones:',
+        error
+      )
+
+      setIntervenciones([])
+    }
   }
 
   async function guardarIntervencionEnDB(form) {
-    if (intervencionEditandoId) {
-      const actualizada =
+    try {
+      if (intervencionEditandoId) {
+        const actualizada =
+          await window.api.guardarIntervencion({
+            ...form,
+
+            id: intervencionEditandoId,
+
+            updatedAt:
+              new Date().toISOString(),
+
+            version:
+              (form.version || 1) + 1,
+          })
+
+        setIntervenciones((prev) =>
+          prev.map((intervencion) =>
+            intervencion.id ===
+              intervencionEditandoId
+              ? actualizada
+              : intervencion
+          )
+        )
+
+        setIntervencionEditandoId(null)
+
+        return actualizada
+      }
+
+      const nueva =
         await window.api.guardarIntervencion({
           ...form,
 
-          id: intervencionEditandoId,
+          id: crypto.randomUUID(),
+
+          createdAt:
+            new Date().toISOString(),
 
           updatedAt:
             new Date().toISOString(),
 
-          version:
-            (form.version || 1) + 1,
+          deletedAt: null,
+
+          version: 1,
         })
 
-      setIntervenciones((prev) =>
-        prev.map((intervencion) =>
-          intervencion.id ===
-            intervencionEditandoId
-            ? actualizada
-            : intervencion
-        )
+      setIntervenciones((prev) => [
+        nueva,
+        ...prev,
+      ])
+
+      return nueva
+    } catch (error) {
+      console.error(
+        'Error al guardar intervención:',
+        error
       )
 
-      setIntervencionEditandoId(null)
-
-      return actualizada
+      throw error
     }
-
-    const nueva =
-      await window.api.guardarIntervencion({
-        ...form,
-
-        id: crypto.randomUUID(),
-
-        createdAt:
-          new Date().toISOString(),
-
-        updatedAt:
-          new Date().toISOString(),
-
-        deletedAt: null,
-
-        version: 1,
-      })
-
-
-    setIntervenciones((prev) => [
-      nueva,
-      ...prev,
-    ])
-
-    return nueva
   }
 
   async function eliminarIntervencion(id) {
-    await window.api.eliminarIntervencion(id)
+    try {
+      await window.api.eliminarIntervencion(id)
 
-    setIntervenciones((prev) =>
-      prev.filter(
-        (intervencion) =>
-          intervencion.id !== id
+      setIntervenciones((prev) =>
+        prev.filter(
+          (intervencion) =>
+            intervencion.id !== id
+        )
       )
-    )
 
-    return true
+      return true
+    } catch (error) {
+      console.error(
+        'Error al eliminar intervención:',
+        error
+      )
+
+      throw error
+    }
   }
 
   async function restaurarIntervencion(
     intervencion
   ) {
-    const restaurada =
-      await window.api.guardarIntervencion(
-        intervencion
-      )
+    try {
+      const restaurada =
+        await window.api.guardarIntervencion({
+          ...intervencion,
 
-    setIntervenciones((prev) => {
-      const yaExiste = prev.some(
-        (item) =>
-          item.id === restaurada.id
-      )
+          deletedAt: null,
 
-      if (yaExiste) {
-        return prev.map((item) =>
-          item.id === restaurada.id
-            ? restaurada
-            : item
+          updatedAt:
+            new Date().toISOString(),
+
+          version:
+            (intervencion.version || 1) + 1,
+        })
+
+      setIntervenciones((prev) => {
+        const yaExiste = prev.some(
+          (item) =>
+            item.id === restaurada.id
         )
-      }
 
-      return [
-        restaurada,
-        ...prev,
-      ]
-    })
+        if (yaExiste) {
+          return prev.map((item) =>
+            item.id === restaurada.id
+              ? restaurada
+              : item
+          )
+        }
 
-    return restaurada
+        return [
+          restaurada,
+          ...prev,
+        ]
+      })
+
+      return restaurada
+    } catch (error) {
+      console.error(
+        'Error al restaurar intervención:',
+        error
+      )
+
+      throw error
+    }
   }
 
   return {

@@ -1,0 +1,255 @@
+/* ===============================
+   IMAGEN GUÍA / HOJA DE CALCAR
+================================ */
+
+.guide-overlay-controls {
+  position: fixed;
+  z-index: 9500;
+
+  width: 230px;
+
+  pointer-events: auto;
+  user-select: none;
+}
+
+.guide-overlay-controls.draggable {
+  cursor: default;
+}
+
+.guide-panel-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 8px;
+
+  padding: 7px 10px;
+
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 14px 14px 0 0;
+
+  background: var(--surface-2);
+  color: var(--text);
+
+  cursor: grab;
+
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.24);
+}
+
+.guide-panel-drag-handle:active {
+  cursor: grabbing;
+}
+
+.guide-panel-drag-handle span {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.guide-panel-drag-handle small {
+  color: var(--text-soft);
+  font-size: 10px;
+}
+
+.guide-panel {
+  width: 100%;
+
+  padding: 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 0 0 14px 14px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.34);
+
+  animation: guidePanelIn 0.16s ease both;
+}
+
+.guide-panel-header {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+
+  margin-bottom: 8px;
+}
+
+.guide-panel-header strong {
+  font-size: 13px;
+}
+
+.guide-panel-header span {
+  color: var(--text-soft);
+
+  font-size: 11px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =====================================
+   FILAS SUPERIORES
+===================================== */
+
+.guide-row {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 6px;
+
+  margin-bottom: 8px;
+}
+
+.guide-secondary-row {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 6px;
+
+  margin-bottom: 8px;
+}
+
+/* =====================================
+   TODOS LOS BOTONES MISMO ALTO
+===================================== */
+
+.guide-row button,
+.guide-secondary-row button,
+.guide-move-grid button,
+.guide-source-btn {
+  min-width: 0;
+  width: 100%;
+  height: 31px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  background: var(--surface-2);
+  color: var(--text);
+
+  padding: 0 8px;
+
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  
+}
+
+.guide-row button:hover,
+.guide-secondary-row button:hover,
+.guide-move-grid button:hover {
+  background: var(--surface);
+}
+
+.guide-row button.danger {
+  color: #fecaca;
+
+  background:
+    rgba(239, 68, 68, 0.18);
+
+  border-color:
+    rgba(239, 68, 68, 0.35);
+}
+
+/* =====================================
+   BOTÓN FUENTE
+===================================== */
+
+.guide-source-btn {
+  margin: 0;
+
+  background: #2563eb;
+  color: white;
+}
+
+.guide-source-btn:hover {
+  background: #1d4ed8;
+}
+
+/* =====================================
+   SLIDER
+===================================== */
+
+.guide-opacity {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  color: var(--text-soft);
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.guide-opacity input {
+  width: 100%;
+  padding: 0;
+}
+
+/* =====================================
+   GRID MOVIMIENTO
+===================================== */
+
+.guide-move-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 5px;
+
+  margin-top: 9px;
+}
+
+.guide-move-grid button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* =====================================
+   ANIMACIÓN
+===================================== */
+
+@keyframes guidePanelIn {
+  from {
+    opacity: 0;
+    transform:
+      translateY(-6px)
+      scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+@media (max-width: 1024px) {
+  .guide-overlay-controls {
+    width: 210px;
+  }
+}
+
+.guide-image-overlay {
+  transform-origin: center center;
+  will-change: transform;
+}

@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 export function useAssetsPanelProps({
   intervencionesFiltradas,
 
@@ -10,21 +12,32 @@ export function useAssetsPanelProps({
   assetsPanelAbierto,
   setAssetsPanelAbierto,
 }) {
-  return {
-    intervencionesFiltradas,
+  return useMemo(
+    () => ({
+      intervencionesFiltradas,
 
-    editarIntervencion:
+      editarIntervencion:
+        manejarEditarIntervencion,
+
+      eliminarIntervencion:
+        eliminarIntervencionProtegida,
+
+      enfocarIntervencion:
+        manejarEnfocarIntervencion,
+
+      setIntervencionHoverId,
+
+      abierto: assetsPanelAbierto,
+      setAbierto: setAssetsPanelAbierto,
+    }),
+    [
+      intervencionesFiltradas,
       manejarEditarIntervencion,
-
-    eliminarIntervencion:
       eliminarIntervencionProtegida,
-
-    enfocarIntervencion:
       manejarEnfocarIntervencion,
-
-    setIntervencionHoverId,
-
-    abierto: assetsPanelAbierto,
-    setAbierto: setAssetsPanelAbierto,
-  }
+      setIntervencionHoverId,
+      assetsPanelAbierto,
+      setAssetsPanelAbierto,
+    ]
+  )
 }

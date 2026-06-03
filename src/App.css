@@ -1,13 +1,21 @@
-@import './styles/layout.css';
-@import './styles/sidebar.css';
-@import './styles/topbar.css';
-@import './styles/map.css';
-@import './styles/panel.css';
-@import './styles/scrollbar.css';
-@import './styles/theme.css';
-@import './styles/responsive.css';
-@import './styles/toast.css';
-@import './styles/confirm-dialog.css';
-@import './styles/boot.css';
-@import './styles/appsplash.css';
+@import './styles/base/theme.css';
+@import './styles/base/scrollbar.css';
 
+@import './styles/layout/layout.css';
+@import './styles/layout/sidebar.css';
+@import './styles/layout/topbar.css';
+@import './styles/layout/panel.css';
+@import './styles/layout/responsive.css';
+
+@import './styles/map/map.css';
+@import './styles/map/map-stats.css';
+@import './styles/map/guide-overlay.css';
+@import './styles/map/drawing.css';
+@import './styles/map/leaflet-overrides.css';
+
+@import './styles/components/toast.css';
+@import './styles/components/confirm-dialog.css';
+@import './styles/components/boot.css';
+@import './styles/components/appsplash.css';
+
+@import './styles/map/guide-overlay.css';

@@ -98,9 +98,6 @@ function TopbarMenu({
   function manejarArchivoGuia(e) {
     const file = e.target.files?.[0]
 
-    console.log('ARCHIVO GUIA:', file)
-    console.log('cargarImagenGuia:', cargarImagenGuia)
-
     if (!file) return
 
     cargarImagenGuia?.(file)

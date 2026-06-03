@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
   getDocument,
@@ -83,6 +83,14 @@ export function useGuideOverlay() {
     guideRotation,
     setGuideRotation,
   ] = useState(0)
+
+  useEffect(() => {
+  return () => {
+    if (guideUrl) {
+      URL.revokeObjectURL(guideUrl)
+    }
+  }
+}, [guideUrl])
 
   function centrarImagenGuia() {
     setGuideBounds(null)

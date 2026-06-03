@@ -20,12 +20,12 @@ function GuideOverlayControls({
 }) {
     const panelRef = useRef(null)
 
-    function obtenerPosicionInicial() {
-        return {
-            x: Math.max(16, window.innerWidth - 270),
-            y: 110,
-        }
-    }
+  function obtenerPosicionInicial() {
+  return {
+    x: Math.max(16, window.innerWidth - 285),
+    y: 150,
+  }
+}
 
     const [posicion, setPosicion] = useState(
         obtenerPosicionInicial
