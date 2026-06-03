@@ -1,4 +1,13 @@
+/**
+ * Servicio de exportación KML.
+ *
+ * Convierte intervenciones cargadas en EMVIAL Geo a un archivo KML compatible
+ * con Google Earth, Google My Maps y otros visores GIS básicos.
+ */
 // Escapa caracteres especiales para evitar romper el XML del KML.
+/**
+ * Escapa caracteres especiales para evitar XML inválido dentro del KML.
+ */
 function escapeXml(value) {
   if (value === null || value === undefined) return ''
 
@@ -11,6 +20,11 @@ function escapeXml(value) {
 }
 
 // Devuelve color en formato KML: aabbggrr.
+/**
+ * Define el color KML de una intervención según el tipo de obra.
+ *
+ * KML usa formato aabbggrr, distinto al hexadecimal CSS habitual.
+ */
 function obtenerColorKml(intervencion) {
   const obra = `${intervencion.obra || ''}`.toUpperCase()
 
@@ -27,6 +41,9 @@ function obtenerColorKml(intervencion) {
 }
 
 // Nombre visible en Google Earth / My Maps.
+/**
+ * Construye el nombre visible del Placemark en el visor KML.
+ */
 function obtenerNombre(intervencion) {
   const obra = intervencion.obra || 'Intervención'
 
@@ -42,6 +59,9 @@ function obtenerNombre(intervencion) {
 }
 
 // Descripción HTML del popup dentro del KML.
+/**
+ * Genera la descripción HTML incluida dentro del popup del Placemark.
+ */
 function crearDescripcion(intervencion) {
   return `
 <![CDATA[
@@ -81,6 +101,9 @@ ${escapeXml(intervencion.descripcion)}
 }
 
 // Convierte [[lat, lon], [lat, lon]] a formato KML lon,lat,0.
+/**
+ * Convierte coordenadas internas [lat, lon] al formato KML lon,lat,0.
+ */
 function coordenadasKml(geometria) {
   return geometria
     .map(([lat, lon]) => `${lon},${lat},0`)
@@ -88,6 +111,11 @@ function coordenadasKml(geometria) {
 }
 
 // Crea un Placemark KML para punto, línea o polígono.
+/**
+ * Construye un Placemark KML para punto, línea o polígono.
+ *
+ * Si la intervención no tiene geometría válida, devuelve una cadena vacía.
+ */
 function placemarkKml(intervencion) {
   const styleId = `style-${intervencion.id}`
   const color = obtenerColorKml(intervencion)
@@ -163,6 +191,11 @@ ${geometry}
 
 // Exporta intervenciones a KML.
 // Devuelve true si exportó, false si no había datos exportables.
+/**
+ * Genera y descarga un archivo KML con las intervenciones recibidas.
+ *
+ * Devuelve true si exportó al menos una geometría válida y false si no había datos.
+ */
 export function exportarKml(intervenciones = []) {
   if (!intervenciones.length) {
     return false

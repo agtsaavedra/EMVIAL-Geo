@@ -1,3 +1,17 @@
+/**
+ * Módulo de persistencia principal de EMVIAL Geo.
+ *
+ * Responsabilidades:
+ * - Crear y mantener la base SQLite local mediante sql.js.
+ * - Persistir intervenciones como registros JSON dentro de la tabla intervenciones.
+ * - Crear backups automáticos generales y por período.
+ * - Restaurar backups completos o únicamente un período específico.
+ * - Administrar la carpeta configurable de backups.
+ *
+ * Nota de arquitectura:
+ * La base viva siempre queda en app.getPath('userData'). La carpeta de backups
+ * puede cambiarse, pero nunca reemplaza ni mueve la base activa de la aplicación.
+ */
 const path = require('path')
 const fs = require('fs')
 const initSqlJs = require('sql.js')
@@ -51,6 +65,12 @@ let db
 // ESQUEMA / MIGRACIONES
 // =====================================================
 
+/**
+ * Crea la tabla principal si todavía no existe.
+ *
+ * El id se guarda como TEXT para soportar UUID generados desde el renderer.
+ * El campo data conserva la intervención completa serializada como JSON.
+ */
 function crearTablaIntervenciones() {
   db.run(`
     CREATE TABLE IF NOT EXISTS intervenciones (
@@ -62,6 +82,11 @@ function crearTablaIntervenciones() {
   `)
 }
 
+/**
+ * Consulta el tipo declarado de la columna id en la tabla intervenciones.
+ *
+ * Se usa para detectar bases antiguas donde id era INTEGER PRIMARY KEY.
+ */
 function obtenerTipoColumnaId() {
   const result = db.exec(`PRAGMA table_info(intervenciones)`)
 
@@ -73,6 +98,12 @@ function obtenerTipoColumnaId() {
   return columnaId ? String(columnaId[2] || '').toUpperCase() : null
 }
 
+/**
+ * Garantiza que la tabla intervenciones exista y tenga el esquema esperado.
+ *
+ * Si detecta una base antigua con id INTEGER, migra la tabla a id TEXT
+ * conservando todos los datos existentes.
+ */
 function asegurarEsquemaIntervenciones() {
   const existeTabla = db.exec(`
     SELECT name
@@ -118,6 +149,12 @@ function asegurarEsquemaIntervenciones() {
 // INICIALIZACIÓN DB
 // =====================================================
 
+/**
+ * Inicializa sql.js y abre la base local.
+ *
+ * Si existe un archivo de base, lo carga desde disco y aplica migraciones.
+ * Si no existe, crea una base nueva con el esquema actual.
+ */
 async function iniciarDB() {
   SQL = await initSqlJs()
 
@@ -138,6 +175,12 @@ async function iniciarDB() {
   guardarArchivo()
 }
 
+/**
+ * Exporta el estado en memoria de sql.js y lo escribe en el archivo SQLite.
+ *
+ * sql.js trabaja en memoria, por eso cada cambio persistente debe terminar
+ * llamando a esta función.
+ */
 function guardarArchivo() {
   const data = db.export()
   fs.writeFileSync(dbPath, Buffer.from(data))
@@ -147,6 +190,12 @@ function guardarArchivo() {
 // CONFIGURACIÓN
 // =====================================================
 
+/**
+ * Lee el archivo de configuración local de la aplicación.
+ *
+ * Si no existe o está corrupto, devuelve un objeto vacío para mantener
+ * la app operativa.
+ */
 function leerConfig() {
   if (!fs.existsSync(configPath)) {
     return {}
@@ -159,10 +208,19 @@ function leerConfig() {
   }
 }
 
+/**
+ * Persiste la configuración local en formato JSON legible.
+ */
 function guardarConfig(config) {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 }
 
+/**
+ * Devuelve la carpeta activa de backups.
+ *
+ * Prioriza la carpeta elegida por el usuario y usa la carpeta por defecto
+ * cuando todavía no hay configuración guardada.
+ */
 function obtenerCarpetaBackups() {
   const config = leerConfig()
   return config.backupsDir || defaultBackupsDir
@@ -172,20 +230,34 @@ function obtenerCarpetaBackups() {
 // HELPERS DE CARPETAS
 // =====================================================
 
+/**
+ * Crea una carpeta de manera recursiva si todavía no existe.
+ */
 function asegurarCarpeta(carpeta) {
   if (!fs.existsSync(carpeta)) {
     fs.mkdirSync(carpeta, { recursive: true })
   }
 }
 
+/**
+ * Garantiza que exista la carpeta activa de backups.
+ */
 function asegurarCarpetaBackups() {
   asegurarCarpeta(backupsDir)
 }
 
+/**
+ * Devuelve la carpeta donde se guardan los backups generales automáticos.
+ */
 function obtenerCarpetaBackupsGeneral() {
   return path.join(backupsDir, '_GENERAL')
 }
 
+/**
+ * Construye la ruta de backups para un período específico.
+ *
+ * El período esperado es YYYY-MM. Si el valor no es válido, usa SIN_PERIODO.
+ */
 function obtenerCarpetaPeriodo(periodo) {
   if (!periodo || !/^\d{4}-\d{2}$/.test(periodo)) {
     return path.join(backupsDir, 'SIN_PERIODO')
@@ -197,10 +269,18 @@ function obtenerCarpetaPeriodo(periodo) {
   return path.join(backupsDir, `${periodo}_${nombreMes}`)
 }
 
+/**
+ * Indica si dos rutas apuntan exactamente a la misma carpeta resuelta.
+ */
 function sonMismaCarpeta(origen, destino) {
   return path.resolve(origen) === path.resolve(destino)
 }
 
+/**
+ * Evita elegir como nueva carpeta una subcarpeta de la carpeta actual.
+ *
+ * Esto previene copias recursivas peligrosas al migrar backups.
+ */
 function destinoEstaDentroDeOrigen(origen, destino) {
   const origenResolved = path.resolve(origen)
   const destinoResolved = path.resolve(destino)
@@ -210,6 +290,11 @@ function destinoEstaDentroDeOrigen(origen, destino) {
 
 // Copia recursiva segura.
 // No borra la carpeta original y no pisa archivos existentes.
+/**
+ * Copia una carpeta de backups a otra ubicación de forma conservadora.
+ *
+ * No borra el origen y no pisa archivos existentes en destino.
+ */
 function copiarCarpetaSiExiste(origen, destino) {
   if (!fs.existsSync(origen)) return
 
@@ -236,6 +321,12 @@ function copiarCarpetaSiExiste(origen, destino) {
 // CRUD INTERVENCIONES
 // =====================================================
 
+/**
+ * Obtiene todas las intervenciones guardadas en la base activa.
+ *
+ * Devuelve objetos JavaScript reconstruidos desde el campo JSON data,
+ * ordenados por fecha de actualización/creación descendente.
+ */
 async function obtenerIntervenciones() {
   if (!db) await iniciarDB()
 
@@ -250,6 +341,12 @@ async function obtenerIntervenciones() {
   return result[0].values.map(([data]) => JSON.parse(data))
 }
 
+/**
+ * Inserta o actualiza una intervención en SQLite.
+ *
+ * Usa id como TEXT para aceptar UUID. Luego persiste el archivo y genera
+ * backups automáticos general y por período.
+ */
 async function guardarIntervencion(intervencion) {
   if (!db) await iniciarDB()
 
@@ -299,6 +396,12 @@ async function guardarIntervencion(intervencion) {
   return nueva
 }
 
+/**
+ * Elimina una intervención por id.
+ *
+ * Antes de borrar, lee el período de la intervención para poder actualizar
+ * también el backup automático de ese período.
+ */
 async function eliminarIntervencion(id) {
   if (!db) await iniciarDB()
 
@@ -340,6 +443,11 @@ async function eliminarIntervencion(id) {
 // BACKUPS AUTOMÁTICOS
 // =====================================================
 
+/**
+ * Crea una copia automática de la base completa.
+ *
+ * Se guarda en la carpeta _GENERAL y luego se limpian backups antiguos.
+ */
 function crearBackupGeneralAutomatico() {
   if (!fs.existsSync(dbPath)) return
 
@@ -361,6 +469,11 @@ function crearBackupGeneralAutomatico() {
   limpiarBackupsAntiguos(backupsGeneralDir)
 }
 
+/**
+ * Crea un backup automático que contiene solo intervenciones de un período.
+ *
+ * Esto permite restaurar un mes sin reemplazar toda la base de trabajo.
+ */
 function crearBackupAutomatico(periodo) {
   if (!db || !periodo) return
 
@@ -416,6 +529,11 @@ function crearBackupAutomatico(periodo) {
   limpiarBackupsAntiguos(carpetaPeriodo)
 }
 
+/**
+ * Mantiene únicamente los 10 backups más recientes de una carpeta.
+ *
+ * Reduce acumulación de archivos durante cargas intensivas.
+ */
 function limpiarBackupsAntiguos(carpeta) {
   if (!fs.existsSync(carpeta)) return
 
@@ -449,6 +567,11 @@ function limpiarBackupsAntiguos(carpeta) {
   })
 }
 
+/**
+ * Crea un backup de seguridad antes de restaurar datos.
+ *
+ * Sirve como punto de recuperación si el usuario restaura un archivo equivocado.
+ */
 function crearBackupPreRestauracion() {
   if (!fs.existsSync(dbPath)) return null
 
@@ -476,6 +599,9 @@ function crearBackupPreRestauracion() {
 // BACKUP MANUAL / RESTAURACIÓN GENERAL
 // =====================================================
 
+/**
+ * Permite al usuario elegir manualmente dónde guardar un backup SQLite.
+ */
 async function crearBackupManual(periodo) {
   if (!db) await iniciarDB()
 
@@ -510,6 +636,11 @@ async function crearBackupManual(periodo) {
   }
 }
 
+/**
+ * Restaura una base SQLite completa seleccionada por el usuario.
+ *
+ * Antes de reemplazar la base viva crea un backup de pre-restauración.
+ */
 async function restaurarBackupManual() {
   asegurarCarpetaBackups()
 
@@ -546,6 +677,12 @@ async function restaurarBackupManual() {
 // RESTAURACIÓN POR PERÍODO
 // =====================================================
 
+/**
+ * Restaura únicamente las intervenciones de un período desde un backup.
+ *
+ * Elimina de la base activa las intervenciones del período elegido y luego
+ * inserta las provenientes del backup seleccionado.
+ */
 async function restaurarPeriodoManual(periodo) {
   if (!periodo || !/^\d{4}-\d{2}$/.test(periodo)) {
     return {
@@ -625,6 +762,9 @@ async function restaurarPeriodoManual(periodo) {
 // CARPETA DE BACKUPS
 // =====================================================
 
+/**
+ * Abre la carpeta activa de backups en el explorador del sistema operativo.
+ */
 async function abrirCarpetaBackups() {
   asegurarCarpetaBackups()
 
@@ -633,6 +773,11 @@ async function abrirCarpetaBackups() {
   return true
 }
 
+/**
+ * Permite elegir una nueva carpeta de backups.
+ *
+ * Copia los backups existentes al nuevo destino sin borrar la carpeta anterior.
+ */
 async function configurarCarpetaBackups() {
   const carpetaAnterior = backupsDir
 
@@ -695,6 +840,9 @@ async function configurarCarpetaBackups() {
   }
 }
 
+/**
+ * Devuelve rutas internas útiles para el diálogo Acerca de / diagnóstico.
+ */
 function obtenerEstadoApp() {
   return {
     dbPath,

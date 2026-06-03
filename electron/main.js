@@ -1,3 +1,13 @@
+/**
+ * Proceso principal de Electron para EMVIAL Geo.
+ *
+ * Responsabilidades:
+ * - Crear la ventana principal.
+ * - Registrar canales IPC seguros para el renderer.
+ * - Ejecutar geocodificación mediante Nominatim desde el proceso principal.
+ * - Exponer operaciones de base de datos y backups al renderer.
+ * - Proteger el cierre accidental de la aplicación.
+ */
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 
@@ -26,6 +36,12 @@ const {
 // ===============================
 //
 
+/**
+ * Crea y configura la ventana principal de la aplicación.
+ *
+ * En desarrollo carga Vite y abre DevTools. En producción carga el build
+ * estático desde dist/index.html.
+ */
 function createWindow() {
   const win = new BrowserWindow({
     width: 1400,
@@ -90,12 +106,14 @@ function createWindow() {
 // ===============================
 //
 
+// Confirma desde el renderer que el usuario aceptó cerrar la app.
 ipcMain.handle('confirmar-cierre-app', () => {
   app.isQuiting = true
   app.quit()
 })
 
 
+// Busca direcciones usando Nominatim con consultas progresivas para Mar del Plata.
 ipcMain.handle(
   'buscar-direccion',
   async (event, direccion) => {
@@ -150,6 +168,7 @@ ipcMain.handle(
   }
 )
 
+// Obtiene una dirección legible a partir de coordenadas lat/lon.
 ipcMain.handle(
   'obtener-direccion',
   async (event, lat, lon) => {
@@ -193,6 +212,7 @@ ipcMain.handle(
 // ===============================
 //
 
+// Devuelve al renderer todas las intervenciones persistidas.
 ipcMain.handle(
   'obtener-intervenciones',
   async () => {
@@ -200,6 +220,7 @@ ipcMain.handle(
   }
 )
 
+// Inserta o actualiza una intervención recibida desde el renderer.
 ipcMain.handle(
   'guardar-intervencion',
   async (event, intervencion) => {
@@ -209,6 +230,7 @@ ipcMain.handle(
   }
 )
 
+// Elimina una intervención por id.
 ipcMain.handle(
   'eliminar-intervencion',
   async (event, id) => {
@@ -224,6 +246,7 @@ ipcMain.handle(
 // ===============================
 //
 
+// Crea un backup manual elegido por el usuario.
 ipcMain.handle(
   'crear-backup-manual',
   async (event, periodo) => {
@@ -233,6 +256,7 @@ ipcMain.handle(
   }
 )
 
+// Restaura una base completa desde un backup manual.
 ipcMain.handle(
   'restaurar-backup-manual',
   async () => {
@@ -240,6 +264,7 @@ ipcMain.handle(
   }
 )
 
+// Abre la carpeta de backups en el explorador del sistema.
 ipcMain.handle(
   'abrir-carpeta-backups',
   async () => {
@@ -247,6 +272,7 @@ ipcMain.handle(
   }
 )
 
+// Restaura únicamente las intervenciones de un período.
 ipcMain.handle(
   'restaurar-periodo-manual',
   async (event, periodo) => {
@@ -256,6 +282,7 @@ ipcMain.handle(
   }
 )
 
+// Permite elegir una nueva carpeta de backups.
 ipcMain.handle(
   'configurar-carpeta-backups',
   async () => {
@@ -263,6 +290,7 @@ ipcMain.handle(
   }
 )
 
+// Devuelve información de rutas internas para diagnóstico.
 ipcMain.handle(
   'obtener-estado-app',
   async () => {
@@ -276,6 +304,7 @@ ipcMain.handle(
 // ===============================
 //
 
+// Cuando Electron está listo, crea la ventana principal.
 app.whenReady().then(() => {
   createWindow()
 })
@@ -286,6 +315,7 @@ app.whenReady().then(() => {
 // ===============================
 //
 
+// En Windows/Linux se cierra la app al cerrar todas las ventanas.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
@@ -298,6 +328,7 @@ app.on('window-all-closed', () => {
 // ===============================
 //
 
+// En macOS permite recrear la ventana al activar la app desde el dock.
 app.on('activate', () => {
   if (
     BrowserWindow.getAllWindows()

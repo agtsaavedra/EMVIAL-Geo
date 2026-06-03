@@ -1,6 +1,18 @@
+/**
+ * Servicio de exportación Excel.
+ *
+ * Genera un archivo .xlsx con dos hojas:
+ * - Intervenciones: detalle completo de cada carga del período.
+ * - Estadísticas: resumen por tipo de obra y geometría.
+ */
 import * as XLSX from 'xlsx'
 import { calcularStatsPorObra } from '../map/data/mapStats'
 
+/**
+ * Convierte la geometría de una intervención a texto JSON.
+ *
+ * Permite conservar puntos/líneas/polígonos en una celda exportable.
+ */
 function formatearGeometria(geometria) {
   if (!geometria || !geometria.length) return ''
 
@@ -9,10 +21,18 @@ function formatearGeometria(geometria) {
 
 
 
+/**
+ * Cuenta la cantidad de puntos asociados a la geometría de una intervención.
+ */
 function contarPuntos(intervencion) {
   return intervencion.geometria?.length || 0
 }
 
+/**
+ * Exporta las intervenciones de un período a un archivo Excel.
+ *
+ * Devuelve true si pudo generar el archivo y false si no había datos.
+ */
 export function exportarExcelPeriodo(intervenciones = [], periodoActivo) {
   if (!intervenciones.length) {
   return false
