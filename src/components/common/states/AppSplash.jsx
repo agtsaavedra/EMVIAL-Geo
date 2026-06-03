@@ -1,6 +1,14 @@
+/**
+ * Pantalla inicial de bienvenida.
+ *
+ * Suaviza la entrada a la app mientras se monta la interfaz principal.
+ */
+
 import mapPin from '@assets/map-pin.svg'
 
+// Punto de entrada visual del componente.
 function AppSplash() {
+  // Render principal del componente.
   return (
     <div className="app-splash">
       <div className="app-splash-card">

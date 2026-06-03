@@ -1,5 +1,13 @@
+/**
+ * Componente de interfaz de EMVIAL Geo.
+ *
+ * Forma parte de la capa visual y recibe por props la lógica preparada por
+ * hooks/controladores superiores.
+ */
+
 import { useMap } from 'react-leaflet'
 
+// Punto de entrada visual del componente.
 function PopupIntervencion({ intervencion, editarIntervencion }) {
   const map = useMap()
 
@@ -17,6 +25,7 @@ function PopupIntervencion({ intervencion, editarIntervencion }) {
     editarIntervencion(intervencion)
   }
 
+  // Render principal del componente.
   return (
     <div className="popup-content">
       <strong>

@@ -1,3 +1,10 @@
+/**
+ * Componente de interfaz de EMVIAL Geo.
+ *
+ * Forma parte de la capa visual y recibe por props la lógica preparada por
+ * hooks/controladores superiores.
+ */
+
 const OPCIONES = [
   {
     tipo: 'Punto',
@@ -74,12 +81,14 @@ function obtenerSiguienteTipo(tipoActual) {
 }
 
 function obtenerOpcion(tipoActual) {
+  // Render principal del componente.
   return (
     OPCIONES.find((opcion) => opcion.tipo === tipoActual) ||
     OPCIONES[0]
   )
 }
 
+// Punto de entrada visual del componente.
 function GeometryControl({
   geometriaTipo,
   setGeometriaTipo,

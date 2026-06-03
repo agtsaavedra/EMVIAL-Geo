@@ -1,3 +1,11 @@
+/**
+ * Modal "Acerca de".
+ *
+ * Muestra información de diagnóstico de la app, período activo y rutas internas
+ * obtenidas desde Electron.
+ */
+
+// Punto de entrada visual del componente.
 function AboutDialog({
   abierto,
   onCerrar,
@@ -6,6 +14,7 @@ function AboutDialog({
 }) {
   if (!abierto) return null
 
+  // Render principal del componente.
   return (
     <div
       className="confirm-overlay"

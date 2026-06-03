@@ -1,6 +1,14 @@
+/**
+ * Estado visual de error.
+ *
+ * Componente preparado para comunicar una falla general de forma amigable.
+ */
+
 import mapPin from '@assets/map-pin.svg'
 
+// Punto de entrada visual del componente.
 function AppError({ error }) {
+  // Render principal del componente.
   return (
     <div className="boot-screen">
       <div className="boot-card boot-card-error">

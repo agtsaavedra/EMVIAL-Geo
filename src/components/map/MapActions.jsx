@@ -1,3 +1,10 @@
+/**
+ * Componente de interfaz de EMVIAL Geo.
+ *
+ * Forma parte de la capa visual y recibe por props la lógica preparada por
+ * hooks/controladores superiores.
+ */
+
 import { useState } from 'react'
 
 import { obtenerColorIntervencion } from '@map/config/mapColors'
@@ -5,6 +12,7 @@ import { useMapStatsDetail } from '@hooks/map/useMapStatsDetail'
 
 import MapStatsPanel from './MapStatsPanel'
 
+// Punto de entrada visual del componente.
 function MapActions({
   mostrarBarrios,
   setMostrarBarrios,
@@ -50,6 +58,7 @@ function MapActions({
   // RENDER
   // =====================================================
 
+  // Render principal del componente.
   return (
     <div className="map-actions-wrapper">
       {/* ===============================
@@ -175,3 +184,4 @@ function MapActions({
 }
 
 export default MapActions
+

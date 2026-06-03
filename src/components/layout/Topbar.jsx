@@ -1,7 +1,15 @@
+/**
+ * Barra superior de EMVIAL Geo.
+ *
+ * Orquesta título, búsqueda global, filtros superiores y menú hamburguesa.
+ * La lógica pesada vive en subcomponentes y hooks externos.
+ */
+
 import TopbarTitle from '@components/topbar/TopbarTitle'
 import TopbarFilters from '@components/topbar/TopbarFilters'
 import TopbarMenu from '@components/topbar/TopbarMenu'
 
+// Punto de entrada visual del componente.
 function Topbar({
   busqueda,
   setBusqueda,
@@ -39,6 +47,7 @@ function Topbar({
   // RENDER
   // =====================================================
 
+  // Render principal del componente.
   return (
     <header className="topbar">
       <div className="topbar-main">
@@ -100,3 +109,4 @@ function Topbar({
 }
 
 export default Topbar
+

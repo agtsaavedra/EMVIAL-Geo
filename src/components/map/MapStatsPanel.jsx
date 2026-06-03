@@ -1,3 +1,11 @@
+/**
+ * Componente de interfaz de EMVIAL Geo.
+ *
+ * Forma parte de la capa visual y recibe por props la lógica preparada por
+ * hooks/controladores superiores.
+ */
+
+// Punto de entrada visual del componente.
 function MapStatsPanel({
   abierto,
   cerrar,
@@ -29,6 +37,7 @@ function MapStatsPanel({
   // RENDER
   // =====================================================
 
+  // Render principal del componente.
   return (
     <>
       {/* Backdrop transparente/oscuro según CSS.
@@ -164,3 +173,4 @@ function MapStatsPanel({
 }
 
 export default MapStatsPanel
+

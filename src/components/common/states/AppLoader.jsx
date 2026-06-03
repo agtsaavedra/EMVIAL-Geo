@@ -1,6 +1,15 @@
+/**
+ * Estado visual de carga.
+ *
+ * Componente preparado para mostrar espera centralizada durante arranque o
+ * procesos pesados.
+ */
+
 import mapPin from '@assets/map-pin.svg'
 
+// Punto de entrada visual del componente.
 function AppLoader() {
+  // Render principal del componente.
   return (
     <div className="boot-screen">
       <div className="boot-card">

@@ -1,6 +1,14 @@
+/**
+ * Sidebar principal de carga y edición.
+ *
+ * Contiene el formulario de intervención, búsqueda de dirección y acciones de
+ * guardado/cancelación. Es la entrada principal de datos operativos.
+ */
+
 
 import InterventionForm from '@components/form/InterventionForm'
 import { useEffect, useRef } from 'react'
+// Punto de entrada visual del componente.
 function Sidebar({
   abierto,
   setAbierto,
@@ -27,6 +35,7 @@ useEffect(() => {
   }
 }, [activoEditandoId])
 
+  // Render principal del componente.
   return (
     <aside className={`sidebar-panel ${abierto ? 'open' : 'closed'}`}>
       <button

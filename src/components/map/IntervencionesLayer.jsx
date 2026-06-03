@@ -1,3 +1,10 @@
+/**
+ * Componente de interfaz de EMVIAL Geo.
+ *
+ * Forma parte de la capa visual y recibe por props la lógica preparada por
+ * hooks/controladores superiores.
+ */
+
 import { memo, useState } from 'react'
 
 import {
@@ -12,6 +19,7 @@ import PopupIntervencion from './PopupIntervencion'
 import { crearIconoColor } from '@map/config/mapIcons'
 import { obtenerColorIntervencion } from '@map/config/mapColors'
 
+// Punto de entrada visual del componente.
 function IntervencionesLayer({
   intervenciones = [],
   editarIntervencion,
@@ -177,6 +185,7 @@ function obtenerOpcionesPoligono(
   // RENDER
   // =====================================================
  
+  // Render principal del componente.
   return (
     <>
       {intervenciones.map((intervencion) => {

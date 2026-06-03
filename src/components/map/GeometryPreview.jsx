@@ -1,8 +1,16 @@
+/**
+ * Componente de interfaz de EMVIAL Geo.
+ *
+ * Forma parte de la capa visual y recibe por props la lógica preparada por
+ * hooks/controladores superiores.
+ */
+
 import {
   Polyline,
   Polygon,
 } from 'react-leaflet'
 
+// Punto de entrada visual del componente.
 function GeometryPreview({
   form,
   cursorLinea,
@@ -67,6 +75,7 @@ function GeometryPreview({
   // RENDER
   // =====================================================
 
+  // Render principal del componente.
   return (
     <>
       {/* ===============================

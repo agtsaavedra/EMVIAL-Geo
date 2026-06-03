@@ -1,7 +1,16 @@
+/**
+ * Panel lateral de intervenciones cargadas.
+ *
+ * Muestra la lista de intervenciones filtradas y permite enfocar, editar o
+ * eliminar registros. El componente no decide la lógica de negocio: recibe
+ * handlers ya protegidos desde la capa de hooks de aplicación.
+ */
+
 
 import { memo } from 'react'
 
 
+// Punto de entrada visual del componente.
 function AssetsPanel({
   intervencionesFiltradas = [],
   editarIntervencion,
@@ -70,6 +79,7 @@ function AssetsPanel({
     return abierto ? '›' : '‹'
   }
 
+  // Calcula el título visible según el estado actual.
   function obtenerTitulo(intervencion) {
     return (
       intervencion.nombre ||
@@ -91,6 +101,7 @@ function AssetsPanel({
   // =====================================================
 
 
+  // Render principal del componente.
   return (
     <aside
       className={`assets-panel ${

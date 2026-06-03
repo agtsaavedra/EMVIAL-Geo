@@ -1,3 +1,10 @@
+/**
+ * Overlay visual de imagen guía sobre Leaflet.
+ *
+ * Calcula bounds iniciales respetando la proporción, renderiza el ImageOverlay
+ * y aplica rotación preservando el transform interno de Leaflet.
+ */
+
 import { useEffect } from 'react'
 
 import {
@@ -5,6 +12,7 @@ import {
     useMap,
 } from 'react-leaflet'
 
+// Punto de entrada visual del componente.
 function GuideImageOverlay({
     guideUrl,
     guideBounds,

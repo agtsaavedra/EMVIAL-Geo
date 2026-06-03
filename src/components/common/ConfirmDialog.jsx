@@ -1,3 +1,11 @@
+/**
+ * Diálogo genérico de confirmación.
+ *
+ * Se usa para acciones sensibles o destructivas, como eliminar intervenciones,
+ * restaurar backups o descartar cambios sin guardar.
+ */
+
+// Punto de entrada visual del componente.
 function ConfirmDialog({
   abierto,
   titulo,
@@ -11,6 +19,7 @@ function ConfirmDialog({
 }) {
   if (!abierto) return null
 
+  // Render principal del componente.
   return (
     <div
       className="confirm-overlay"

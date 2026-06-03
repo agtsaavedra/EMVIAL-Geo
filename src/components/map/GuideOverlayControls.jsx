@@ -1,5 +1,13 @@
+/**
+ * Controles flotantes de la imagen guía.
+ *
+ * Permite mover, escalar, rotar, bloquear, ocultar, quitar y usar como fuente
+ * el PDF/imagen cargado como hoja de calcar.
+ */
+
 import { useRef, useState } from 'react'
 
+// Punto de entrada visual del componente.
 function GuideOverlayControls({
     guideUrl,
     guideName,
@@ -20,6 +28,7 @@ function GuideOverlayControls({
 }) {
     const panelRef = useRef(null)
 
+  // Define la posición inicial del panel dentro de la ventana.
   function obtenerPosicionInicial() {
   return {
     x: Math.max(16, window.innerWidth - 285),
@@ -39,6 +48,7 @@ function GuideOverlayControls({
 
     if (!guideUrl) return null
 
+    // Inicia el arrastre del panel flotante calculando el offset del mouse.
     function iniciarArrastre(e) {
         const panel = panelRef.current
         if (!panel) return
@@ -55,6 +65,7 @@ function GuideOverlayControls({
         window.addEventListener('mouseup', soltarPanel)
     }
 
+    // Actualiza la posición del panel flotante durante el arrastre.
     function moverPanel(e) {
         if (!dragRef.current.activo) return
 
@@ -69,6 +80,7 @@ function GuideOverlayControls({
         })
     }
 
+    // Finaliza el arrastre y remueve listeners globales.
     function soltarPanel() {
         dragRef.current.activo = false
 

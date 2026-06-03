@@ -1,3 +1,10 @@
+/**
+ * Vista principal del mapa.
+ *
+ * Integra Leaflet, barrios, intervenciones, dibujo de geometrías, estadísticas
+ * e imagen/PDF guía para calcar información territorial.
+ */
+
 import {
   MapContainer,
   TileLayer,
@@ -36,6 +43,7 @@ import {
   obtenerIntervencionesVisibles,
   obtenerStatsMapa,
 } from '@map/data/mapViewData'
+// Punto de entrada visual del componente.
 function MapView({
   form,
   intervencionesFiltradas = [],
@@ -137,6 +145,7 @@ function MapView({
   // RENDER
   // =====================================================
 
+  // Render principal del componente.
   return (
     <div className="map-area">
       <div

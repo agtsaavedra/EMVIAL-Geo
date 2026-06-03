@@ -1,3 +1,11 @@
+/**
+ * Notificación temporal tipo toast.
+ *
+ * Muestra mensajes de éxito, error o información. Puede incluir una acción
+ * opcional, por ejemplo deshacer una eliminación.
+ */
+
+// Punto de entrada visual del componente.
 function Toast({ toast }) {
   if (!toast) return null
 
@@ -5,6 +13,7 @@ function Toast({ toast }) {
     toast.onAccion?.()
   }
 
+  // Render principal del componente.
   return (
     <div className={`toast toast-${toast.tipo || 'info'}`}>
       <span>
