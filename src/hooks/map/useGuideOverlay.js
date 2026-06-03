@@ -32,7 +32,7 @@ async function convertirPdfAImagen(file) {
 
   const viewport =
     page.getViewport({
-      scale: 1.35
+      scale: 1.35,
     })
 
   const canvas =
@@ -64,7 +64,9 @@ async function convertirPdfAImagen(file) {
 }
 
 // Punto de entrada público del hook.
-export function useGuideOverlay() {
+export function useGuideOverlay({
+  mostrarToast,
+}) {
   const [guideUrl, setGuideUrl] =
     useState(null)
 
@@ -94,12 +96,14 @@ export function useGuideOverlay() {
   ] = useState(0)
 
   useEffect(() => {
-  return () => {
-    if (guideUrl) {
-      URL.revokeObjectURL(guideUrl)
+    return () => {
+      if (guideUrl) {
+        URL.revokeObjectURL(
+          guideUrl
+        )
+      }
     }
-  }
-}, [guideUrl])
+  }, [guideUrl])
 
   // Reinicia los bounds para volver a centrar automáticamente la guía.
   function centrarImagenGuia() {
@@ -120,14 +124,66 @@ export function useGuideOverlay() {
 
   // Carga una imagen o PDF como guía y resetea sus controles.
   async function cargarImagenGuia(file) {
-    if (!file) return
+    if (guideLoading) return
+
+    setGuideLoading(true)
+
+    // ------------------------------------
+    // Validaciones de archivo
+    // ------------------------------------
+
+    const tiposPermitidos = [
+      'application/pdf',
+      'image/png',
+      'image/jpeg',
+      'image/webp',
+    ]
+
+    const tamanoMaxMb = 50
+
+    const tamanoMaxBytes =
+      tamanoMaxMb *
+      1024 *
+      1024
+
+    if (!file) {
+      setGuideLoading(false)
+      return
+    }
+
+    if (
+      !tiposPermitidos.includes(
+        file.type
+      )
+    ) {
+      mostrarToast({
+        tipo: 'error',
+        mensaje:
+          'Formato no soportado. Solo PDF, PNG, JPG o WEBP.',
+      })
+
+      setGuideLoading(false)
+      return
+    }
+
+    if (
+      file.size >
+      tamanoMaxBytes
+    ) {
+      mostrarToast({
+        tipo: 'error',
+        mensaje:
+          `El archivo supera ${tamanoMaxMb} MB.`,
+      })
+
+      setGuideLoading(false)
+      return
+    }
 
     setGuideLocked(false)
     setGuideRotation(0)
 
     try {
-      setGuideLoading(true)
-
       if (guideUrl) {
         URL.revokeObjectURL(
           guideUrl
@@ -145,20 +201,25 @@ export function useGuideOverlay() {
         ? await convertirPdfAImagen(
             file
           )
-        : URL.createObjectURL(file)
+        : URL.createObjectURL(
+            file
+          )
 
       setGuideUrl(url)
+
       setGuideName(file.name)
 
       setGuideBounds(null)
 
       setGuideVisible(true)
+
       setGuideOpacity(0.45)
     } catch (error) {
-      console.error(
-        'Error cargando guía:',
-        error
-      )
+      mostrarToast({
+        tipo: 'error',
+        mensaje:
+          'No se pudo cargar la guía seleccionada.',
+      })
     } finally {
       setGuideLoading(false)
     }
@@ -167,6 +228,7 @@ export function useGuideOverlay() {
   // Elimina la guía actual y libera recursos asociados.
   function quitarImagenGuia() {
     setGuideLocked(false)
+
     setGuideRotation(0)
 
     if (guideUrl) {
@@ -244,26 +306,31 @@ export function useGuideOverlay() {
         return [
           [
             south,
-            west + pasoLng,
+            west +
+              pasoLng,
           ],
           [
             north,
-            east + pasoLng,
+            east +
+              pasoLng,
           ],
         ]
       }
 
       if (
-        direccion === 'oeste'
+        direccion ===
+        'oeste'
       ) {
         return [
           [
             south,
-            west - pasoLng,
+            west -
+              pasoLng,
           ],
           [
             north,
-            east - pasoLng,
+            east -
+              pasoLng,
           ],
         ]
       }
@@ -293,11 +360,13 @@ export function useGuideOverlay() {
         (west + east) / 2
 
       const semiAlto =
-        ((north - south) / 2) *
+        ((north - south) /
+          2) *
         factor
 
       const semiAncho =
-        ((east - west) / 2) *
+        ((east - west) /
+          2) *
         factor
 
       return [

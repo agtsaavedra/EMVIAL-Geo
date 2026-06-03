@@ -25,16 +25,17 @@ function GuideOverlayControls({
     guideRotation,
     rotarImagenGuia,
     resetearRotacionGuia,
+    guideLoading,
 }) {
     const panelRef = useRef(null)
 
-  // Define la posición inicial del panel dentro de la ventana.
-  function obtenerPosicionInicial() {
-  return {
-    x: Math.max(16, window.innerWidth - 285),
-    y: 150,
-  }
-}
+    // Define la posición inicial del panel dentro de la ventana.
+    function obtenerPosicionInicial() {
+        return {
+            x: Math.max(16, window.innerWidth - 285),
+            y: 150,
+        }
+    }
 
     const [posicion, setPosicion] = useState(
         obtenerPosicionInicial
@@ -46,7 +47,7 @@ function GuideOverlayControls({
         offsetY: 0,
     })
 
-    if (!guideUrl) return null
+    if (!guideUrl && !guideLoading) return null
 
     // Inicia el arrastre del panel flotante calculando el offset del mouse.
     function iniciarArrastre(e) {
@@ -104,6 +105,12 @@ function GuideOverlayControls({
                 <span>Imagen guía</span>
                 <small>arrastrar</small>
             </div>
+
+            {guideLoading && (
+                <div className="guide-loading">
+                    Cargando guía...
+                </div>
+            )}
 
             <div className="guide-panel">
                 <div className="guide-panel-header">

@@ -39,6 +39,7 @@ export function useMapProps({
   assetsPanelAbierto,
 
   guideOverlay,
+  guideLoading,
 }) {
   return useMemo(
     () => ({
@@ -76,6 +77,7 @@ export function useMapProps({
       assetsPanelAbierto,
 
       guideOverlay,
+      guideLoading,
     }),
     [
       form,
@@ -98,6 +100,7 @@ export function useMapProps({
       manejarEnfocarIntervencion,
       assetsPanelAbierto,
       guideOverlay,
+      guideLoading,
     ]
   )
 }
