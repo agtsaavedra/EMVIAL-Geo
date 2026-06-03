@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx'
-import { calcularStatsPorObra } from '../map/mapStats'
+import { calcularStatsPorObra } from '../map/data/mapStats'
 
 function formatearGeometria(geometria) {
   if (!geometria || !geometria.length) return ''

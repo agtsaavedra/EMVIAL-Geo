@@ -23,20 +23,19 @@ import GuideOverlayControls from './GuideOverlayControls'
 
 import { useGeometryEditing } from '@hooks/map/useGeometryEditing'
 
-import { crearIconoColor } from '@map/mapIcons'
-import { obtenerColorIntervencion } from '@map/mapColors'
+import { crearIconoColor } from '@map/config/mapIcons'
+import { obtenerColorIntervencion } from '@map/config/mapColors'
 
 import {
   centroMarDelPlata,
   estiloBarrio,
-} from '@map/barrios'
+} from '@map/data/barrios'
 
 import {
   obtenerBarriosFiltrados,
   obtenerIntervencionesVisibles,
   obtenerStatsMapa,
-} from '@map/mapViewData'
-
+} from '@map/data/mapViewData'
 function MapView({
   form,
   intervencionesFiltradas = [],

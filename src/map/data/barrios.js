@@ -1,5 +1,5 @@
 import * as turf from '@turf/turf'
-import barriosGeojsonRaw from '../data/barrios.geojson?raw'
+import barriosGeojsonRaw from '../../data/barrios.geojson?raw'
 
 export const barriosGeojson = JSON.parse(barriosGeojsonRaw)
 

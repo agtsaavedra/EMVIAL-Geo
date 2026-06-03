@@ -3,7 +3,9 @@ import {
   obtenerNombreBarrio,
 } from './barrios'
 
-import { calcularStatsPorObra } from './mapStats'
+import {
+  calcularStatsPorObra,
+} from './mapStats'
 
 export function obtenerBarriosFiltrados(
   barrioSeleccionado

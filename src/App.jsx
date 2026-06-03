@@ -8,7 +8,7 @@ import MapView from '@components/map/MapView'
 import Toast from '@components/common/Toast'
 import ConfirmDialog from '@components/common/ConfirmDialog'
 import AboutDialog from '@components/common/AboutDialog'
-import AppSplash from '@components/common/AppSplash'
+import AppSplash from '@components/common/states/AppSplash'
 
 import { useAppServices } from '@hooks/app/core/useAppServices'
 

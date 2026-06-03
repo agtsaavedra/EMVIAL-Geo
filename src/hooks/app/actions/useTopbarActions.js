@@ -1,5 +1,5 @@
 import { exportarExcelPeriodo } from '@services/exportExcel'
-import { exportarKml } from '@utils/exportKML'
+import { exportarKml } from '@services/exportKML'
 
 export function useTopbarActions({
   periodoActivo,

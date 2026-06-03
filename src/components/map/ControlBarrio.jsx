@@ -7,7 +7,7 @@ import {
   centroMarDelPlata,
   obtenerNombreBarrio,
 
-} from '@map/barrios'
+} from '@map/data/barrios'
 
 function ControlBarrio({
   barrioSeleccionado,

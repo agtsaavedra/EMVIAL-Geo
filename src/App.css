@@ -8,10 +8,12 @@
 @import './styles/layout/responsive.css';
 
 @import './styles/map/map.css';
-@import './styles/map/map-stats.css';
-@import './styles/map/guide-overlay.css';
-@import './styles/map/drawing.css';
 @import './styles/map/leaflet-overrides.css';
+@import './styles/map/map-actions.css';
+@import './styles/map/map-popup.css';
+@import './styles/map/map-stats.css';
+@import './styles/map/drawing.css';
+@import './styles/map/guide-overlay.css';
 
 @import './styles/components/toast.css';
 @import './styles/components/confirm-dialog.css';

@@ -1,6 +1,6 @@
 import { useMapEvents } from 'react-leaflet'
 
-import { detectarBarrio } from '@map/barrios'
+import { detectarBarrio } from '@map/data/barrios'
 
 function ClickMapa({
   form,
