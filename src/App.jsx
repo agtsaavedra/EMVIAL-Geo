@@ -1,3 +1,18 @@
+/*
+  App.jsx
+
+  Componente raíz de la interfaz React.
+
+  Después del refactor, este archivo queda deliberadamente liviano:
+  no contiene reglas de negocio ni armado manual de props. Su función es
+  componer el layout principal de la aplicación y renderizar los componentes
+  globales: sidebar, topbar, mapa, panel de intervenciones, toast, diálogos
+  y splash screen.
+
+  La orquestación de estado, acciones, datos y efectos globales vive en
+  useAppServices().
+*/
+
 import './App.css'
 
 import Sidebar from '@components/layout/Sidebar'

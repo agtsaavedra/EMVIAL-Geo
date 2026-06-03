@@ -1,3 +1,20 @@
+/*
+  useAppServices
+
+  Hook controlador principal de la aplicación.
+
+  Su responsabilidad es ensamblar los distintos bloques de la app:
+  - estado visual global
+  - datos persistentes y período activo
+  - formulario, geocoding e imagen guía
+  - acciones globales y efectos de teclado/cierre
+  - props finales para los componentes de layout
+
+  Este hook evita que App.jsx vuelva a crecer como un archivo monolítico.
+  No debería contener lógica de bajo nivel; solamente coordinar hooks más
+  específicos y devolver una API limpia para el componente raíz.
+*/
+
 import { useAppUI } from '@hooks/app/core/useAppUI'
 import { useAppData } from '@hooks/app/core/useAppData'
 import { useAppForm } from '@hooks/app/core/useAppForm'
@@ -286,6 +303,7 @@ export function useAppServices() {
   // API DEL CONTROLADOR PRINCIPAL
   // =====================================================
 
+  // Ejecuta la acción confirmada por el usuario y luego cierra el diálogo global.
   function confirmarDialogoActual() {
     dialogo?.onConfirmar?.()
     cerrarDialogo()

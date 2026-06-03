@@ -1,3 +1,13 @@
+/*
+  useAppData
+
+  Agrupa los hooks de datos principales:
+  intervenciones, período activo, backups y filtros derivados.
+
+  Mantiene concentrada la información persistente y las listas calculadas
+  que consume el resto de la aplicación.
+*/
+
 import { useIntervenciones } from '@hooks/data/useIntervenciones'
 import { usePeriodo } from '@hooks/data/usePeriodo'
 import { useBackups } from '@hooks/data/useBackups'

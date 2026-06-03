@@ -1,3 +1,13 @@
+/*
+  useAppForm
+
+  Agrupa la lógica vinculada al formulario de intervención:
+  alta/edición/cancelación, geocoding y uso de la imagen guía como fuente.
+
+  Funciona como puente entre el estado del formulario, el mapa y los servicios
+  auxiliares de búsqueda geográfica.
+*/
+
 import { useFormularioIntervencion } from '@hooks/form/useFormularioIntervencion'
 import { useGeocoding } from '@hooks/form/useGeocoding'
 import { useGuideOverlayWithSource } from '@hooks/map/useGuideOverlayWithSource'

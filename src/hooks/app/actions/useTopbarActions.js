@@ -1,3 +1,13 @@
+/*
+  useTopbarActions
+
+  Define las acciones disparadas desde el menú superior:
+  exportaciones, backups, restauraciones, configuración de carpeta de backups
+  y apertura del diálogo Acerca de.
+
+  Mantiene al componente Topbar libre de lógica de negocio.
+*/
+
 import { exportarExcelPeriodo } from '@services/exportExcel'
 import { exportarKml } from '@services/exportKML'
 
@@ -12,6 +22,7 @@ export function useTopbarActions({
   restaurarPeriodoActual,
   abrirAbout,
 }) {
+  // Exporta las intervenciones del período activo en formato KML.
   function exportarKmlActual() {
     setMenuAbierto(false)
 
@@ -25,6 +36,7 @@ export function useTopbarActions({
     )
   }
 
+  // Exporta las intervenciones del período activo a Excel.
   function exportarExcelActual() {
     setMenuAbierto(false)
 
@@ -41,6 +53,7 @@ export function useTopbarActions({
     )
   }
 
+  // Crea un backup manual desde el menú superior.
   async function crearBackupActual() {
     setMenuAbierto(false)
 
@@ -52,6 +65,7 @@ export function useTopbarActions({
     )
   }
 
+  // Solicita confirmación y restaura una base completa desde backup.
   function restaurarBackupActual() {
     setMenuAbierto(false)
 
@@ -76,6 +90,7 @@ export function useTopbarActions({
     })
   }
 
+  // Solicita confirmación y restaura solo el período activo.
   function restaurarPeriodoActualProtegido() {
     setMenuAbierto(false)
 
@@ -98,11 +113,13 @@ export function useTopbarActions({
     })
   }
 
+  // Abre en el sistema operativo la carpeta activa de backups.
   function abrirCarpetaBackups() {
     setMenuAbierto(false)
     window.api.abrirCarpetaBackups()
   }
 
+  // Permite elegir una nueva carpeta de backups desde Electron.
   async function configurarCarpetaBackups() {
     setMenuAbierto(false)
 
@@ -116,6 +133,7 @@ export function useTopbarActions({
     )
   }
 
+  // Cierra el menú hamburguesa y abre el diálogo Acerca de.
   function abrirAboutDesdeMenu() {
     setMenuAbierto(false)
     abrirAbout()

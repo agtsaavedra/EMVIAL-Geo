@@ -1,3 +1,13 @@
+/*
+  useAppComponentProps
+
+  Hook agregador de props para componentes principales.
+
+  Su objetivo es mantener App/useAppServices limpios, delegando aquí la
+  construcción de los objetos de props que consumen Topbar, Sidebar, MapView
+  y AssetsPanel.
+*/
+
 import { useMapProps } from '@hooks/props/useMapProps'
 import { useTopbarProps } from '@hooks/props/useTopbarProps'
 import { useSidebarProps } from '@hooks/props/useSidebarProps'

@@ -1,3 +1,13 @@
+/*
+  useAppActions
+
+  Define acciones principales que conectan navegación visual, edición de
+  intervenciones y protección ante cambios sin guardar.
+
+  Este hook no persiste datos directamente; coordina estado de UI y confirma
+  operaciones que podrían descartar cambios.
+*/
+
 export function useAppActions({
   setIntervencionEnfocada,
   setSidebarAbierto,
@@ -8,6 +18,8 @@ export function useAppActions({
   confirmar,
   setPeriodoActivo,
 }) {
+  // Fuerza el foco visual sobre una intervención en el mapa.
+  // __focusKey permite reenfocar incluso si se selecciona la misma intervención dos veces.
   function manejarEnfocarIntervencion(
     intervencion
   ) {
@@ -17,6 +29,7 @@ export function useAppActions({
     })
   }
 
+  // Abre el formulario lateral en modo edición y enfoca la intervención en el mapa.
   function manejarEditarIntervencion(
     intervencion
   ) {
@@ -39,6 +52,7 @@ export function useAppActions({
     editarIntervencion(intervencion)
   }
 
+  // Cancela la edición actual. Si hay cambios pendientes, solicita confirmación.
   function manejarCancelarEdicion() {
     if (!hayCambiosSinGuardar) {
       cancelarEdicion()
@@ -61,6 +75,7 @@ export function useAppActions({
     })
   }
 
+  // Cambia el período activo. Si hay cambios sin guardar, protege la operación.
   function manejarCambioPeriodo(
     nuevoPeriodo
   ) {

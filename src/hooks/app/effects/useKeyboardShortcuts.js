@@ -1,3 +1,13 @@
+/*
+  useKeyboardShortcuts
+
+  Registra atajos globales de teclado de la aplicación.
+
+  Los atajos están pensados para acelerar la carga operativa:
+  guardar formulario, enfocar búsqueda, alternar modo dibujo y salir del
+  modo dibujo con Escape.
+*/
+
 import { useEffect } from 'react'
 
 export function useKeyboardShortcuts({
@@ -6,6 +16,7 @@ export function useKeyboardShortcuts({
   mostrarToast,
 }) {
   useEffect(() => {
+    // Procesa los atajos globales registrados en window.
     function manejarAtajos(event) {
       const tag =
         document.activeElement?.tagName?.toLowerCase()

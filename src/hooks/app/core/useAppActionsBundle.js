@@ -1,3 +1,14 @@
+/*
+  useAppActionsBundle
+
+  Agrupa comportamientos globales de la aplicación:
+  acciones del topbar, acciones del panel de intervenciones, diálogo About,
+  atajos de teclado y protección de cierre.
+
+  Este hook centraliza comportamientos transversales sin mezclarlos con el
+  render de App.jsx ni con la lógica de datos.
+*/
+
 import { useAboutDialog } from '@hooks/app/dialogs/useAboutDialog'
 import { useAppActions } from '@hooks/app/actions/useAppActions'
 import { useTopbarActions } from '@hooks/app/actions/useTopbarActions'

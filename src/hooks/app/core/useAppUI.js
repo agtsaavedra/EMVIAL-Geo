@@ -1,3 +1,13 @@
+/*
+  useAppUI
+
+  Agrupa los hooks relacionados con estado visual y feedback global:
+  toast, diálogos de confirmación, estado UI, splash inicial y búsqueda
+  debounced.
+
+  Separa el estado de interfaz del resto de la lógica de datos/formulario.
+*/
+
 import { useToast } from '@hooks/ui/useToast'
 import { useConfirmDialog } from '@hooks/ui/useConfirmDialog'
 import { useUIState } from '@hooks/ui/useUIState'

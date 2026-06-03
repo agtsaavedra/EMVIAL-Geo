@@ -1,9 +1,19 @@
+/*
+  useAssetActions
+
+  Define acciones del panel de intervenciones cargadas.
+
+  Actualmente centraliza la eliminación protegida de intervenciones y el
+  mecanismo de deshacer mediante toast con acción.
+*/
+
 export function useAssetActions({
   confirmar,
   eliminarIntervencion,
   restaurarIntervencion,
   mostrarToast,
 }) {
+  // Elimina una intervención con confirmación previa y opción de deshacer por toast.
   function eliminarIntervencionProtegida(
     intervencion
   ) {
