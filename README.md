@@ -1,55 +1,196 @@
 # EMVIAL Geo
 
-Sistema georreferenciado de gestión de activos urbanos para EMVIAL (Ente Municipal de Vialidad y Alumbrado de General Pueyrredon).
+Aplicación de escritorio para carga, visualización y exportación de intervenciones territoriales de EMVIAL.
 
-## Estado del proyecto
+La app permite registrar intervenciones sobre un mapa, trabajar con puntos/líneas/polígonos, filtrar por período/obra/estado, exportar datos y usar PDFs o capturas como “hoja de calcar” sobre el mapa para cargar información territorial que llega en formatos heterogéneos.
 
-🚧 Proyecto actualmente en desarrollo.
+## Objetivo operativo
 
-Este sistema busca centralizar y visualizar activos urbanos sobre un mapa interactivo, permitiendo:
-- registrar activos manualmente,
-- georreferenciarlos,
-- visualizar barrios,
-- administrar estados e intervenciones,
-- y evolucionar hacia una plataforma integral de infraestructura urbana.
+EMVIAL Geo busca nuclear en una herramienta local el proceso de carga de partes, PDFs, capturas de mapa, y registros operativos. El foco no es reemplazar un GIS completo, sino facilitar una carga ordenada, visual y exportable hacia herramientas como My Maps, Tableau o planillas.
 
-## Tecnologías utilizadas
+## Stack principal
 
-- Electron
-- React
-- Vite
-- Leaflet
-- OpenStreetMap
-- GeoJSON
+- Electron para aplicación de escritorio.
+- React + Vite para interfaz.
+- Leaflet / React Leaflet para mapa.
+- SQLite mediante `sql.js` para persistencia local.
+- PDF.js para convertir PDFs en imagen guía.
+- Exportaciones a Excel/KML desde servicios del renderer.
 
-## Funcionalidades actuales
+## Flujo básico de uso
 
-✅ Gestión local de activos  
-✅ Mapa interactivo  
-✅ Georreferenciación mediante búsqueda o selección en mapa  
-✅ Visualización de barrios de Mar del Plata  
-✅ Persistencia local de datos  
-✅ Interfaz de escritorio multiplataforma
+1. Seleccionar período activo.
+2. Cargar datos de intervención en el formulario.
+3. Elegir tipo de geometría: punto, línea o polígono.
+4. Dibujar sobre el mapa.
+5. Opcionalmente cargar PDF/imagen guía para calcar.
+6. Guardar intervención.
+7. Filtrar, editar, eliminar/restaurar o exportar.
 
-## Funcionalidades planificadas
+## Imagen guía / hoja de calcar
 
-- Importación desde Excel
-- Exportación de datos
-- Historial de intervenciones
-- Gestión de imágenes
-- Filtros avanzados
-- Estadísticas territoriales
-- Base de datos local SQLite
-- Integración futura con Google Maps / GIS
+La app soporta cargar:
 
-## Instalación
+- PDF
+- PNG
+- JPG/JPEG
+- WEBP
+- capturas de Google Maps
+- croquis o imágenes enviadas por WhatsApp
 
-```bash
-npm install
-npm run start
+El archivo se muestra como overlay semitransparente sobre Leaflet. Se puede mover, escalar, rotar, bloquear, ocultar, quitar y usar el nombre del archivo como fuente de la intervención.
 
-Autor
+## Persistencia
 
-Desarrollado por Agustín Saavedra.
+La base viva se guarda localmente en la carpeta `userData` de Electron. La información se persiste en SQLite usando `sql.js`.
 
-Proyecto privado — uso interno / prototipo
+Importante: la base viva no debe sincronizarse directamente con OneDrive/Google Drive. Para respaldo cloud conviene sincronizar la carpeta de backups, no el archivo SQLite en uso.
+
+## Backups
+
+La app incluye:
+
+- backup manual;
+- backup general automático;
+- backup automático por período;
+- restauración completa;
+- restauración parcial por período;
+- selección de carpeta de backups.
+
+## Exportaciones
+
+Actualmente la app contempla exportaciones a:
+
+- Excel;
+- KML.
+
+La exportación KML es útil para My Maps / Google Earth. La exportación Excel sirve como base para análisis tabular o carga posterior en otras herramientas.
+
+## Estructura general
+
+```text
+├── assets
+│   ├── hero.png
+│   └── map-pin.svg
+├── components
+│   ├── common
+│   │   ├── states
+│   │   │   ├── AppError.jsx
+│   │   │   ├── AppLoader.jsx
+│   │   │   └── AppSplash.jsx
+│   │   ├── AboutDialog.jsx
+│   │   ├── ConfirmDialog.jsx
+│   │   └── Toast.jsx
+│   ├── form
+│   │   ├── AddressSearch.jsx
+│   │   └── InterventionForm.jsx
+│   ├── layout
+│   │   ├── AssetsPanel.jsx
+│   │   ├── Sidebar.jsx
+│   │   └── Topbar.jsx
+│   ├── map
+│   │   ├── ClickMapa.jsx
+│   │   ├── ControlBarrio.jsx
+│   │   ├── GeometryControl.jsx
+│   │   ├── GeometryPreview.jsx
+│   │   ├── GuideImageOverlay.jsx
+│   │   ├── GuideOverlayControls.jsx
+│   │   ├── IntervencionesLayer.jsx
+│   │   ├── MapActions.jsx
+│   │   ├── MapBarrioFocus.jsx
+│   │   ├── MapCenter.jsx
+│   │   ├── MapFocus.jsx
+│   │   ├── MapInvalidator.jsx
+│   │   ├── MapStatsPanel.jsx
+│   │   ├── MapView.jsx
+│   │   └── PopupIntervencion.jsx
+│   └── topbar
+│       ├── TopbarFilters.jsx
+│       ├── TopbarMenu.jsx
+│       └── TopbarTitle.jsx
+├── constants
+│   ├── formInicial.js
+│   └── intervenciones.js
+├── data
+│   └── barrios.geojson
+├── hooks
+│   ├── app
+│   │   ├── actions
+│   │   │   ├── useAppActions.js
+│   │   │   ├── useAssetActions.js
+│   │   │   └── useTopbarActions.js
+│   │   ├── core
+│   │   │   ├── useAppActionsBundle.js
+│   │   │   ├── useAppData.js
+│   │   │   ├── useAppForm.js
+│   │   │   ├── useAppServices.js
+│   │   │   └── useAppUI.js
+│   │   ├── dialogs
+│   │   │   └── useAboutDialog.js
+│   │   ├── effects
+│   │   │   ├── useAppCloseProtection.js
+│   │   │   └── useKeyboardShortcuts.js
+│   │   └── useAppComponentProps.js
+│   ├── data
+│   │   ├── useBackups.js
+│   │   ├── useFiltrosIntervenciones.js
+│   │   ├── useIntervenciones.js
+│   │   └── usePeriodo.js
+│   ├── form
+│   │   ├── useFormularioIntervencion.js
+│   │   └── useGeocoding.js
+│   ├── map
+│   │   ├── useGeometryEditing.js
+│   │   ├── useGuideOverlay.js
+│   │   ├── useGuideOverlayWithSource.js
+│   │   └── useMapStatsDetail.js
+│   ├── props
+│   │   ├── useAssetsPanelProps.js
+│   │   ├── useMapProps.js
+│   │   ├── useSidebarProps.js
+│   │   └── useTopbarProps.js
+│   └── ui
+│       ├── useConfirmDialog.js
+│       ├── useDebouncedValue.js
+│       ├── useSplashScreen.js
+│       ├── useToast.js
+│       └── useUIState.js
+├── map
+│   ├── config
+│   │   ├── mapColors.js
+│   │   └── mapIcons.js
+│   └── data
+│       ├── barrios.js
+│       ├── mapStats.js
+│       └── mapViewData.js
+├── services
+│   ├── exportExcel.js
+│   └── exportKML.js
+├── styles
+│   ├── base
+│   │   ├── scrollbar.css
+│   │   └── theme.css
+│   ├── components
+│   │   ├── appsplash.css
+│   │   ├── boot.css
+│   │   ├── confirm-dialog.css
+│   │   └── toast.css
+│   ├── layout
+│   │   ├── layout.css
+│   │   ├── panel.css
+│   │   ├── responsive.css
+│   │   ├── sidebar.css
+│   │   └── topbar.css
+│   └── map
+│       ├── drawing.css
+│       ├── guide-overlay.css
+│       ├── leaflet-overrides.css
+│       ├── map-actions.css
+│       ├── map-popup.css
+│       ├── map-stats.css
+│       └── map.css
+├── App.css
+├── App.jsx
+├── index.css
+└── main.jsx
+```
