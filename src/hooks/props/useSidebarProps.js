@@ -1,3 +1,11 @@
+/**
+ * Hook adaptador de props para `Sidebar`.
+ *
+ * Agrupa formulario, búsqueda de direcciones y estado de edición con los
+ * nombres que consume el componente lateral.
+ */
+
+// Punto de entrada público del hook.
 export function useSidebarProps({
   sidebarAbierto,
   setSidebarAbierto,
@@ -15,6 +23,7 @@ export function useSidebarProps({
   manejarCancelarEdicion,
   hayCambiosSinGuardar,
 }) {
+  // API pública que consume el resto de la aplicación.
   return {
     abierto: sidebarAbierto,
     setAbierto: setSidebarAbierto,

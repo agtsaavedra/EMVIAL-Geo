@@ -1,3 +1,10 @@
+/**
+ * Hook de estado visual global.
+ *
+ * Agrupa tema, búsqueda, paneles, filtros, modo dibujo, hover/foco y
+ * preferencias visuales persistidas en localStorage.
+ */
+
 import {
   useEffect,
   useState,
@@ -10,6 +17,7 @@ import {
 // si localStorage falla o hay una clave corrupta,
 // la app no se rompa y use el valor por defecto.
 
+// Lee un booleano desde localStorage de forma segura.
 function leerBooleanStorage(
   clave,
   valorDefault
@@ -28,6 +36,7 @@ function leerBooleanStorage(
   }
 }
 
+// Guarda un booleano en localStorage sin romper la app si falla.
 function guardarBooleanStorage(
   clave,
   valor
@@ -42,6 +51,7 @@ function guardarBooleanStorage(
   }
 }
 
+// Punto de entrada público del hook.
 export function useUIState() {
   // =====================================================
   // TEMA / APARIENCIA

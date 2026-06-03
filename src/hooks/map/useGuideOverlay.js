@@ -1,3 +1,10 @@
+/**
+ * Hook de imagen guía / hoja de calcar.
+ *
+ * Permite cargar imágenes o PDFs, convertir PDFs a imagen y controlar
+ * visibilidad, opacidad, posición, escala, bloqueo y rotación del overlay.
+ */
+
 import { useEffect, useState } from 'react'
 
 import {
@@ -10,6 +17,7 @@ import pdfWorker from 'pdfjs-dist/build/pdf.worker.mjs?url'
 GlobalWorkerOptions.workerSrc =
   pdfWorker
 
+// Renderiza la primera página de un PDF como PNG para usarlo como overlay.
 async function convertirPdfAImagen(file) {
   const arrayBuffer =
     await file.arrayBuffer()
@@ -55,6 +63,7 @@ async function convertirPdfAImagen(file) {
   return URL.createObjectURL(blob)
 }
 
+// Punto de entrada público del hook.
 export function useGuideOverlay() {
   const [guideUrl, setGuideUrl] =
     useState(null)
@@ -92,20 +101,24 @@ export function useGuideOverlay() {
   }
 }, [guideUrl])
 
+  // Reinicia los bounds para volver a centrar automáticamente la guía.
   function centrarImagenGuia() {
     setGuideBounds(null)
   }
 
+  // Suma o resta grados a la rotación actual de la guía.
   function rotarImagenGuia(delta) {
     setGuideRotation(
       (prev) => prev + delta
     )
   }
 
+  // Vuelve la rotación de la guía a cero grados.
   function resetearRotacionGuia() {
     setGuideRotation(0)
   }
 
+  // Carga una imagen o PDF como guía y resetea sus controles.
   async function cargarImagenGuia(file) {
     if (!file) return
 
@@ -151,6 +164,7 @@ export function useGuideOverlay() {
     }
   }
 
+  // Elimina la guía actual y libera recursos asociados.
   function quitarImagenGuia() {
     setGuideLocked(false)
     setGuideRotation(0)
@@ -168,6 +182,7 @@ export function useGuideOverlay() {
     setGuideOpacity(0.45)
   }
 
+  // Desplaza la imagen guía en una dirección cardinal.
   function moverImagenGuia(
     direccion
   ) {
@@ -257,6 +272,7 @@ export function useGuideOverlay() {
     })
   }
 
+  // Aumenta o reduce el tamaño de la imagen guía.
   function escalarImagenGuia(
     factor
   ) {
@@ -301,6 +317,7 @@ export function useGuideOverlay() {
     })
   }
 
+  // API pública que consume el resto de la aplicación.
   return {
     guideUrl,
     guideName,

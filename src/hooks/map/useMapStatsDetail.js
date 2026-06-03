@@ -1,5 +1,12 @@
+/**
+ * Hook de estado para el panel detallado de estadísticas del mapa.
+ *
+ * Controla apertura/cierre del panel y la obra seleccionada para inspección.
+ */
+
 import { useMemo } from 'react'
 
+// Punto de entrada público del hook.
 export function useMapStatsDetail(intervenciones = []) {
   return useMemo(() => {
     const total = intervenciones.length

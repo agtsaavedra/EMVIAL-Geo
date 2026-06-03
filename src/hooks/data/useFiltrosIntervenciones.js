@@ -1,9 +1,18 @@
+/**
+ * Hook de datos derivados para intervenciones.
+ *
+ * Filtra por período, búsqueda textual, tipo de obra y estado. Usa `useMemo`
+ * para evitar recalcular filtros cuando las entradas no cambiaron.
+ */
+
 import { useMemo } from 'react'
 
+// Normaliza texto para búsquedas simples sin distinguir mayúsculas/minúsculas.
 function normalizarTexto(valor) {
   return String(valor || '').toLowerCase().trim()
 }
 
+// Punto de entrada público del hook.
 export function useFiltrosIntervenciones({
   intervenciones = [],
   periodoActivo,
@@ -54,6 +63,7 @@ export function useFiltrosIntervenciones({
       filtroEstado,
     ])
 
+  // API pública que consume el resto de la aplicación.
   return {
     intervencionesDelPeriodo,
     intervencionesFiltradas,

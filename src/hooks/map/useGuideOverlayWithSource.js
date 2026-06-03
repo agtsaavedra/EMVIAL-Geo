@@ -1,7 +1,15 @@
+/**
+ * Hook adaptador entre imagen guía y formulario.
+ *
+ * Extiende `useGuideOverlay` con la acción de usar el nombre del archivo guía
+ * como fuente de la intervención actual.
+ */
+
 import { useMemo } from 'react'
 
 import { useGuideOverlay } from '@hooks/map/useGuideOverlay'
 
+// Punto de entrada público del hook.
 export function useGuideOverlayWithSource({
   setForm,
   mostrarToast,
@@ -34,6 +42,7 @@ export function useGuideOverlayWithSource({
       ]
     )
 
+  // API pública que consume el resto de la aplicación.
   return {
     guideOverlay,
     guideOverlayConAcciones,

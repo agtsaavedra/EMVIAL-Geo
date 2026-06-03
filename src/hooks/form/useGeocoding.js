@@ -1,3 +1,11 @@
+/**
+ * Hook de geocodificación.
+ *
+ * Encapsula búsqueda de direcciones, selección de sugerencias y obtención de
+ * dirección inversa desde coordenadas usando la API de Electron.
+ */
+
+// Punto de entrada público del hook.
 export function useGeocoding({
   form,
   setForm,
@@ -6,6 +14,7 @@ export function useGeocoding({
   setBuscandoDireccion,
   mostrarToast,
 }) {
+  // Obtiene una dirección textual desde coordenadas.
   async function obtenerDireccion(lat, lon) {
     return await window.api.obtenerDireccion(lat, lon)
   }
@@ -22,6 +31,7 @@ export function useGeocoding({
     }
   }
 
+  // Aplica una sugerencia al formulario y al punto seleccionado en el mapa.
   function seleccionarSugerencia(sugerencia) {
     const lat = parseFloat(sugerencia.lat)
     const lon = parseFloat(sugerencia.lon)
@@ -38,6 +48,7 @@ export function useGeocoding({
     setSugerencias([])
   }
 
+  // Busca sugerencias de dirección a partir del texto cargado.
   async function buscarDireccion() {
     if (!form.direccion.trim()) return
 
@@ -62,6 +73,7 @@ export function useGeocoding({
     }))
   }
 
+  // API pública que consume el resto de la aplicación.
   return {
     obtenerDireccion,
     obtenerCoordenadas,

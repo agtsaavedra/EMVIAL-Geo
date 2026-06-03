@@ -1,5 +1,13 @@
+/**
+ * Hook de período activo.
+ *
+ * Trabaja con períodos en formato `YYYY-MM` y recuerda el último período usado
+ * mediante localStorage.
+ */
+
 import { useEffect, useState } from 'react'
 
+// Calcula el período actual en formato YYYY-MM.
 function obtenerPeriodoActual() {
   const ahora = new Date()
   const anio = ahora.getFullYear()
@@ -10,6 +18,7 @@ function obtenerPeriodoActual() {
   return `${anio}-${mes}`
 }
 
+// Obtiene el período guardado o usa el período actual como fallback.
 function obtenerPeriodoInicial() {
   const periodoGuardado =
     localStorage.getItem(
@@ -22,6 +31,7 @@ function obtenerPeriodoInicial() {
   )
 }
 
+// Punto de entrada público del hook.
 export function usePeriodo() {
   const [
     periodoActivo,
@@ -37,6 +47,7 @@ export function usePeriodo() {
     )
   }, [periodoActivo])
 
+  // API pública que consume el resto de la aplicación.
   return {
     periodoActivo,
     setPeriodoActivo,

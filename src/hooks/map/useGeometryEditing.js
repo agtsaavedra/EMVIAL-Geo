@@ -1,5 +1,13 @@
+/**
+ * Hook de edición geométrica.
+ *
+ * Centraliza la lógica de dibujo/redibujo del mapa: deshacer puntos, limpiar
+ * ubicación, restaurar geometría original y manejar el modo dibujo.
+ */
+
 import { useEffect, useRef, useState } from 'react'
 
+// Punto de entrada público del hook.
 export function useGeometryEditing({
   form,
   setForm,
@@ -42,6 +50,7 @@ export function useGeometryEditing({
   // Si estamos editando una intervención existente,
   // oculta la versión guardada para mostrar solo la editable.
 
+  // Elimina el último punto dibujado de una línea o polígono.
   function deshacerPunto() {
     let nuevoUltimoPunto = null
 
@@ -89,6 +98,7 @@ export function useGeometryEditing({
   // En edición, marca que se está redibujando para ocultar
   // la geometría guardada anterior.
 
+  // Borra dirección, coordenadas, barrio y geometría del formulario.
   function limpiarUbicacion() {
     setForm((prev) => ({
       ...prev,
@@ -115,6 +125,7 @@ export function useGeometryEditing({
   // Devuelve el formulario a la geometría original
   // guardada al iniciar edición.
 
+  // Recupera la geometría existente al comenzar una edición.
   function restaurarGeometriaOriginal() {
     const original =
       geometriaOriginalRef.current
@@ -157,6 +168,7 @@ export function useGeometryEditing({
   // Si ya hubo edición real, cambiar tipo limpia geometría
   // para evitar combinaciones inconsistentes.
 
+  // Cambia el tipo de geometría evitando combinaciones inconsistentes.
   function cambiarGeometriaTipo(tipo) {
     if (
       intervencionEditandoId &&
@@ -199,6 +211,7 @@ export function useGeometryEditing({
   // Al activar:
   // - si se edita un polígono, limpia la geometría para redibujarla
 
+  // Coordina los efectos de activar o desactivar el modo dibujo.
   function manejarCambioModoDibujo({
     activo,
     setModoDibujo,

@@ -1,7 +1,17 @@
+/**
+ * Hook de coordinación de backups.
+ *
+ * Delega las operaciones reales en la API segura expuesta por Electron
+ * (`window.api`) y recarga las intervenciones cuando una restauración
+ * modifica la base de datos local.
+ */
+
+// Punto de entrada público del hook.
 export function useBackups({
   periodoActivo,
   recargarIntervenciones,
 }) {
+  // Crea un backup manual del período activo usando la API de Electron.
   async function crearBackup() {
     const resultado = await window.api.crearBackupManual(periodoActivo)
 
@@ -16,6 +26,7 @@ export function useBackups({
     }
   }
 
+  // Restaura un backup completo y recarga la información visible.
   async function restaurarBackup() {
     const resultado = await window.api.restaurarBackupManual()
 
@@ -32,6 +43,7 @@ export function useBackups({
     }
   }
 
+  // Restaura únicamente el período activo y recarga intervenciones.
   async function restaurarPeriodoActual() {
     const resultado = await window.api.restaurarPeriodoManual(periodoActivo)
 
@@ -48,6 +60,7 @@ export function useBackups({
     }
   }
 
+  // API pública que consume el resto de la aplicación.
   return {
     crearBackup,
     restaurarBackup,

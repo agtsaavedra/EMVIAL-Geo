@@ -1,7 +1,16 @@
+/**
+ * Hook controlador del formulario de intervención.
+ *
+ * Administra estado del formulario, validación geométrica, edición, cancelación
+ * y detección de cambios sin guardar. También sincroniza estados externos del
+ * mapa y filtros.
+ */
+
 import { useEffect, useState } from 'react'
 
 import { formInicial } from '@constants/formInicial'
 
+// Punto de entrada público del hook.
 export function useFormularioIntervencion({
   periodoActivo,
   guardarIntervencionEnDB,
@@ -71,6 +80,7 @@ export function useFormularioIntervencion({
   // CAMBIO DE CAMPOS
   // =====================================================
 
+  // Actualiza el formulario y resetea dependencias cuando cambia un campo sensible.
   function manejarCambio(e) {
     const { name, value } =
       e.target
@@ -133,6 +143,7 @@ export function useFormularioIntervencion({
   // VALIDACIÓN GEOMÉTRICA
   // =====================================================
 
+  // Comprueba que la geometría cargada alcance para el tipo seleccionado.
   function validarGeometria() {
     const cantidadPuntos =
       form.geometria?.length || 0
@@ -182,6 +193,7 @@ export function useFormularioIntervencion({
   // GUARDAR / ACTUALIZAR
   // =====================================================
 
+  // Valida y guarda la intervención actual del formulario.
   async function guardarIntervencion(e) {
     e.preventDefault()
 
@@ -217,6 +229,7 @@ export function useFormularioIntervencion({
   // EDITAR INTERVENCIÓN
   // =====================================================
 
+  // Carga una intervención existente en el formulario para editarla.
   function editarIntervencion(
     intervencion
   ) {
@@ -321,6 +334,7 @@ export function useFormularioIntervencion({
   // CANCELAR EDICIÓN
   // =====================================================
 
+  // Sale del modo edición y limpia estado asociado.
   function cancelarEdicion() {
     setIntervencionEditandoId(
       null
@@ -355,6 +369,7 @@ export function useFormularioIntervencion({
         JSON.stringify(formOriginal)
       : false
 
+  // API pública que consume el resto de la aplicación.
   return {
     form,
     setForm,

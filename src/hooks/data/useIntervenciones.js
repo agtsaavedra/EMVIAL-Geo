@@ -1,5 +1,14 @@
+/**
+ * Hook principal de persistencia de intervenciones.
+ *
+ * Mantiene en React una copia de las intervenciones guardadas en SQLite.
+ * Crear, actualizar, eliminar y restaurar pasan por `window.api`, que comunica
+ * el renderer con Electron.
+ */
+
 import { useEffect, useState } from 'react'
 
+// Punto de entrada público del hook.
 export function useIntervenciones() {
   const [intervenciones, setIntervenciones] =
     useState([])
@@ -13,6 +22,7 @@ export function useIntervenciones() {
     recargarIntervenciones()
   }, [])
 
+  // Carga desde SQLite todas las intervenciones disponibles.
   async function recargarIntervenciones() {
     try {
       const datos =
@@ -29,6 +39,7 @@ export function useIntervenciones() {
     }
   }
 
+  // Crea o actualiza una intervención persistiendo los datos en SQLite.
   async function guardarIntervencionEnDB(form) {
     try {
       if (intervencionEditandoId) {
@@ -92,6 +103,7 @@ export function useIntervenciones() {
     }
   }
 
+  // Elimina una intervención por id y sincroniza el estado local.
   async function eliminarIntervencion(id) {
     try {
       await window.api.eliminarIntervencion(id)
@@ -114,6 +126,7 @@ export function useIntervenciones() {
     }
   }
 
+  // Restaura una intervención eliminada o reemplaza una existente.
   async function restaurarIntervencion(
     intervencion
   ) {
@@ -162,6 +175,7 @@ export function useIntervenciones() {
     }
   }
 
+  // API pública que consume el resto de la aplicación.
   return {
     intervenciones,
     intervencionEditandoId,
