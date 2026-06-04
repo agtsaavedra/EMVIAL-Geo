@@ -127,10 +127,10 @@ function MapView({
   const intervencionesMapa =
     ocultarIntervencionEditada
       ? intervencionesVisibles.filter(
-          (intervencion) =>
-            intervencion.id !==
-            intervencionEditandoId
-        )
+        (intervencion) =>
+          intervencion.id !==
+          intervencionEditandoId
+      )
       : intervencionesVisibles
 
   // Estadísticas compactas por obra para la barra inferior.
@@ -173,9 +173,8 @@ function MapView({
             <span>
               {form.geometriaTipo === 'Punto'
                 ? 'Seleccionar ubicación'
-                : `${form.geometriaTipo} · ${
-                    form.geometria?.length || 0
-                  } pts`}
+                : `${form.geometriaTipo} · ${form.geometria?.length || 0
+                } pts`}
             </span>
           </div>
         )}
@@ -279,19 +278,17 @@ function MapView({
 
           {/* Dibuja geometría activa del formulario
               y preview punteada durante el dibujo. */}
-          {modoDibujo &&
-            form.geometria?.length > 0 && (
-              <GeometryPreview
-                form={form}
-                cursorLinea={cursorLinea}
-                colorFormulario={colorFormulario}
-              />
-            )}
+          {form.geometria?.length > 0 && (
+            <GeometryPreview
+              form={form}
+              cursorLinea={cursorLinea}
+              colorFormulario={colorFormulario}
+            />
+          )}
 
           {/* Marcador temporal para punto activo
               mientras se carga/edita ubicación. */}
-          {modoDibujo &&
-            puntoSeleccionado &&
+          {puntoSeleccionado &&
             form.geometriaTipo === 'Punto' && (
               <Marker
                 position={puntoSeleccionado}

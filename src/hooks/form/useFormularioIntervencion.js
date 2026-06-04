@@ -363,11 +363,22 @@ export function useFormularioIntervencion({
   // Detecta si hubo cambios desde
   // que se abrió la intervención.
 
-  const hayCambiosSinGuardar =
-    form.id && formOriginal
-      ? JSON.stringify(form) !==
-        JSON.stringify(formOriginal)
-      : false
+const hayGeometria =
+  Array.isArray(form.geometry) &&
+  form.geometry.length > 0
+
+const hayCambiosSinGuardar =
+  form.id && formOriginal
+    ? JSON.stringify(form) !==
+      JSON.stringify(formOriginal)
+    : Boolean(
+        form.nombre ||
+        form.ubicacion ||
+        form.observaciones ||
+        form.latitud ||
+        form.longitud ||
+        hayGeometria
+      )
 
   // API pública que consume el resto de la aplicación.
   return {
