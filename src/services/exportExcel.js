@@ -67,9 +67,6 @@ export function exportarExcelPeriodo(intervenciones = [], periodoActivo) {
   const filasStats = stats.map((item) => ({
     Obra: item.obra,
     Total: item.total,
-    Líneas: item.lineas,
-    Puntos: item.puntos,
-    Polígonos: item.poligonos,
   }))
 
   const workbook = XLSX.utils.book_new()

@@ -156,12 +156,10 @@ export function useGuideOverlay({
         file.type
       )
     ) {
-      mostrarToast({
-        tipo: 'error',
-        mensaje:
-          'Formato no soportado. Solo PDF, PNG, JPG o WEBP.',
-      })
-
+      mostrarToast(
+        'Formato no soportado. Solo PDF, PNG, JPG o WEBP.',
+        'error'
+      )
       setGuideLoading(false)
       return
     }
@@ -170,11 +168,10 @@ export function useGuideOverlay({
       file.size >
       tamanoMaxBytes
     ) {
-      mostrarToast({
-        tipo: 'error',
-        mensaje:
-          `El archivo supera ${tamanoMaxMb} MB.`,
-      })
+      mostrarToast(
+        `El archivo supera ${tamanoMaxMb} MB.`,
+        'error'
+      )
 
       setGuideLoading(false)
       return
@@ -192,18 +189,18 @@ export function useGuideOverlay({
 
       const esPdf =
         file.type ===
-          'application/pdf' ||
+        'application/pdf' ||
         file.name
           .toLowerCase()
           .endsWith('.pdf')
 
       const url = esPdf
         ? await convertirPdfAImagen(
-            file
-          )
+          file
+        )
         : URL.createObjectURL(
-            file
-          )
+          file
+        )
 
       setGuideUrl(url)
 
@@ -215,11 +212,10 @@ export function useGuideOverlay({
 
       setGuideOpacity(0.45)
     } catch (error) {
-      mostrarToast({
-        tipo: 'error',
-        mensaje:
-          'No se pudo cargar la guía seleccionada.',
-      })
+      mostrarToast(
+        'No se pudo cargar la guía seleccionada.',
+        'error'
+      )
     } finally {
       setGuideLoading(false)
     }
@@ -307,12 +303,12 @@ export function useGuideOverlay({
           [
             south,
             west +
-              pasoLng,
+            pasoLng,
           ],
           [
             north,
             east +
-              pasoLng,
+            pasoLng,
           ],
         ]
       }
@@ -325,12 +321,12 @@ export function useGuideOverlay({
           [
             south,
             west -
-              pasoLng,
+            pasoLng,
           ],
           [
             north,
             east -
-              pasoLng,
+            pasoLng,
           ],
         ]
       }
@@ -372,15 +368,15 @@ export function useGuideOverlay({
       return [
         [
           centroLat -
-            semiAlto,
+          semiAlto,
           centroLng -
-            semiAncho,
+          semiAncho,
         ],
         [
           centroLat +
-            semiAlto,
+          semiAlto,
           centroLng +
-            semiAncho,
+          semiAncho,
         ],
       ]
     })

@@ -24,6 +24,7 @@ function TopbarMenu({
   abrirAbout,
 
   cargarImagenGuia,
+  guideLoading 
 }) {
   // =====================================================
   // ESTADO LOCAL
@@ -155,8 +156,11 @@ function TopbarMenu({
           <button
             type="button"
             onClick={abrirSelectorGuia}
+            disabled={guideLoading}
           >
-            Cargar imagen guía
+            {guideLoading
+              ? 'Cargando guía...'
+              : 'Cargar imagen guía'}
           </button>
 
           {/* ===============================

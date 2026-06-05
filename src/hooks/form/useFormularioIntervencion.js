@@ -364,8 +364,8 @@ export function useFormularioIntervencion({
   // que se abrió la intervención.
 
 const hayGeometria =
-  Array.isArray(form.geometry) &&
-  form.geometry.length > 0
+  Array.isArray(form.geometria) &&
+  form.geometria.length > 0
 
 const hayCambiosSinGuardar =
   form.id && formOriginal
@@ -374,7 +374,7 @@ const hayCambiosSinGuardar =
     : Boolean(
         form.nombre ||
         form.ubicacion ||
-        form.observaciones ||
+        form.descripcion ||
         form.latitud ||
         form.longitud ||
         hayGeometria
