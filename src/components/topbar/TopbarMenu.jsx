@@ -35,6 +35,7 @@ function TopbarMenu({
     setAvanzadoAbierto,
   ] = useState(false)
 
+  
   const menuRef = useRef(null)
   const guideInputRef = useRef(null)
 

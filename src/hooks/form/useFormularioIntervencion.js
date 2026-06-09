@@ -10,6 +10,13 @@ import { useEffect, useState } from 'react'
 
 import { formInicial } from '@constants/formInicial'
 
+import {
+  calcularAreaPoligonoMetrosCuadrados,
+  calcularLongitudLineaMetros,
+  formatearMetrosCuadradosFormulario,
+  formatearMetrosFormulario,
+} from '@services/geometryMetrics'
+
 // Punto de entrada público del hook.
 export function useFormularioIntervencion({
   periodoActivo,
@@ -77,6 +84,95 @@ export function useFormularioIntervencion({
   ])
 
   // =====================================================
+  // AUTOCÁLCULO DE METROS LINEALES
+  // =====================================================
+  // Cuando la intervención es una línea, el campo "Metros lineales" se completa
+  // automáticamente a partir de la geometría dibujada.
+  //
+  // El campo sigue siendo editable: si el usuario lo corrige manualmente, no se
+  // pisa hasta que vuelva a cambiar la geometría.
+
+  useEffect(() => {
+    if (form.geometriaTipo !== 'Línea') {
+      return
+    }
+
+    const longitudMetros =
+      calcularLongitudLineaMetros(
+        form.geometria
+      )
+
+    const metrosFormateados =
+      formatearMetrosFormulario(
+        longitudMetros
+      )
+
+    setForm((prev) => {
+      if (
+        prev.metrosLineales ===
+        metrosFormateados
+      ) {
+        return prev
+      }
+
+      return {
+        ...prev,
+        metrosLineales:
+          metrosFormateados,
+      }
+    })
+  }, [
+    form.geometria,
+    form.geometriaTipo,
+  ])
+
+  // =====================================================
+  // AUTOCÁLCULO DE METROS CUADRADOS
+  // =====================================================
+  // Cuando la intervención es un polígono, el campo "Metros cuadrados" se
+  // completa automáticamente a partir del área dibujada.
+  //
+  // Igual que con metros lineales, el campo sigue siendo editable para permitir
+  // redondeos o correcciones operativas.
+
+  useEffect(() => {
+    if (
+      form.geometriaTipo !==
+      'Polígono'
+    ) {
+      return
+    }
+
+    const areaMetrosCuadrados =
+      calcularAreaPoligonoMetrosCuadrados(
+        form.geometria
+      )
+
+    const areaFormateada =
+      formatearMetrosCuadradosFormulario(
+        areaMetrosCuadrados
+      )
+
+    setForm((prev) => {
+      if (
+        prev.metrosCuadrados ===
+        areaFormateada
+      ) {
+        return prev
+      }
+
+      return {
+        ...prev,
+        metrosCuadrados:
+          areaFormateada,
+      }
+    })
+  }, [
+    form.geometria,
+    form.geometriaTipo,
+  ])
+
+  // =====================================================
   // CAMBIO DE CAMPOS
   // =====================================================
 
@@ -114,6 +210,7 @@ export function useFormularioIntervencion({
     // Al cambiar Punto/Línea/Polígono:
     // - limpiamos geometría previa
     // - limpiamos coordenadas
+    // - limpiamos métricas que ya no aplican
 
     if (name === 'geometriaTipo') {
       setForm((prev) => ({
@@ -122,6 +219,14 @@ export function useFormularioIntervencion({
         geometria: [],
         latitud: '',
         longitud: '',
+        metrosLineales:
+          value === 'Línea'
+            ? prev.metrosLineales
+            : '',
+        metrosCuadrados:
+          value === 'Polígono'
+            ? prev.metrosCuadrados
+            : '',
       }))
 
       setPuntoSeleccionado(null)
@@ -360,25 +465,27 @@ export function useFormularioIntervencion({
   // =====================================================
   // DIRTY STATE
   // =====================================================
-  // Detecta si hubo cambios desde
-  // que se abrió la intervención.
+  // Detecta si hubo cambios desde que se abrió la intervención.
+  //
+  // En edición compara contra la copia original.
+  // En intervención nueva revisa si el usuario ya cargó datos o geometría.
 
-const hayGeometria =
-  Array.isArray(form.geometria) &&
-  form.geometria.length > 0
+  const hayGeometria =
+    Array.isArray(form.geometria) &&
+    form.geometria.length > 0
 
-const hayCambiosSinGuardar =
-  form.id && formOriginal
-    ? JSON.stringify(form) !==
-      JSON.stringify(formOriginal)
-    : Boolean(
-        form.nombre ||
-        form.ubicacion ||
-        form.descripcion ||
-        form.latitud ||
-        form.longitud ||
-        hayGeometria
-      )
+  const hayCambiosSinGuardar =
+    form.id && formOriginal
+      ? JSON.stringify(form) !==
+        JSON.stringify(formOriginal)
+      : Boolean(
+          form.nombre ||
+            form.ubicacion ||
+            form.descripcion ||
+            form.latitud ||
+            form.longitud ||
+            hayGeometria
+        )
 
   // API pública que consume el resto de la aplicación.
   return {
