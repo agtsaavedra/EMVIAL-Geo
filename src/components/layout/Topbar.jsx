@@ -19,6 +19,8 @@ function Topbar({
 
   exportarKmlActual,
   exportarExcelActual,
+  exportarGeoJSONActual,
+  exportarShpActual,
 
   crearBackup,
   restaurarBackup,
@@ -69,6 +71,12 @@ function Topbar({
           exportarKmlActual={exportarKmlActual}
           exportarExcelActual={
             exportarExcelActual
+          }
+          exportarGeoJSONActual={
+            exportarGeoJSONActual
+          }
+          exportarShpActual={
+            exportarShpActual
           }
           crearBackup={crearBackup}
           restaurarBackup={

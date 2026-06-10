@@ -197,6 +197,8 @@ export function useAppServices() {
 
     exportarKmlActual,
     exportarExcelActual,
+    exportarGeoJSONActual,
+    exportarShpActual,
     crearBackupActual,
     restaurarBackupActual,
     restaurarPeriodoActualProtegido,
@@ -239,6 +241,8 @@ export function useAppServices() {
 
     exportarKmlActual,
     exportarExcelActual,
+    exportarGeoJSONActual,
+    exportarShpActual,
 
     crearBackupActual,
     restaurarBackupActual,

@@ -75,6 +75,8 @@ export function useAppActionsBundle({
   const {
     exportarKmlActual,
     exportarExcelActual,
+    exportarGeoJSONActual,
+    exportarShpActual,
     crearBackupActual,
     restaurarBackupActual,
     restaurarPeriodoActualProtegido,
@@ -125,6 +127,8 @@ export function useAppActionsBundle({
 
     exportarKmlActual,
     exportarExcelActual,
+    exportarGeoJSONActual,
+    exportarShpActual,
     crearBackupActual,
     restaurarBackupActual,
     restaurarPeriodoActualProtegido,

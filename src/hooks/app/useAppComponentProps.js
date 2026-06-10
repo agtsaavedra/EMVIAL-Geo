@@ -37,6 +37,8 @@ export function useAppComponentProps({
 
   exportarKmlActual,
   exportarExcelActual,
+  exportarGeoJSONActual,
+  exportarShpActual,
 
   crearBackupActual,
   restaurarBackupActual,
@@ -122,6 +124,8 @@ export function useAppComponentProps({
 
     exportarKmlActual,
     exportarExcelActual,
+    exportarGeoJSONActual,
+    exportarShpActual,
 
     crearBackupActual,
     restaurarBackupActual,

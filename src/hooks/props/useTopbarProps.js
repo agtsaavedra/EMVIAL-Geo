@@ -29,6 +29,8 @@ export function useTopbarProps({
 
   exportarKmlActual,
   exportarExcelActual,
+  exportarGeoJSONActual,
+  exportarShpActual,
 
   crearBackupActual,
   restaurarBackupActual,
@@ -65,6 +67,8 @@ export function useTopbarProps({
 
     exportarKmlActual,
     exportarExcelActual,
+    exportarGeoJSONActual,
+    exportarShpActual,
 
     crearBackup:
       crearBackupActual,

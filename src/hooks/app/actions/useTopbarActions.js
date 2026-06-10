@@ -9,7 +9,9 @@
 */
 
 import { exportarExcelPeriodo } from '@services/exportExcel'
+import { exportarGeoJSONPeriodo } from '@services/exportGeoJSON'
 import { exportarKml } from '@services/exportKML'
+import { exportarShpPeriodo } from '@services/exportSHP'
 
 export function useTopbarActions({
   periodoActivo,
@@ -51,6 +53,71 @@ export function useTopbarActions({
         : 'No hay intervenciones para exportar en este período.',
       ok ? 'success' : 'error'
     )
+  }
+
+  function mensajeExportacion(
+    formato,
+    resultado
+  ) {
+    if (!resultado.ok) {
+      return `No hay intervenciones con geometría válida para exportar en ${formato}.`
+    }
+
+    if (resultado.omitidas > 0) {
+      return `${formato} exportado: ${resultado.exportadas} intervenciones. Omitidas sin geometría válida: ${resultado.omitidas}.`
+    }
+
+    return `${formato} exportado correctamente.`
+  }
+
+  // Exporta las intervenciones del período activo a GeoJSON.
+  function exportarGeoJSONActual() {
+    setMenuAbierto(false)
+
+    const resultado =
+      exportarGeoJSONPeriodo(
+        intervencionesDelPeriodo,
+        periodoActivo
+      )
+
+    mostrarToast(
+      mensajeExportacion(
+        'GeoJSON',
+        resultado
+      ),
+      resultado.ok ? 'success' : 'error'
+    )
+  }
+
+  // Exporta las intervenciones del período activo a SHP.
+  async function exportarShpActual() {
+    setMenuAbierto(false)
+
+    try {
+      const resultado =
+        await exportarShpPeriodo(
+          intervencionesDelPeriodo,
+          periodoActivo
+        )
+
+      mostrarToast(
+        mensajeExportacion(
+          'SHP',
+          resultado
+        ),
+        resultado.ok ? 'success' : 'error'
+      )
+    } catch (error) {
+      console.error(
+        'Error al exportar SHP:',
+        error
+      )
+
+      mostrarToast(
+        'No se pudo generar el archivo SHP.',
+        'error'
+      )
+    }
   }
 
   // Crea un backup manual desde el menú superior.
@@ -142,6 +209,8 @@ export function useTopbarActions({
   return {
     exportarKmlActual,
     exportarExcelActual,
+    exportarGeoJSONActual,
+    exportarShpActual,
     crearBackupActual,
     restaurarBackupActual,
     restaurarPeriodoActualProtegido,

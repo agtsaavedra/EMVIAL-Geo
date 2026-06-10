@@ -13,6 +13,8 @@ function TopbarMenu({
 
   exportarKmlActual,
   exportarExcelActual,
+  exportarGeoJSONActual,
+  exportarShpActual,
 
   crearBackup,
   restaurarBackup,
@@ -184,6 +186,24 @@ function TopbarMenu({
             }
           >
             Exportar KML
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              ejecutarYCerrar(exportarGeoJSONActual)
+            }
+          >
+            Exportar GeoJSON
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              ejecutarYCerrar(exportarShpActual)
+            }
+          >
+            Exportar SHP
           </button>
 
           {/* ===============================
