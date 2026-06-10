@@ -41,6 +41,8 @@ export function useAppActionsBundle({
 
   // datos
   intervencionesDelPeriodo,
+  intervencionesFiltradas,
+  guardarIntervencionEnDB,
   eliminarIntervencion,
   restaurarIntervencion,
 
@@ -77,6 +79,7 @@ export function useAppActionsBundle({
     exportarExcelActual,
     exportarGeoJSONActual,
     exportarShpActual,
+    importarArchivoGISActual,
     crearBackupActual,
     restaurarBackupActual,
     restaurarPeriodoActualProtegido,
@@ -86,6 +89,8 @@ export function useAppActionsBundle({
   } = useTopbarActions({
     periodoActivo,
     intervencionesDelPeriodo,
+    intervencionesFiltradas,
+    guardarIntervencionEnDB,
     setMenuAbierto,
     mostrarToast,
     confirmar,
@@ -129,6 +134,7 @@ export function useAppActionsBundle({
     exportarExcelActual,
     exportarGeoJSONActual,
     exportarShpActual,
+    importarArchivoGISActual,
     crearBackupActual,
     restaurarBackupActual,
     restaurarPeriodoActualProtegido,

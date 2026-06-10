@@ -211,7 +211,7 @@ export function useGuideOverlay({
       setGuideVisible(true)
 
       setGuideOpacity(0.45)
-    } catch (error) {
+    } catch {
       mostrarToast(
         'No se pudo cargar la guía seleccionada.',
         'error'

@@ -177,6 +177,8 @@ export function useAppServices() {
     setPeriodoActivo,
 
     intervencionesDelPeriodo,
+    intervencionesFiltradas,
+    guardarIntervencionEnDB,
     eliminarIntervencion,
     restaurarIntervencion,
 
@@ -199,6 +201,7 @@ export function useAppServices() {
     exportarExcelActual,
     exportarGeoJSONActual,
     exportarShpActual,
+    importarArchivoGISActual,
     crearBackupActual,
     restaurarBackupActual,
     restaurarPeriodoActualProtegido,
@@ -243,6 +246,7 @@ export function useAppServices() {
     exportarExcelActual,
     exportarGeoJSONActual,
     exportarShpActual,
+    importarArchivoGISActual,
 
     crearBackupActual,
     restaurarBackupActual,

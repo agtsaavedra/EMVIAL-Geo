@@ -9,7 +9,6 @@ import {
   OBRAS,
   ESTADOS,
   FUENTES,
-  GEOMETRIAS,
 } from '@constants/intervenciones'
 
 

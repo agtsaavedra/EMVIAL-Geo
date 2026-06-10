@@ -1,21 +1,25 @@
 /*
   useTopbarActions
 
-  Define las acciones disparadas desde el menú superior:
-  exportaciones, backups, restauraciones, configuración de carpeta de backups
-  y apertura del diálogo Acerca de.
-
-  Mantiene al componente Topbar libre de lógica de negocio.
+  Define las acciones disparadas desde el menu superior:
+  exportaciones, importaciones, backups, restauraciones, configuracion de
+  carpeta de backups y apertura del dialogo Acerca de.
 */
 
 import { exportarExcelPeriodo } from '@services/exportExcel'
 import { exportarGeoJSONPeriodo } from '@services/exportGeoJSON'
 import { exportarKml } from '@services/exportKML'
 import { exportarShpPeriodo } from '@services/exportSHP'
+import { importarArchivoGIS } from '@services/importGIS'
+import {
+  contarIntervencionesExportables,
+} from '@services/intervencionesGeoJSON'
 
 export function useTopbarActions({
   periodoActivo,
   intervencionesDelPeriodo,
+  intervencionesFiltradas,
+  guardarIntervencionEnDB,
   setMenuAbierto,
   mostrarToast,
   confirmar,
@@ -24,35 +28,24 @@ export function useTopbarActions({
   restaurarPeriodoActual,
   abrirAbout,
 }) {
-  // Exporta las intervenciones del período activo en formato KML.
-  function exportarKmlActual() {
-    setMenuAbierto(false)
+  const intervencionesParaExportar =
+    intervencionesFiltradas ||
+    intervencionesDelPeriodo
 
-    const ok = exportarKml(intervencionesDelPeriodo)
+  function obtenerResumenExportacion() {
+    const total =
+      intervencionesParaExportar.length
 
-    mostrarToast(
-      ok
-        ? 'KML exportado correctamente.'
-        : 'No hay intervenciones para exportar en este período.',
-      ok ? 'success' : 'error'
-    )
-  }
+    const exportables =
+      contarIntervencionesExportables(
+        intervencionesParaExportar
+      )
 
-  // Exporta las intervenciones del período activo a Excel.
-  function exportarExcelActual() {
-    setMenuAbierto(false)
-
-    const ok = exportarExcelPeriodo(
-      intervencionesDelPeriodo,
-      periodoActivo
-    )
-
-    mostrarToast(
-      ok
-        ? 'Excel exportado correctamente.'
-        : 'No hay intervenciones para exportar en este período.',
-      ok ? 'success' : 'error'
-    )
+    return {
+      total,
+      exportables,
+      omitidas: total - exportables,
+    }
   }
 
   function mensajeExportacion(
@@ -60,67 +53,208 @@ export function useTopbarActions({
     resultado
   ) {
     if (!resultado.ok) {
-      return `No hay intervenciones con geometría válida para exportar en ${formato}.`
+      return `No hay intervenciones con geometria valida para exportar en ${formato}.`
     }
 
     if (resultado.omitidas > 0) {
-      return `${formato} exportado: ${resultado.exportadas} intervenciones. Omitidas sin geometría válida: ${resultado.omitidas}.`
+      return `${formato} exportado: ${resultado.exportadas} intervenciones. Omitidas sin geometria valida: ${resultado.omitidas}.`
     }
 
     return `${formato} exportado correctamente.`
   }
 
-  // Exporta las intervenciones del período activo a GeoJSON.
-  function exportarGeoJSONActual() {
-    setMenuAbierto(false)
+  function confirmarExportacion({
+    formato,
+    requiereGeometria = true,
+    onConfirmar,
+  }) {
+    const resumen =
+      obtenerResumenExportacion()
 
-    const resultado =
-      exportarGeoJSONPeriodo(
-        intervencionesDelPeriodo,
-        periodoActivo
+    if (!resumen.total) {
+      mostrarToast(
+        'No hay intervenciones para exportar con los filtros actuales.',
+        'error'
       )
+      return
+    }
 
-    mostrarToast(
-      mensajeExportacion(
-        'GeoJSON',
-        resultado
-      ),
-      resultado.ok ? 'success' : 'error'
-    )
+    if (
+      requiereGeometria &&
+      !resumen.exportables
+    ) {
+      mostrarToast(
+        `No hay intervenciones con geometria valida para exportar en ${formato}.`,
+        'error'
+      )
+      return
+    }
+
+    confirmar({
+      titulo: `Exportar ${formato}`,
+      mensaje:
+        `Se exportaran ${resumen.total} intervenciones filtradas del periodo ${periodoActivo}.`,
+      detalle: requiereGeometria
+        ? `${resumen.exportables} tienen geometria valida. ${resumen.omitidas} se omitiran por no tener geometria exportable.`
+        : 'La exportacion usara exactamente los filtros activos.',
+      textoConfirmar: `Exportar ${formato}`,
+      textoCancelar: 'Cancelar',
+      onConfirmar,
+    })
   }
 
-  // Exporta las intervenciones del período activo a SHP.
-  async function exportarShpActual() {
+  function exportarKmlActual() {
     setMenuAbierto(false)
 
-    try {
-      const resultado =
-        await exportarShpPeriodo(
-          intervencionesDelPeriodo,
+    confirmarExportacion({
+      formato: 'KML',
+      onConfirmar: () => {
+        const ok = exportarKml(
+          intervencionesParaExportar
+        )
+
+        mostrarToast(
+          ok
+            ? 'KML exportado correctamente.'
+            : 'No hay intervenciones para exportar con los filtros actuales.',
+          ok ? 'success' : 'error'
+        )
+      },
+    })
+  }
+
+  function exportarExcelActual() {
+    setMenuAbierto(false)
+
+    confirmarExportacion({
+      formato: 'Excel',
+      requiereGeometria: false,
+      onConfirmar: () => {
+        const ok = exportarExcelPeriodo(
+          intervencionesParaExportar,
           periodoActivo
         )
 
-      mostrarToast(
-        mensajeExportacion(
-          'SHP',
-          resultado
-        ),
-        resultado.ok ? 'success' : 'error'
-      )
+        mostrarToast(
+          ok
+            ? 'Excel exportado correctamente.'
+            : 'No hay intervenciones para exportar con los filtros actuales.',
+          ok ? 'success' : 'error'
+        )
+      },
+    })
+  }
+
+  function exportarGeoJSONActual() {
+    setMenuAbierto(false)
+
+    confirmarExportacion({
+      formato: 'GeoJSON',
+      onConfirmar: () => {
+        const resultado =
+          exportarGeoJSONPeriodo(
+            intervencionesParaExportar,
+            periodoActivo
+          )
+
+        mostrarToast(
+          mensajeExportacion(
+            'GeoJSON',
+            resultado
+          ),
+          resultado.ok ? 'success' : 'error'
+        )
+      },
+    })
+  }
+
+  async function exportarShpActual() {
+    setMenuAbierto(false)
+
+    confirmarExportacion({
+      formato: 'SHP',
+      onConfirmar: async () => {
+        try {
+          const resultado =
+            await exportarShpPeriodo(
+              intervencionesParaExportar,
+              periodoActivo
+            )
+
+          mostrarToast(
+            mensajeExportacion(
+              'SHP',
+              resultado
+            ),
+            resultado.ok ? 'success' : 'error'
+          )
+        } catch (error) {
+          console.error(
+            'Error al exportar SHP:',
+            error
+          )
+
+          mostrarToast(
+            'No se pudo generar el archivo SHP.',
+            'error'
+          )
+        }
+      },
+    })
+  }
+
+  async function importarArchivoGISActual(file) {
+    setMenuAbierto(false)
+
+    if (!file) return
+
+    try {
+      const resultado =
+        await importarArchivoGIS(
+          file,
+          periodoActivo
+        )
+
+      if (!resultado.importables) {
+        mostrarToast(
+          'El archivo no contiene geometrías importables.',
+          'error'
+        )
+        return
+      }
+
+      confirmar({
+        titulo: 'Importar archivo GIS',
+        mensaje:
+          `Se importaran ${resultado.importables} intervenciones al periodo ${periodoActivo}.`,
+        detalle:
+          `${resultado.omitidas} geometrías se omitiran por no ser compatibles o no tener coordenadas validas.`,
+        textoConfirmar: 'Importar',
+        textoCancelar: 'Cancelar',
+        onConfirmar: async () => {
+          for (const intervencion of resultado.intervenciones) {
+            await guardarIntervencionEnDB(intervencion)
+          }
+
+          mostrarToast(
+            `Importacion completa: ${resultado.importables} intervenciones.`,
+            'success'
+          )
+        },
+      })
     } catch (error) {
       console.error(
-        'Error al exportar SHP:',
+        'Error al importar archivo GIS:',
         error
       )
 
       mostrarToast(
-        'No se pudo generar el archivo SHP.',
+        'No se pudo importar el archivo GIS.',
         'error'
       )
     }
   }
 
-  // Crea un backup manual desde el menú superior.
   async function crearBackupActual() {
     setMenuAbierto(false)
 
@@ -132,16 +266,15 @@ export function useTopbarActions({
     )
   }
 
-  // Solicita confirmación y restaura una base completa desde backup.
   function restaurarBackupActual() {
     setMenuAbierto(false)
 
     confirmar({
       titulo: 'Restaurar backup',
       mensaje:
-        'Se reemplazará la base actual por el backup seleccionado.',
+        'Se reemplazara la base actual por el backup seleccionado.',
       detalle:
-        'Esta acción sobrescribirá la información actual.',
+        'Esta accion sobrescribira la informacion actual.',
       textoConfirmar: 'Restaurar',
       textoCancelar: 'Cancelar',
       danger: true,
@@ -157,15 +290,14 @@ export function useTopbarActions({
     })
   }
 
-  // Solicita confirmación y restaura solo el período activo.
   function restaurarPeriodoActualProtegido() {
     setMenuAbierto(false)
 
     confirmar({
-      titulo: 'Restaurar período',
-      mensaje: `Se restaurarán únicamente las intervenciones del período ${periodoActivo}.`,
-      detalle: 'Los demás períodos no se modificarán.',
-      textoConfirmar: 'Restaurar período',
+      titulo: 'Restaurar periodo',
+      mensaje: `Se restauraran unicamente las intervenciones del periodo ${periodoActivo}.`,
+      detalle: 'Los demas periodos no se modificaran.',
+      textoConfirmar: 'Restaurar periodo',
       textoCancelar: 'Cancelar',
       danger: true,
       onConfirmar: async () => {
@@ -173,20 +305,18 @@ export function useTopbarActions({
 
         mostrarToast(
           resultado?.message ||
-            'Período restaurado correctamente.',
+            'Periodo restaurado correctamente.',
           resultado?.ok === false ? 'error' : 'success'
         )
       },
     })
   }
 
-  // Abre en el sistema operativo la carpeta activa de backups.
   function abrirCarpetaBackups() {
     setMenuAbierto(false)
     window.api.abrirCarpetaBackups()
   }
 
-  // Permite elegir una nueva carpeta de backups desde Electron.
   async function configurarCarpetaBackups() {
     setMenuAbierto(false)
 
@@ -200,7 +330,6 @@ export function useTopbarActions({
     )
   }
 
-  // Cierra el menú hamburguesa y abre el diálogo Acerca de.
   function abrirAboutDesdeMenu() {
     setMenuAbierto(false)
     abrirAbout()
@@ -211,6 +340,7 @@ export function useTopbarActions({
     exportarExcelActual,
     exportarGeoJSONActual,
     exportarShpActual,
+    importarArchivoGISActual,
     crearBackupActual,
     restaurarBackupActual,
     restaurarPeriodoActualProtegido,

@@ -21,6 +21,7 @@ function Topbar({
   exportarExcelActual,
   exportarGeoJSONActual,
   exportarShpActual,
+  importarArchivoGISActual,
 
   crearBackup,
   restaurarBackup,
@@ -77,6 +78,9 @@ function Topbar({
           }
           exportarShpActual={
             exportarShpActual
+          }
+          importarArchivoGISActual={
+            importarArchivoGISActual
           }
           crearBackup={crearBackup}
           restaurarBackup={

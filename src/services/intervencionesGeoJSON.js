@@ -103,6 +103,23 @@ function crearGeometriaGeoJSON(intervencion) {
   return null
 }
 
+export function obtenerEstadoGeometriaIntervencion(intervencion) {
+  const geometry =
+    crearGeometriaGeoJSON(intervencion)
+
+  if (!geometry) {
+    return {
+      valida: false,
+      tipo: intervencion?.geometriaTipo || '',
+    }
+  }
+
+  return {
+    valida: true,
+    tipo: geometry.type,
+  }
+}
+
 function valorPropiedad(valor) {
   return valor ?? ''
 }

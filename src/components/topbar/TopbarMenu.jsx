@@ -15,6 +15,7 @@ function TopbarMenu({
   exportarExcelActual,
   exportarGeoJSONActual,
   exportarShpActual,
+  importarArchivoGISActual,
 
   crearBackup,
   restaurarBackup,
@@ -40,6 +41,7 @@ function TopbarMenu({
   
   const menuRef = useRef(null)
   const guideInputRef = useRef(null)
+  const importInputRef = useRef(null)
 
   // =====================================================
   // CERRAR AL HACER CLICK AFUERA
@@ -51,7 +53,8 @@ function TopbarMenu({
         menuRef.current &&
         !menuRef.current.contains(event.target)
       ) {
-        cerrarMenu()
+        setMenuAbierto(false)
+        setAvanzadoAbierto(false)
       }
     }
 
@@ -66,7 +69,7 @@ function TopbarMenu({
         manejarClickAfuera
       )
     }
-  }, [])
+  }, [setMenuAbierto])
 
   // =====================================================
   // HELPERS
@@ -99,12 +102,27 @@ function TopbarMenu({
     guideInputRef.current?.click()
   }
 
+  function abrirSelectorImportacion() {
+    importInputRef.current?.click()
+  }
+
   function manejarArchivoGuia(e) {
     const file = e.target.files?.[0]
 
     if (!file) return
 
     cargarImagenGuia?.(file)
+
+    e.target.value = ''
+    cerrarMenu()
+  }
+
+  function manejarArchivoImportacion(e) {
+    const file = e.target.files?.[0]
+
+    if (!file) return
+
+    importarArchivoGISActual?.(file)
 
     e.target.value = ''
     cerrarMenu()
@@ -124,6 +142,14 @@ function TopbarMenu({
         type="file"
         accept="image/png,image/jpeg,image/jpg,image/webp,application/pdf,.pdf"
         onChange={manejarArchivoGuia}
+        hidden
+      />
+
+      <input
+        ref={importInputRef}
+        type="file"
+        accept=".geojson,.json,.kml,.zip,application/geo+json,application/json,application/vnd.google-earth.kml+xml,application/zip"
+        onChange={manejarArchivoImportacion}
         hidden
       />
 
@@ -204,6 +230,13 @@ function TopbarMenu({
             }
           >
             Exportar SHP
+          </button>
+
+          <button
+            type="button"
+            onClick={abrirSelectorImportacion}
+          >
+            Importar GIS
           </button>
 
           {/* ===============================

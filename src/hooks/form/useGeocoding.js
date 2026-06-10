@@ -52,25 +52,31 @@ export function useGeocoding({
   async function buscarDireccion() {
     if (!form.direccion.trim()) return
 
-    const resultado = await obtenerCoordenadas(form.direccion)
+    setBuscandoDireccion(true)
 
-    if (!resultado) {
-      mostrarToast('No se encontró la dirección.', 'error')
-      return
+    try {
+      const resultado = await obtenerCoordenadas(form.direccion)
+
+      if (!resultado) {
+        mostrarToast('No se encontró la dirección.', 'error')
+        return
+      }
+
+      setPuntoSeleccionado([resultado.latitud, resultado.longitud])
+
+      setForm((prev) => ({
+        ...prev,
+        direccion: resultado.direccion,
+        latitud: resultado.latitud.toFixed(6),
+        longitud: resultado.longitud.toFixed(6),
+        geometria:
+          prev.geometriaTipo === 'Punto'
+            ? [[resultado.latitud, resultado.longitud]]
+            : prev.geometria,
+      }))
+    } finally {
+      setBuscandoDireccion(false)
     }
-
-    setPuntoSeleccionado([resultado.latitud, resultado.longitud])
-
-    setForm((prev) => ({
-      ...prev,
-      direccion: resultado.direccion,
-      latitud: resultado.latitud.toFixed(6),
-      longitud: resultado.longitud.toFixed(6),
-      geometria:
-        prev.geometriaTipo === 'Punto'
-          ? [[resultado.latitud, resultado.longitud]]
-          : prev.geometria,
-    }))
   }
 
   // API pública que consume el resto de la aplicación.
