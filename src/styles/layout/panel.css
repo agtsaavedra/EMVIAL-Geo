@@ -8,10 +8,11 @@
   height: 100%;
   min-height: 0;
 
-  width: 360px;
-  min-width: 360px;
+  width: 394px;
+  min-width: 394px;
+  padding-left: var(--side-toggle-width);
 
-  overflow: visible;
+  overflow: hidden;
 
   transition:
     width 0.28s ease,
@@ -19,8 +20,9 @@
 }
 
 .assets-panel.closed {
-  width: 0;
-  min-width: 0;
+  width: var(--side-toggle-width);
+  min-width: var(--side-toggle-width);
+  padding-left: 0;
 }
 
 /* ===============================
@@ -232,31 +234,77 @@
 .panel-toggle {
   position: absolute;
 
-  left: -18px;
+  left: 0;
   top: 50%;
   transform: translateY(-50%);
 
   z-index: 3000;
 
-  width: 36px;
-  height: 72px;
+  width: var(--side-toggle-width);
+  height: var(--side-toggle-height);
+  min-height: var(--side-toggle-height);
+  padding: 8px 5px;
 
-  border: none;
-  border-radius: 12px 0 0 12px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-right: none;
+  border-radius: 13px 0 0 13px;
 
-  background: #111827;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(30, 41, 59, 0.98),
+      rgba(15, 23, 42, 0.98)
+    );
   color: white;
 
-  font-size: 26px;
   cursor: pointer;
 
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 7px;
+
+  box-shadow: -8px 12px 28px rgba(0, 0, 0, 0.28);
+
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
 }
 
 .panel-toggle:hover {
-  background: #1f2937;
+  border-color: rgba(96, 165, 250, 0.42);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(37, 99, 235, 0.96),
+      rgba(30, 41, 59, 0.98)
+    );
+  box-shadow: -10px 16px 34px rgba(37, 99, 235, 0.18);
+  transform: translateY(-50%);
+}
+
+.panel-toggle:focus-visible {
+  outline: 2px solid rgba(96, 165, 250, 0.85);
+  outline-offset: 3px;
+}
+
+.assets-panel.closed .panel-toggle {
+  position: fixed;
+  left: auto;
+  right: 0;
+  top: var(--side-toggle-center-y);
+}
+
+.assets-panel.open .panel-toggle {
+  height: var(--side-toggle-open-height);
+  min-height: var(--side-toggle-open-height);
+}
+
+.assets-panel.open .toggle-label {
+  display: none;
 }
 
 /* ===============================

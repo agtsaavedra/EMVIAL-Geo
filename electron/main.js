@@ -21,13 +21,16 @@ const isDev = !app.isPackaged
 const {
   obtenerIntervenciones,
   guardarIntervencion,
+  guardarIntervencionesMasivo,
   eliminarIntervencion,
   crearBackupManual,
+  crearBackupPreventivo,
   restaurarBackupManual,
   abrirCarpetaBackups,
   restaurarPeriodoManual,
   configurarCarpetaBackups,
   obtenerEstadoApp,
+  iniciarProgramadorBackupsAutomaticos,
 } = require('./database')
 
 //
@@ -230,6 +233,15 @@ ipcMain.handle(
   }
 )
 
+ipcMain.handle(
+  'guardar-intervenciones-masivo',
+  async (event, intervenciones) => {
+    return await guardarIntervencionesMasivo(
+      intervenciones
+    )
+  }
+)
+
 // Elimina una intervención por id.
 ipcMain.handle(
   'eliminar-intervencion',
@@ -253,6 +265,13 @@ ipcMain.handle(
     return await crearBackupManual(
       periodo
     )
+  }
+)
+
+ipcMain.handle(
+  'crear-backup-preventivo',
+  async (event, motivo) => {
+    return await crearBackupPreventivo(motivo)
   }
 )
 
@@ -306,6 +325,7 @@ ipcMain.handle(
 
 // Cuando Electron está listo, crea la ventana principal.
 app.whenReady().then(() => {
+  iniciarProgramadorBackupsAutomaticos()
   createWindow()
 })
 

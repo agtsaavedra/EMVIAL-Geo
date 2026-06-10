@@ -114,13 +114,6 @@ function InterventionForm({
         placeholder="Ej: Centro, Las Avenidas, Puerto..."
       />
 
-      <label>Estado</label>
-      <input
-        name="estado"
-        value="Finalizada"
-        readOnly
-      />
-
       <label>Inspector</label>
       <input
         name="inspector"

@@ -40,6 +40,7 @@ export function useAppComponentProps({
   exportarExcelActual,
   exportarGeoJSONActual,
   exportarShpActual,
+  exportarInformePDFActual,
   importarArchivoGISActual,
 
   crearBackupActual,
@@ -129,6 +130,7 @@ export function useAppComponentProps({
     exportarExcelActual,
     exportarGeoJSONActual,
     exportarShpActual,
+    exportarInformePDFActual,
     importarArchivoGISActual,
 
     crearBackupActual,

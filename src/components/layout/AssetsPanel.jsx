@@ -1,16 +1,5 @@
-/**
- * Panel lateral de intervenciones cargadas.
- *
- * Muestra la lista de intervenciones filtradas y permite enfocar, editar o
- * eliminar registros. El componente no decide la lógica de negocio: recibe
- * handlers ya protegidos desde la capa de hooks de aplicación.
- */
-
-
 import { memo } from 'react'
 
-
-// Punto de entrada visual del componente.
 function AssetsPanel({
   intervencionesFiltradas = [],
   editarIntervencion,
@@ -20,10 +9,6 @@ function AssetsPanel({
   abierto,
   setAbierto,
 }) {
-  // =====================================================
-  // HELPERS
-  // =====================================================
-
   function esPantallaChica() {
     return window.innerWidth <= 1024
   }
@@ -73,18 +58,17 @@ function AssetsPanel({
 
   function obtenerIconoToggle() {
     if (esPantallaChica()) {
-      return abierto ? '▾' : '▴'
+      return abierto ? 'v' : '^'
     }
 
-    return abierto ? '›' : '‹'
+    return abierto ? '>' : '<'
   }
 
-  // Calcula el título visible según el estado actual.
   function obtenerTitulo(intervencion) {
     return (
       intervencion.nombre ||
       intervencion.obra ||
-      'Intervención'
+      'Intervencion'
     )
   }
 
@@ -96,12 +80,6 @@ function AssetsPanel({
     )
   }
 
-  // =====================================================
-  // RENDER
-  // =====================================================
-
-
-  // Render principal del componente.
   return (
     <aside
       className={`assets-panel ${
@@ -112,8 +90,23 @@ function AssetsPanel({
         type="button"
         className="panel-toggle"
         onClick={alternarPanel}
+        title={
+          abierto
+            ? 'Ocultar intervenciones'
+            : 'Mostrar intervenciones'
+        }
+        aria-label={
+          abierto
+            ? 'Ocultar intervenciones'
+            : 'Mostrar intervenciones'
+        }
       >
-        {obtenerIconoToggle()}
+        <span className="toggle-icon">
+          {obtenerIconoToggle()}
+        </span>
+        <span className="toggle-label">
+          Lista
+        </span>
       </button>
 
       {abierto && (
@@ -122,7 +115,7 @@ function AssetsPanel({
 
           {intervencionesFiltradas.length === 0 ? (
             <p className="empty">
-              Todavía no hay intervenciones cargadas.
+              Todavia no hay intervenciones cargadas.
             </p>
           ) : (
             intervencionesFiltradas.map(
@@ -151,7 +144,7 @@ function AssetsPanel({
                         <small className="card-subtitle">
                           {intervencion.obra ||
                             'Sin obra'}{' '}
-                          ·{' '}
+                          /{' '}
                           {intervencion.estado ||
                             'Sin estado'}
                         </small>
@@ -189,13 +182,13 @@ function AssetsPanel({
                     <div className="card-compact-detail">
                       {intervencion.barrio && (
                         <span>
-                          📍 {intervencion.barrio}
+                          Barrio: {intervencion.barrio}
                         </span>
                       )}
 
                       {referencia && (
                         <span>
-                          📌 {referencia}
+                          Ubicacion: {referencia}
                         </span>
                       )}
 
@@ -209,7 +202,7 @@ function AssetsPanel({
                     <small className="card-geometry">
                       {intervencion.geometriaTipo ||
                         'Punto'}{' '}
-                      — {intervencion.latitud},{' '}
+                      - {intervencion.latitud},{' '}
                       {intervencion.longitud}
                     </small>
                   </div>
@@ -224,5 +217,3 @@ function AssetsPanel({
 }
 
 export default memo(AssetsPanel)
-
-

@@ -104,6 +104,7 @@ export function useAppServices() {
     setIntervencionEditandoId,
 
     guardarIntervencionEnDB,
+    guardarIntervencionesMasivoEnDB,
     eliminarIntervencion,
     restaurarIntervencion,
 
@@ -182,6 +183,7 @@ export function useAppServices() {
     intervencionesDelPeriodo,
     intervencionesFiltradas,
     guardarIntervencionEnDB,
+    guardarIntervencionesMasivoEnDB,
     eliminarIntervencion,
     restaurarIntervencion,
 
@@ -204,6 +206,7 @@ export function useAppServices() {
     exportarExcelActual,
     exportarGeoJSONActual,
     exportarShpActual,
+    exportarInformePDFActual,
     importarArchivoGISActual,
     crearBackupActual,
     restaurarBackupActual,
@@ -259,6 +262,7 @@ export function useAppServices() {
     exportarExcelActual,
     exportarGeoJSONActual,
     exportarShpActual,
+    exportarInformePDFActual,
     importarArchivoGISActual,
 
     crearBackupActual,

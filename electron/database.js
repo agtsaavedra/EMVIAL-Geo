@@ -54,12 +54,18 @@ const MESES = [
   'DICIEMBRE',
 ]
 
+const INTERVALO_BACKUP_AUTOMATICO_MS =
+  10 * 60 * 1000
+
 // =====================================================
 // ESTADO SQLITE
 // =====================================================
 
 let SQL
 let db
+let backupDirty = false
+let periodosDirty = new Set()
+let intervaloBackupAutomatico = null
 
 // =====================================================
 // ESQUEMA / MIGRACIONES
@@ -184,6 +190,48 @@ async function iniciarDB() {
 function guardarArchivo() {
   const data = db.export()
   fs.writeFileSync(dbPath, Buffer.from(data))
+}
+
+function marcarBackupPendiente(periodo) {
+  backupDirty = true
+
+  if (periodo) {
+    periodosDirty.add(periodo)
+  }
+}
+
+function limpiarBackupPendiente() {
+  backupDirty = false
+  periodosDirty = new Set()
+}
+
+function ejecutarBackupsAutomaticosPendientes() {
+  if (!backupDirty) return false
+
+  crearBackupGeneralAutomatico()
+
+  periodosDirty.forEach((periodo) => {
+    crearBackupAutomatico(periodo)
+  })
+
+  limpiarBackupPendiente()
+
+  return true
+}
+
+function iniciarProgramadorBackupsAutomaticos() {
+  if (intervaloBackupAutomatico) return
+
+  intervaloBackupAutomatico = setInterval(() => {
+    try {
+      ejecutarBackupsAutomaticosPendientes()
+    } catch (error) {
+      console.error(
+        'Error al crear backups automáticos:',
+        error
+      )
+    }
+  }, INTERVALO_BACKUP_AUTOMATICO_MS)
 }
 
 // =====================================================
@@ -390,8 +438,7 @@ async function guardarIntervencion(intervencion) {
   }
 
   guardarArchivo()
-  crearBackupGeneralAutomatico()
-  crearBackupAutomatico(nueva.periodo)
+  marcarBackupPendiente(nueva.periodo)
 
   return nueva
 }
@@ -433,10 +480,75 @@ async function eliminarIntervencion(id) {
   )
 
   guardarArchivo()
-  crearBackupGeneralAutomatico()
-  crearBackupAutomatico(periodo)
+  marcarBackupPendiente(periodo)
 
   return true
+}
+
+async function guardarIntervencionesMasivo(intervenciones = []) {
+  if (!db) await iniciarDB()
+
+  if (!Array.isArray(intervenciones) || !intervenciones.length) {
+    return []
+  }
+
+  const guardadas = []
+  const ahora = new Date().toISOString()
+
+  db.run('BEGIN TRANSACTION')
+
+  try {
+    intervenciones.forEach((intervencion) => {
+      const nueva = {
+        ...intervencion,
+        id: String(intervencion.id || `${Date.now()}-${guardadas.length}`),
+      }
+
+      const buscarExistente = db.prepare(`
+        SELECT id
+        FROM intervenciones
+        WHERE id = ?
+      `)
+
+      buscarExistente.bind([nueva.id])
+
+      const existe = buscarExistente.step()
+
+      buscarExistente.free()
+
+      if (existe) {
+        db.run(
+          `
+          UPDATE intervenciones
+          SET data = ?, updated_at = ?
+          WHERE id = ?
+          `,
+          [JSON.stringify(nueva), ahora, nueva.id]
+        )
+      } else {
+        db.run(
+          `
+          INSERT INTO intervenciones
+          (id, data, created_at, updated_at)
+          VALUES (?, ?, ?, ?)
+          `,
+          [nueva.id, JSON.stringify(nueva), ahora, ahora]
+        )
+      }
+
+      marcarBackupPendiente(nueva.periodo)
+      guardadas.push(nueva)
+    })
+
+    db.run('COMMIT')
+  } catch (error) {
+    db.run('ROLLBACK')
+    throw error
+  }
+
+  guardarArchivo()
+
+  return guardadas
 }
 
 // =====================================================
@@ -595,6 +707,21 @@ function crearBackupPreRestauracion() {
   return backupPath
 }
 
+async function crearBackupPreventivo(motivo = 'manual') {
+  if (!db) await iniciarDB()
+
+  guardarArchivo()
+
+  const backupPath =
+    crearBackupPreRestauracion()
+
+  return {
+    ok: Boolean(backupPath),
+    path: backupPath,
+    motivo,
+  }
+}
+
 // =====================================================
 // BACKUP MANUAL / RESTAURACIÓN GENERAL
 // =====================================================
@@ -748,8 +875,8 @@ async function restaurarPeriodoManual(periodo) {
   }
 
   guardarArchivo()
-  crearBackupGeneralAutomatico()
-  crearBackupAutomatico(periodo)
+  marcarBackupPendiente(periodo)
+  ejecutarBackupsAutomaticosPendientes()
 
   return {
     ok: true,
@@ -859,11 +986,15 @@ function obtenerEstadoApp() {
 module.exports = {
   obtenerIntervenciones,
   guardarIntervencion,
+  guardarIntervencionesMasivo,
   eliminarIntervencion,
   crearBackupManual,
+  crearBackupPreventivo,
   restaurarBackupManual,
   abrirCarpetaBackups,
   restaurarPeriodoManual,
   configurarCarpetaBackups,
   obtenerEstadoApp,
+  iniciarProgramadorBackupsAutomaticos,
+  ejecutarBackupsAutomaticosPendientes,
 }

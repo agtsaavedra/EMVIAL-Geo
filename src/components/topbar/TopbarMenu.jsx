@@ -15,6 +15,7 @@ function TopbarMenu({
   exportarExcelActual,
   exportarGeoJSONActual,
   exportarShpActual,
+  exportarInformePDFActual,
   importarArchivoGISActual,
 
   crearBackup,
@@ -259,6 +260,17 @@ function TopbarMenu({
                   }
                 >
                   Exportar SHP
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    ejecutarYCerrar(
+                      exportarInformePDFActual
+                    )
+                  }
+                >
+                  Informe PDF
                 </button>
 
                 <button

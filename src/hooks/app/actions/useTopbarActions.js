@@ -9,6 +9,7 @@
 import { exportarExcelPeriodo } from '@services/exportExcel'
 import { exportarGeoJSONPeriodo } from '@services/exportGeoJSON'
 import { exportarKml } from '@services/exportKML'
+import { exportarInformePeriodoPDF } from '@services/exportPeriodoPDF'
 import { exportarShpPeriodo } from '@services/exportSHP'
 import { importarArchivoGIS } from '@services/importGIS'
 import {
@@ -20,6 +21,7 @@ export function useTopbarActions({
   intervencionesDelPeriodo,
   intervencionesFiltradas,
   guardarIntervencionEnDB,
+  guardarIntervencionesMasivoEnDB,
   setMenuAbierto,
   mostrarToast,
   confirmar,
@@ -203,6 +205,28 @@ export function useTopbarActions({
     })
   }
 
+  function exportarInformePDFActual() {
+    setMenuAbierto(false)
+
+    confirmarExportacion({
+      formato: 'Informe PDF',
+      requiereGeometria: false,
+      onConfirmar: () => {
+        const ok = exportarInformePeriodoPDF(
+          intervencionesParaExportar,
+          periodoActivo
+        )
+
+        mostrarToast(
+          ok
+            ? 'Informe abierto. Elegi Guardar como PDF en la ventana de impresion.'
+            : 'No hay intervenciones para informar con los filtros actuales.',
+          ok ? 'success' : 'error'
+        )
+      },
+    })
+  }
+
   async function importarArchivoGISActual(file) {
     setMenuAbierto(false)
 
@@ -232,8 +256,18 @@ export function useTopbarActions({
         textoConfirmar: 'Importar',
         textoCancelar: 'Cancelar',
         onConfirmar: async () => {
-          for (const intervencion of resultado.intervenciones) {
-            await guardarIntervencionEnDB(intervencion)
+          await window.api.crearBackupPreventivo(
+            'importacion-gis'
+          )
+
+          if (guardarIntervencionesMasivoEnDB) {
+            await guardarIntervencionesMasivoEnDB(
+              resultado.intervenciones
+            )
+          } else {
+            for (const intervencion of resultado.intervenciones) {
+              await guardarIntervencionEnDB(intervencion)
+            }
           }
 
           mostrarToast(
@@ -340,6 +374,7 @@ export function useTopbarActions({
     exportarExcelActual,
     exportarGeoJSONActual,
     exportarShpActual,
+    exportarInformePDFActual,
     importarArchivoGISActual,
     crearBackupActual,
     restaurarBackupActual,

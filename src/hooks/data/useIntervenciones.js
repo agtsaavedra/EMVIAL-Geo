@@ -126,6 +126,42 @@ export function useIntervenciones() {
     }
   }
 
+  async function guardarIntervencionesMasivoEnDB(
+    items = []
+  ) {
+    try {
+      const ahora = new Date().toISOString()
+
+      const preparadas = items.map((item) => ({
+        ...item,
+        id: item.id || crypto.randomUUID(),
+        createdAt: item.createdAt || ahora,
+        updatedAt: ahora,
+        deletedAt: null,
+        version: item.version || 1,
+      }))
+
+      const guardadas =
+        await window.api.guardarIntervencionesMasivo(
+          preparadas
+        )
+
+      setIntervenciones((prev) => [
+        ...guardadas,
+        ...prev,
+      ])
+
+      return guardadas
+    } catch (error) {
+      console.error(
+        'Error al guardar intervenciones masivas:',
+        error
+      )
+
+      throw error
+    }
+  }
+
   // Restaura una intervención eliminada o reemplaza una existente.
   async function restaurarIntervencion(
     intervencion
@@ -181,6 +217,7 @@ export function useIntervenciones() {
     intervencionEditandoId,
     setIntervencionEditandoId,
     guardarIntervencionEnDB,
+    guardarIntervencionesMasivoEnDB,
     eliminarIntervencion,
     restaurarIntervencion,
     recargarIntervenciones,

@@ -21,6 +21,7 @@ function Topbar({
   exportarExcelActual,
   exportarGeoJSONActual,
   exportarShpActual,
+  exportarInformePDFActual,
   importarArchivoGISActual,
 
   crearBackup,
@@ -41,9 +42,6 @@ function Topbar({
   filtroObra = '',
   setFiltroObra = () => {},
 
-  filtroEstado = '',
-  setFiltroEstado = () => {},
-
   periodoActivo,
   setPeriodoActivo,
 }) {
@@ -62,7 +60,7 @@ function Topbar({
           onChange={(e) =>
             setBusqueda(e.target.value)
           }
-          placeholder="Buscar por obra, barrio, estado o ubicación..."
+          placeholder="Buscar por obra, barrio o ubicacion..."
         />
 
         <TopbarMenu
@@ -79,6 +77,9 @@ function Topbar({
           }
           exportarShpActual={
             exportarShpActual
+          }
+          exportarInformePDFActual={
+            exportarInformePDFActual
           }
           importarArchivoGISActual={
             importarArchivoGISActual
@@ -114,10 +115,6 @@ function Topbar({
         filtroObra={filtroObra}
         setFiltroObra={
           setFiltroObra
-        }
-        filtroEstado={filtroEstado}
-        setFiltroEstado={
-          setFiltroEstado
         }
       />
     </header>

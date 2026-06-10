@@ -1,7 +1,4 @@
-import {
-  OBRAS,
-  ESTADOS,
-} from '@constants/intervenciones'
+import { OBRAS } from '@constants/intervenciones'
 
 function TopbarFilters({
   periodoActivo,
@@ -9,17 +6,11 @@ function TopbarFilters({
 
   filtroObra,
   setFiltroObra,
-
-  filtroEstado,
-  setFiltroEstado,
 }) {
-  const hayFiltros =
-    filtroObra ||
-    filtroEstado
+  const hayFiltros = filtroObra
 
   function limpiarFiltros() {
     setFiltroObra('')
-    setFiltroEstado('')
   }
 
   return (
@@ -54,28 +45,6 @@ function TopbarFilters({
             value={obra}
           >
             {obra}
-          </option>
-        ))}
-      </select>
-
-      <select
-        value={filtroEstado}
-        onChange={(e) =>
-          setFiltroEstado(
-            e.target.value
-          )
-        }
-      >
-        <option value="">
-          Todos los estados
-        </option>
-
-        {ESTADOS.map((estado) => (
-          <option
-            key={estado}
-            value={estado}
-          >
-            {estado}
           </option>
         ))}
       </select>

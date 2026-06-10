@@ -26,6 +26,12 @@ contextBridge.exposeInMainWorld('api', {
   guardarIntervencion: (intervencion) =>
     ipcRenderer.invoke('guardar-intervencion', intervencion),
 
+  guardarIntervencionesMasivo: (intervenciones) =>
+    ipcRenderer.invoke(
+      'guardar-intervenciones-masivo',
+      intervenciones
+    ),
+
   // Elimina una intervención por id.
   eliminarIntervencion: (id) =>
     ipcRenderer.invoke('eliminar-intervencion', id),
@@ -33,6 +39,12 @@ contextBridge.exposeInMainWorld('api', {
   // Crea un backup manual para el período activo.
   crearBackupManual: (periodo) =>
     ipcRenderer.invoke('crear-backup-manual', periodo),
+
+  crearBackupPreventivo: (motivo) =>
+    ipcRenderer.invoke(
+      'crear-backup-preventivo',
+      motivo
+    ),
 
   // Restaura una base completa desde un backup.
   restaurarBackupManual: () =>

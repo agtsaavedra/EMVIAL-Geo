@@ -5,6 +5,8 @@
  * hooks/controladores superiores.
  */
 
+import { formatearNumeroPeriodo } from '@services/periodoStats'
+
 // Punto de entrada visual del componente.
 function MapStatsPanel({
   abierto,
@@ -31,6 +33,10 @@ function MapStatsPanel({
 
     seleccionarBarrioEstadistica?.(barrio)
     cerrar()
+  }
+
+  function numero(valor, decimales = 0) {
+    return formatearNumeroPeriodo(valor, decimales)
   }
 
   // =====================================================
@@ -83,9 +89,39 @@ function MapStatsPanel({
         <div className="map-stats-panel-summary">
           <div>
             <strong>
-              {statsPorObra.length}
+              {statsDetalle.total}
             </strong>
-            <span>Tipos de obra</span>
+            <span>Intervenciones</span>
+          </div>
+
+          <div>
+            <strong>
+              {numero(
+                statsDetalle.metrosLinealesTotal,
+                1
+              )}
+            </strong>
+            <span>Metros lineales</span>
+          </div>
+
+          <div>
+            <strong>
+              {numero(
+                statsDetalle.metrosCuadradosTotal,
+                1
+              )}
+            </strong>
+            <span>Metros cuadrados</span>
+          </div>
+
+          <div>
+            <strong>
+              {numero(
+                statsDetalle.cuadrasTotal,
+                1
+              )}
+            </strong>
+            <span>Cuadras</span>
           </div>
 
           <div>
@@ -97,11 +133,31 @@ function MapStatsPanel({
 
           <div>
             <strong>
-              {statsDetalle.porEstado.length}
+              {statsPorObra.length}
             </strong>
-            <span>Estados</span>
+            <span>Tipos de obra</span>
           </div>
         </div>
+
+        <section className="map-stats-panel-section map-stats-panel-insights">
+          <h4>Indicadores</h4>
+
+          <div className="stats-insight-grid">
+            <div>
+              <span>Con geometria</span>
+              <strong>
+                {statsDetalle.conGeometria}
+              </strong>
+            </div>
+
+            <div>
+              <span>Sin metricas</span>
+              <strong>
+                {statsDetalle.sinMetricas}
+              </strong>
+            </div>
+          </div>
+        </section>
 
         {/* ===============================
             POR OBRA
@@ -110,13 +166,21 @@ function MapStatsPanel({
         <section className="map-stats-panel-section">
           <h4>Por obra</h4>
 
-          {statsPorObra.map((item) => (
+          {statsDetalle.porObra.map((item) => (
             <div
-              key={item.obra}
-              className="stats-detail-row"
+              key={item.nombre}
+              className="stats-detail-row stats-detail-row-metric"
             >
-              <span>{item.obra}</span>
-              <strong>{item.total}</strong>
+              <span>{item.nombre}</span>
+
+              <div className="stats-detail-metrics">
+                <strong>{item.total}</strong>
+                <small>
+                  {numero(item.metrosLineales, 1)} ml
+                  {' / '}
+                  {numero(item.metrosCuadrados, 1)} m2
+                </small>
+              </div>
             </div>
           ))}
         </section>

@@ -1,14 +1,7 @@
-/**
- * Sidebar principal de carga y edición.
- *
- * Contiene el formulario de intervención, búsqueda de dirección y acciones de
- * guardado/cancelación. Es la entrada principal de datos operativos.
- */
-
+import { useEffect, useRef } from 'react'
 
 import InterventionForm from '@components/form/InterventionForm'
-import { useEffect, useRef } from 'react'
-// Punto de entrada visual del componente.
+
 function Sidebar({
   abierto,
   setAbierto,
@@ -23,33 +16,54 @@ function Sidebar({
   cancelarEdicion,
   hayCambiosSinGuardar,
 }) {
-  
-const formContainerRef = useRef(null)
+  const formContainerRef = useRef(null)
 
-useEffect(() => {
-  if (activoEditandoId) {
-    formContainerRef.current?.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    })
-  }
-}, [activoEditandoId])
+  useEffect(() => {
+    if (activoEditandoId) {
+      formContainerRef.current?.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      })
+    }
+  }, [activoEditandoId])
 
-  // Render principal del componente.
   return (
-    <aside className={`sidebar-panel ${abierto ? 'open' : 'closed'}`}>
+    <aside
+      className={`sidebar-panel ${
+        abierto ? 'open' : 'closed'
+      }`}
+    >
       <button
         type="button"
         className="sidebar-toggle"
         onClick={() => setAbierto((prev) => !prev)}
-        title={abierto ? 'Ocultar formulario' : 'Mostrar formulario'}
+        title={
+          abierto
+            ? 'Ocultar formulario'
+            : 'Mostrar formulario'
+        }
+        aria-label={
+          abierto
+            ? 'Ocultar formulario'
+            : 'Mostrar formulario'
+        }
       >
-        {abierto ? '‹' : '›'}
+        <span className="toggle-icon">
+          {abierto ? '<' : '>'}
+        </span>
+        <span className="toggle-label">
+          Formulario
+        </span>
       </button>
 
-      <div className="sidebar" ref={formContainerRef}>
+      <div
+        className="sidebar"
+        ref={formContainerRef}
+      >
         <h1>EMVIAL Geo</h1>
-        <p className="subtitle">Gestión operativa territorial</p>
+        <p className="subtitle">
+          Gestion operativa territorial
+        </p>
 
         <InterventionForm
           form={form}
@@ -61,7 +75,7 @@ useEffect(() => {
           seleccionarSugerencia={seleccionarSugerencia}
           activoEditandoId={activoEditandoId}
           cancelarEdicion={cancelarEdicion}
-           hayCambiosSinGuardar={hayCambiosSinGuardar}
+          hayCambiosSinGuardar={hayCambiosSinGuardar}
         />
       </div>
     </aside>

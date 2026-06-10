@@ -32,6 +32,7 @@ export function useTopbarProps({
   exportarExcelActual,
   exportarGeoJSONActual,
   exportarShpActual,
+  exportarInformePDFActual,
   importarArchivoGISActual,
 
   crearBackupActual,
@@ -73,6 +74,7 @@ export function useTopbarProps({
     exportarExcelActual,
     exportarGeoJSONActual,
     exportarShpActual,
+    exportarInformePDFActual,
     importarArchivoGISActual,
 
     crearBackup:

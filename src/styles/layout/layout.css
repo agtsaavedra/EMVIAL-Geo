@@ -6,6 +6,13 @@
   box-sizing: border-box;
 }
 
+:root {
+  --side-toggle-width: 34px;
+  --side-toggle-height: 126px;
+  --side-toggle-open-height: 46px;
+  --side-toggle-center-y: 58vh;
+}
+
 html,
 body,
 #root {

@@ -4,13 +4,13 @@
 
 @media (max-width: 1600px) {
   .sidebar-panel {
-    width: 300px;
-    min-width: 300px;
+    width: 334px;
+    min-width: 334px;
   }
 
   .assets-panel {
-    width: 330px;
-    min-width: 330px;
+    width: 364px;
+    min-width: 364px;
   }
 
   .content {
@@ -29,13 +29,13 @@
 
 @media (max-width: 1366px) {
   .sidebar-panel {
-    width: 280px;
-    min-width: 280px;
+    width: 314px;
+    min-width: 314px;
   }
 
   .assets-panel {
-    width: 300px;
-    min-width: 300px;
+    width: 334px;
+    min-width: 334px;
   }
 
   .content {
@@ -77,13 +77,13 @@
 
 @media (max-width: 1200px) {
   .sidebar-panel {
-    width: 260px;
-    min-width: 260px;
+    width: 294px;
+    min-width: 294px;
   }
 
   .assets-panel {
-    width: 280px;
-    min-width: 280px;
+    width: 314px;
+    min-width: 314px;
   }
 
   .topbar {
@@ -134,18 +134,21 @@
 
 @media (max-width: 1024px) {
   .sidebar-panel {
-    width: 0;
-    min-width: 0;
+    width: var(--side-toggle-width);
+    min-width: var(--side-toggle-width);
+    padding-right: 0;
   }
 
   .sidebar-panel.open {
-    width: 280px;
-    min-width: 280px;
+    width: 314px;
+    min-width: 314px;
+    padding-right: var(--side-toggle-width);
   }
 
   .sidebar-panel.closed {
-    width: 0;
-    min-width: 0;
+    width: var(--side-toggle-width);
+    min-width: var(--side-toggle-width);
+    padding-right: 0;
   }
 
   .sidebar-panel.closed .sidebar {
@@ -154,7 +157,15 @@
   }
 
   .sidebar-toggle {
-    right: -18px;
+    top: 50%;
+  }
+
+  .sidebar-panel.open .sidebar-toggle {
+    right: 0;
+  }
+
+  .sidebar-panel.closed .sidebar-toggle {
+    right: 0;
   }
 
   .content {
@@ -172,8 +183,10 @@
   .assets-panel {
     width: 100%;
     min-width: 0;
-    height: 280px;
-    min-height: 280px;
+    height: 220px;
+    min-height: 220px;
+    padding-left: 0;
+    overflow: visible;
   }
 
   .assets-panel.closed {
@@ -181,6 +194,7 @@
     min-height: 0;
     width: 100%;
     min-width: 0;
+    overflow: visible;
   }
 
   .assets-panel.closed .panel {
@@ -190,18 +204,79 @@
   }
 
   .panel-toggle {
+    position: absolute;
     left: 50%;
     top: -18px;
+    right: auto;
     transform: translateX(-50%);
 
-    width: 72px;
-    height: 36px;
+    width: 58px;
+    min-width: 58px;
+    min-height: 30px;
+    height: 30px;
+    padding: 4px 8px;
 
-    border-radius: 12px 12px 0 0;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+
+    flex-direction: row;
+
+    box-shadow: 0 -8px 22px rgba(0, 0, 0, 0.22);
+  }
+
+  .assets-panel.open .panel-toggle,
+  .assets-panel.closed .panel-toggle {
+    position: absolute;
+    left: 50%;
+    right: auto;
+    top: -18px;
+
+    width: 58px;
+    min-width: 58px;
+    height: 30px;
+    min-height: 30px;
   }
 
   .assets-panel.closed .panel-toggle {
-    top: -18px;
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 50%;
+    right: auto;
+
+    border-radius: 14px 14px 0 0;
+  }
+
+  .panel-toggle:hover {
+    transform: translateX(-50%) translateY(-2px);
+  }
+
+  .panel-toggle .toggle-icon,
+  .assets-panel.closed .toggle-icon {
+    position: static;
+    transform: none;
+  }
+
+  .panel-toggle .toggle-label {
+    position: static;
+    transform: none;
+
+    display: block;
+
+    width: auto;
+    height: auto;
+
+    writing-mode: horizontal-tb;
+  }
+
+  .assets-panel .panel-toggle .toggle-label,
+  .assets-panel.closed .panel-toggle .toggle-label {
+    display: none;
+  }
+
+  .assets-panel.closed .panel-toggle {
+    display: flex;
   }
 
   .topbar {

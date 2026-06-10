@@ -23,6 +23,7 @@ export function useAppData({
     intervencionEditandoId,
     setIntervencionEditandoId,
     guardarIntervencionEnDB,
+    guardarIntervencionesMasivoEnDB,
     eliminarIntervencion,
     recargarIntervenciones,
     restaurarIntervencion,
@@ -60,6 +61,7 @@ export function useAppData({
     setIntervencionEditandoId,
 
     guardarIntervencionEnDB,
+    guardarIntervencionesMasivoEnDB,
     eliminarIntervencion,
     restaurarIntervencion,
     recargarIntervenciones,
