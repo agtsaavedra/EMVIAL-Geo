@@ -40,6 +40,9 @@ export function useAppServices() {
 
     busquedaDebounced,
 
+    dataQualityAbierto,
+    setDataQualityAbierto,
+
     modoOscuro,
     setModoOscuro,
 
@@ -212,6 +215,15 @@ export function useAppServices() {
     eliminarIntervencionProtegida,
   } = appActions
 
+  function abrirDataQuality() {
+    setDataQualityAbierto(true)
+    setMenuAbierto(false)
+  }
+
+  function cerrarDataQuality() {
+    setDataQualityAbierto(false)
+  }
+
   // =====================================================
   // PROPS DE COMPONENTES
   // =====================================================
@@ -241,6 +253,7 @@ export function useAppServices() {
     setMenuAbierto,
 
     abrirAboutDesdeMenu,
+    abrirDataQuality,
 
     exportarKmlActual,
     exportarExcelActual,
@@ -332,6 +345,10 @@ export function useAppServices() {
     cerrarAbout,
     estadoApp,
     periodoActivo,
+
+    dataQualityAbierto,
+    cerrarDataQuality,
+    intervencionesFiltradas,
 
     topbarProps,
     sidebarProps,

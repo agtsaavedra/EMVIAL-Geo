@@ -183,6 +183,11 @@ export function useUIState() {
     setMenuAbierto,
   ] = useState(false)
 
+  const [
+    dataQualityAbierto,
+    setDataQualityAbierto,
+  ] = useState(false)
+
   // =====================================================
   // PERSISTENCIA DE PREFERENCIAS VISUALES
   // =====================================================
@@ -250,6 +255,9 @@ export function useUIState() {
 
     menuAbierto,
     setMenuAbierto,
+
+    dataQualityAbierto,
+    setDataQualityAbierto,
 
     filtroObra,
     setFiltroObra,

@@ -25,6 +25,7 @@ function TopbarMenu({
   configurarCarpetaBackups,
 
   abrirAbout,
+  abrirDataQuality,
 
   cargarImagenGuia,
   guideLoading 
@@ -36,6 +37,11 @@ function TopbarMenu({
   const [
     avanzadoAbierto,
     setAvanzadoAbierto,
+  ] = useState(false)
+
+  const [
+    importExportAbierto,
+    setImportExportAbierto,
   ] = useState(false)
 
   
@@ -55,6 +61,7 @@ function TopbarMenu({
       ) {
         setMenuAbierto(false)
         setAvanzadoAbierto(false)
+        setImportExportAbierto(false)
       }
     }
 
@@ -78,6 +85,7 @@ function TopbarMenu({
   function cerrarMenu() {
     setMenuAbierto(false)
     setAvanzadoAbierto(false)
+    setImportExportAbierto(false)
   }
 
   function alternarMenu() {
@@ -86,6 +94,10 @@ function TopbarMenu({
 
   function alternarAvanzado() {
     setAvanzadoAbierto((prev) => !prev)
+  }
+
+  function alternarImportExport() {
+    setImportExportAbierto((prev) => !prev)
   }
 
   function ejecutarYCerrar(accion) {
@@ -193,51 +205,71 @@ function TopbarMenu({
           </button>
 
           {/* ===============================
-              EXPORTACIONES
+              IMPORTAR / EXPORTAR
           ================================ */}
 
-          <button
-            type="button"
-            onClick={() =>
-              ejecutarYCerrar(exportarExcelActual)
-            }
-          >
-            Exportar Excel
-          </button>
+          <div className="menu-advanced">
+            <button
+              type="button"
+              className="menu-advanced-toggle"
+              onClick={alternarImportExport}
+            >
+              <span>
+                {importExportAbierto
+                  ? 'v'
+                  : '>'}
+              </span>
 
-          <button
-            type="button"
-            onClick={() =>
-              ejecutarYCerrar(exportarKmlActual)
-            }
-          >
-            Exportar KML
-          </button>
+              Importar / Exportar
+            </button>
 
-          <button
-            type="button"
-            onClick={() =>
-              ejecutarYCerrar(exportarGeoJSONActual)
-            }
-          >
-            Exportar GeoJSON
-          </button>
+            {importExportAbierto && (
+              <div className="menu-advanced-content">
+                <button
+                  type="button"
+                  onClick={() =>
+                    ejecutarYCerrar(exportarExcelActual)
+                  }
+                >
+                  Exportar Excel
+                </button>
 
-          <button
-            type="button"
-            onClick={() =>
-              ejecutarYCerrar(exportarShpActual)
-            }
-          >
-            Exportar SHP
-          </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    ejecutarYCerrar(exportarKmlActual)
+                  }
+                >
+                  Exportar KML
+                </button>
 
-          <button
-            type="button"
-            onClick={abrirSelectorImportacion}
-          >
-            Importar GIS
-          </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    ejecutarYCerrar(exportarGeoJSONActual)
+                  }
+                >
+                  Exportar GeoJSON
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    ejecutarYCerrar(exportarShpActual)
+                  }
+                >
+                  Exportar SHP
+                </button>
+
+                <button
+                  type="button"
+                  onClick={abrirSelectorImportacion}
+                >
+                  Importar GIS
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* ===============================
               BACKUPS BÁSICOS
@@ -270,6 +302,15 @@ function TopbarMenu({
           <button
             type="button"
             onClick={() =>
+              ejecutarYCerrar(abrirDataQuality)
+            }
+          >
+            Calidad de datos
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
               ejecutarYCerrar(abrirAbout)
             }
           >
@@ -288,8 +329,8 @@ function TopbarMenu({
             >
               <span>
                 {avanzadoAbierto
-                  ? '▾'
-                  : '▸'}
+                  ? 'v'
+                  : '>'}
               </span>
 
               Opciones avanzadas

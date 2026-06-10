@@ -80,6 +80,29 @@ function MapStatsPanel({
           </button>
         </div>
 
+        <div className="map-stats-panel-summary">
+          <div>
+            <strong>
+              {statsPorObra.length}
+            </strong>
+            <span>Tipos de obra</span>
+          </div>
+
+          <div>
+            <strong>
+              {statsDetalle.porBarrio.length}
+            </strong>
+            <span>Barrios</span>
+          </div>
+
+          <div>
+            <strong>
+              {statsDetalle.porEstado.length}
+            </strong>
+            <span>Estados</span>
+          </div>
+        </div>
+
         {/* ===============================
             POR OBRA
         ================================ */}

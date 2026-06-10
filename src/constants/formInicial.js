@@ -4,7 +4,7 @@ export const formInicial = {
   obra: 'MICROBACHEO',
   ubicacion: '',
   barrio: '',
-  estado: 'Pendiente',
+  estado: 'Finalizada',
   fuente: 'Carga manual',
   inspector: '',
   realizo: '',

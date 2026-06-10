@@ -23,6 +23,7 @@ import MapView from '@components/map/MapView'
 import Toast from '@components/common/Toast'
 import ConfirmDialog from '@components/common/ConfirmDialog'
 import AboutDialog from '@components/common/AboutDialog'
+import DataQualityDialog from '@components/common/DataQualityDialog'
 import AppSplash from '@components/common/states/AppSplash'
 
 import { useAppServices } from '@hooks/app/core/useAppServices'
@@ -43,6 +44,10 @@ function App() {
     cerrarAbout,
     estadoApp,
     periodoActivo,
+
+    dataQualityAbierto,
+    cerrarDataQuality,
+    intervencionesFiltradas,
 
     topbarProps,
     sidebarProps,
@@ -86,6 +91,14 @@ function App() {
           onCerrar={cerrarAbout}
           estadoApp={estadoApp}
           periodoActivo={periodoActivo}
+        />
+
+        <DataQualityDialog
+          abierto={dataQualityAbierto}
+          intervenciones={
+            intervencionesFiltradas
+          }
+          onClose={cerrarDataQuality}
         />
       </div>
     </>

@@ -132,7 +132,7 @@ function propiedadesNormalizadas(properties = {}) {
     ubicacion:
       valor(p.ubicacion, p.Ubicacion, p.UBICACION, p.location),
     barrio: valor(p.barrio, p.BARRIO),
-    estado: valor(p.estado, p.ESTADO, formInicial.estado),
+    estado: 'Finalizada',
     inspector:
       valor(p.inspector, p.inspect, p.INSPECTOR),
     realizo: valor(p.realizo, p.REALIZO),

@@ -34,6 +34,7 @@ export function useAppComponentProps({
   setMenuAbierto,
 
   abrirAboutDesdeMenu,
+  abrirDataQuality,
 
   exportarKmlActual,
   exportarExcelActual,
@@ -122,6 +123,7 @@ export function useAppComponentProps({
     setMenuAbierto,
 
     abrirAboutDesdeMenu,
+    abrirDataQuality,
 
     exportarKmlActual,
     exportarExcelActual,

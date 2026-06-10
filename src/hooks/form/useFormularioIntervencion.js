@@ -310,6 +310,7 @@ export function useFormularioIntervencion({
     await guardarIntervencionEnDB({
       ...form,
       periodo: periodoActivo,
+      estado: 'Finalizada',
     })
 
     mostrarToast(
@@ -366,8 +367,7 @@ export function useFormularioIntervencion({
         intervencion.barrio || '',
 
       estado:
-        intervencion.estado ||
-        'Pendiente',
+        'Finalizada',
 
       fuente:
         intervencion.fuente ||

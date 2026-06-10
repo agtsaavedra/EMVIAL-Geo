@@ -26,6 +26,7 @@ export function useTopbarProps({
   setMenuAbierto,
 
   abrirAboutDesdeMenu,
+  abrirDataQuality,
 
   exportarKmlActual,
   exportarExcelActual,
@@ -65,6 +66,8 @@ export function useTopbarProps({
 
     abrirAbout:
       abrirAboutDesdeMenu,
+
+    abrirDataQuality,
 
     exportarKmlActual,
     exportarExcelActual,

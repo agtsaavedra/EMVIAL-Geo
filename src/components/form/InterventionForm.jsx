@@ -7,7 +7,6 @@
 
 import {
   OBRAS,
-  ESTADOS,
   FUENTES,
 } from '@constants/intervenciones'
 
@@ -116,13 +115,11 @@ function InterventionForm({
       />
 
       <label>Estado</label>
-      <select name="estado" value={form.estado} onChange={manejarCambio}>
-        {ESTADOS.map((estado) => (
-          <option key={estado} value={estado}>
-            {estado}
-          </option>
-        ))}
-      </select>
+      <input
+        name="estado"
+        value="Finalizada"
+        readOnly
+      />
 
       <label>Inspector</label>
       <input

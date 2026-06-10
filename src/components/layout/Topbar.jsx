@@ -31,6 +31,7 @@ function Topbar({
   configurarCarpetaBackups,
 
   abrirAbout,
+  abrirDataQuality,
 
   cargarImagenGuia,
 
@@ -96,6 +97,9 @@ function Topbar({
             configurarCarpetaBackups
           }
           abrirAbout={abrirAbout}
+          abrirDataQuality={
+            abrirDataQuality
+          }
           cargarImagenGuia={
             cargarImagenGuia
           }
