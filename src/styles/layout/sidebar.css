@@ -202,6 +202,34 @@
   padding-bottom: 30px;
 }
 
+.form-fieldset {
+  display: contents;
+
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+}
+
+.form-fieldset:disabled {
+  opacity: 0.72;
+}
+
+.consultation-banner {
+  padding: 10px 12px;
+
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  border-radius: 12px;
+
+  background: rgba(37, 99, 235, 0.12);
+  color: #dbeafe;
+
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
 .form label {
   font-size: 13px;
   color: #cbd5e1;

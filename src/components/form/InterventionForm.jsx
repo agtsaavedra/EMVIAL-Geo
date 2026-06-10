@@ -23,6 +23,7 @@ function InterventionForm({
   activoEditandoId,
   cancelarEdicion,
   hayCambiosSinGuardar,
+  modoConsulta,
 }) {
 
   const cantidadPuntos = form.geometria?.length || 0
@@ -51,7 +52,20 @@ function InterventionForm({
   return (
 
 
-    <form onSubmit={guardarIntervencion} className="form">
+    <form
+      onSubmit={guardarIntervencion}
+      className="form"
+    >
+      {modoConsulta && (
+        <div className="consultation-banner">
+          Modo consulta activo. La carga y edicion estan bloqueadas.
+        </div>
+      )}
+
+      <fieldset
+        className="form-fieldset"
+        disabled={modoConsulta}
+      >
       {activoEditandoId && (
         <div className="edit-banner">
           <div>
@@ -239,11 +253,15 @@ function InterventionForm({
         <button
           className="primary"
           type="submit"
-          disabled={guardarDeshabilitado}
+          disabled={
+            guardarDeshabilitado ||
+            modoConsulta
+          }
         >
           {mensajeGuardar}
         </button>
       </div>
+      </fieldset>
     </form>
   )
 }

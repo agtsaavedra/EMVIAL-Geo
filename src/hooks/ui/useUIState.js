@@ -154,6 +154,16 @@ export function useUIState() {
     )
   )
 
+  const [
+    modoConsulta,
+    setModoConsulta,
+  ] = useState(() =>
+    leerBooleanStorage(
+      'emvial-modo-consulta',
+      false
+    )
+  )
+
   // =====================================================
   // PANELES / LAYOUT
   // =====================================================
@@ -215,6 +225,13 @@ export function useUIState() {
 
   useEffect(() => {
     guardarBooleanStorage(
+      'emvial-modo-consulta',
+      modoConsulta
+    )
+  }, [modoConsulta])
+
+  useEffect(() => {
+    guardarBooleanStorage(
       'emvial-sidebar-abierto',
       sidebarAbierto
     )
@@ -273,6 +290,9 @@ export function useUIState() {
 
     modoDibujo,
     setModoDibujo,
+
+    modoConsulta,
+    setModoConsulta,
 
     sidebarAbierto,
     setSidebarAbierto,

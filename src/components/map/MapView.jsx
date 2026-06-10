@@ -61,6 +61,8 @@ function MapView({
   intervencionHoverId,
   modoDibujo,
   setModoDibujo,
+  modoConsulta,
+  setModoConsulta,
   sidebarAbierto,
   enfocarIntervencion,
   assetsPanelAbierto,
@@ -119,6 +121,7 @@ function MapView({
   const ocultarIntervencionEditada =
     redibujandoGeometria ||
     (
+      !modoConsulta &&
       modoDibujo &&
       intervencionEditandoId &&
       form.geometriaTipo === 'Polígono'
@@ -158,7 +161,7 @@ function MapView({
       >
         {/* Selector flotante Punto/Línea/Polígono.
             Solo se muestra en modo dibujo. */}
-        {modoDibujo && (
+        {!modoConsulta && modoDibujo && (
           <GeometryControl
             geometriaTipo={form.geometriaTipo}
             setGeometriaTipo={cambiarGeometriaTipo}
@@ -166,7 +169,7 @@ function MapView({
         )}
 
         {/* Indicador compacto de modo dibujo activo. */}
-        {modoDibujo && (
+        {!modoConsulta && modoDibujo && (
           <div className="drawing-mode-banner">
             <strong>✏️ Dibujo</strong>
 
@@ -259,7 +262,9 @@ function MapView({
             }
             obtenerDireccion={obtenerDireccion}
             setCursorLinea={setCursorLinea}
-            modoDibujo={modoDibujo}
+            modoDibujo={
+              !modoConsulta && modoDibujo
+            }
             setEdicionGeometricaIniciada={
               setEdicionGeometricaIniciada
             }
@@ -278,17 +283,19 @@ function MapView({
 
           {/* Dibuja geometría activa del formulario
               y preview punteada durante el dibujo. */}
-          {form.geometria?.length > 0 && (
+          {!modoConsulta &&
+            form.geometria?.length > 0 && (
             <GeometryPreview
               form={form}
               cursorLinea={cursorLinea}
               colorFormulario={colorFormulario}
             />
-          )}
+            )}
 
           {/* Marcador temporal para punto activo
               mientras se carga/edita ubicación. */}
-          {puntoSeleccionado &&
+          {!modoConsulta &&
+            puntoSeleccionado &&
             form.geometriaTipo === 'Punto' && (
               <Marker
                 position={puntoSeleccionado}
@@ -307,12 +314,16 @@ function MapView({
           <IntervencionesLayer
             intervenciones={intervencionesMapa}
             editarIntervencion={
-              editarIntervencion
+              modoConsulta
+                ? null
+                : editarIntervencion
             }
             enfocarIntervencion={
               enfocarIntervencion
             }
-            modoDibujo={modoDibujo}
+            modoDibujo={
+              !modoConsulta && modoDibujo
+            }
             intervencionEnfocada={
               intervencionEnfocada
             }
@@ -336,6 +347,8 @@ function MapView({
         limpiarUbicacion={limpiarUbicacion}
         statsPorObra={statsPorObra}
         modoDibujo={modoDibujo}
+        modoConsulta={modoConsulta}
+        setModoConsulta={setModoConsulta}
         intervenciones={intervencionesVisibles}
         assetsPanelAbierto={assetsPanelAbierto}
         seleccionarBarrioEstadistica={(barrio) => {
@@ -344,7 +357,9 @@ function MapView({
         }}
         setModoDibujo={(activo) =>
           manejarCambioModoDibujo({
-            activo,
+            activo: modoConsulta
+              ? false
+              : activo,
             setModoDibujo,
           })
         }

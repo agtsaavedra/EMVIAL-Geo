@@ -8,6 +8,7 @@ function AssetsPanel({
   setIntervencionHoverId,
   abierto,
   setAbierto,
+  modoConsulta,
 }) {
   function esPantallaChica() {
     return window.innerWidth <= 1024
@@ -48,11 +49,13 @@ function AssetsPanel({
 
   function manejarEditar(e, intervencion) {
     e.stopPropagation()
+    if (modoConsulta) return
     editarIntervencion(intervencion)
   }
 
   function manejarEliminar(e, intervencion) {
     e.stopPropagation()
+    if (modoConsulta) return
     eliminarIntervencion(intervencion)
   }
 
@@ -150,33 +153,35 @@ function AssetsPanel({
                         </small>
                       </div>
 
-                      <div className="card-actions">
-                        <button
-                          type="button"
-                          className="edit-btn"
-                          onClick={(e) =>
-                            manejarEditar(
-                              e,
-                              intervencion
-                            )
-                          }
-                        >
-                          Editar
-                        </button>
+                      {!modoConsulta && (
+                        <div className="card-actions">
+                          <button
+                            type="button"
+                            className="edit-btn"
+                            onClick={(e) =>
+                              manejarEditar(
+                                e,
+                                intervencion
+                              )
+                            }
+                          >
+                            Editar
+                          </button>
 
-                        <button
-                          type="button"
-                          className="delete-btn"
-                          onClick={(e) =>
-                            manejarEliminar(
-                              e,
-                              intervencion
-                            )
-                          }
-                        >
-                          Eliminar
-                        </button>
-                      </div>
+                          <button
+                            type="button"
+                            className="delete-btn"
+                            onClick={(e) =>
+                              manejarEliminar(
+                                e,
+                                intervencion
+                              )
+                            }
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <div className="card-compact-detail">

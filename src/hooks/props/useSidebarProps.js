@@ -22,6 +22,7 @@ export function useSidebarProps({
   intervencionEditandoId,
   manejarCancelarEdicion,
   hayCambiosSinGuardar,
+  modoConsulta,
 }) {
   // API pública que consume el resto de la aplicación.
   return {
@@ -44,5 +45,6 @@ export function useSidebarProps({
       manejarCancelarEdicion,
 
     hayCambiosSinGuardar,
+    modoConsulta,
   }
 }

@@ -15,6 +15,7 @@ function Sidebar({
   activoEditandoId,
   cancelarEdicion,
   hayCambiosSinGuardar,
+  modoConsulta,
 }) {
   const formContainerRef = useRef(null)
 
@@ -76,6 +77,7 @@ function Sidebar({
           activoEditandoId={activoEditandoId}
           cancelarEdicion={cancelarEdicion}
           hayCambiosSinGuardar={hayCambiosSinGuardar}
+          modoConsulta={modoConsulta}
         />
       </div>
     </aside>

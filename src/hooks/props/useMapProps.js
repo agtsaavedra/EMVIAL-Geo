@@ -33,6 +33,9 @@ export function useMapProps({
   modoDibujo,
   setModoDibujo,
 
+  modoConsulta,
+  setModoConsulta,
+
   sidebarAbierto,
   manejarEnfocarIntervencion,
 
@@ -69,6 +72,9 @@ export function useMapProps({
       modoDibujo,
       setModoDibujo,
 
+      modoConsulta,
+      setModoConsulta,
+
       sidebarAbierto,
 
       enfocarIntervencion:
@@ -96,6 +102,8 @@ export function useMapProps({
       intervencionHoverId,
       modoDibujo,
       setModoDibujo,
+      modoConsulta,
+      setModoConsulta,
       sidebarAbierto,
       manejarEnfocarIntervencion,
       assetsPanelAbierto,

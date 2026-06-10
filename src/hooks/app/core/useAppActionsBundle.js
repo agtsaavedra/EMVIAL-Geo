@@ -46,6 +46,7 @@ export function useAppActionsBundle({
   guardarIntervencionesMasivoEnDB,
   eliminarIntervencion,
   restaurarIntervencion,
+  modoConsulta,
 
   // backups
   crearBackup,
@@ -94,6 +95,7 @@ export function useAppActionsBundle({
     intervencionesFiltradas,
     guardarIntervencionEnDB,
     guardarIntervencionesMasivoEnDB,
+    modoConsulta,
     setMenuAbierto,
     mostrarToast,
     confirmar,

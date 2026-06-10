@@ -19,6 +19,7 @@ export function useAssetsPanelProps({
 
   assetsPanelAbierto,
   setAssetsPanelAbierto,
+  modoConsulta,
 }) {
   return useMemo(
     () => ({
@@ -37,6 +38,7 @@ export function useAssetsPanelProps({
 
       abierto: assetsPanelAbierto,
       setAbierto: setAssetsPanelAbierto,
+      modoConsulta,
     }),
     [
       intervencionesFiltradas,
@@ -46,6 +48,7 @@ export function useAssetsPanelProps({
       setIntervencionHoverId,
       assetsPanelAbierto,
       setAssetsPanelAbierto,
+      modoConsulta,
     ]
   )
 }

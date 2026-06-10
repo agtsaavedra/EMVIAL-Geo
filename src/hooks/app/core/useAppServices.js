@@ -20,6 +20,7 @@ import { useAppData } from '@hooks/app/core/useAppData'
 import { useAppForm } from '@hooks/app/core/useAppForm'
 import { useAppActionsBundle } from '@hooks/app/core/useAppActionsBundle'
 import { useAppComponentProps } from '@hooks/app/useAppComponentProps'
+import { useEffect } from 'react'
 
 export function useAppServices() {
   // =====================================================
@@ -78,6 +79,9 @@ export function useAppServices() {
 
     modoDibujo,
     setModoDibujo,
+
+    modoConsulta,
+    setModoConsulta,
 
     sidebarAbierto,
     setSidebarAbierto,
@@ -157,6 +161,16 @@ export function useAppServices() {
     seleccionarSugerencia,
   } = appForm
 
+  useEffect(() => {
+    if (modoConsulta && modoDibujo) {
+      setModoDibujo(false)
+    }
+  }, [
+    modoConsulta,
+    modoDibujo,
+    setModoDibujo,
+  ])
+
   // =====================================================
   // ACCIONES DE APP
   // =====================================================
@@ -186,6 +200,7 @@ export function useAppServices() {
     guardarIntervencionesMasivoEnDB,
     eliminarIntervencion,
     restaurarIntervencion,
+    modoConsulta,
 
     crearBackup,
     restaurarBackup,
@@ -310,6 +325,9 @@ export function useAppServices() {
 
     modoDibujo,
     setModoDibujo,
+
+    modoConsulta,
+    setModoConsulta,
 
     manejarEnfocarIntervencion,
 

@@ -91,6 +91,9 @@ export function useAppComponentProps({
   modoDibujo,
   setModoDibujo,
 
+  modoConsulta,
+  setModoConsulta,
+
   manejarEnfocarIntervencion,
 
   assetsPanelAbierto,
@@ -159,6 +162,7 @@ export function useAppComponentProps({
     intervencionEditandoId,
     manejarCancelarEdicion,
     hayCambiosSinGuardar,
+    modoConsulta,
   })
 
   const mapProps = useMapProps({
@@ -185,6 +189,9 @@ export function useAppComponentProps({
     modoDibujo,
     setModoDibujo,
 
+    modoConsulta,
+    setModoConsulta,
+
     sidebarAbierto,
     manejarEnfocarIntervencion,
 
@@ -206,6 +213,8 @@ export function useAppComponentProps({
     setAssetsPanelAbierto,
 
     setIntervencionHoverId,
+
+    modoConsulta,
   })
 
   return {

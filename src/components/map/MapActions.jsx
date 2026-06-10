@@ -28,6 +28,8 @@ function MapActions({
 
   modoDibujo,
   setModoDibujo,
+  modoConsulta,
+  setModoConsulta,
 
   intervenciones = [],
   seleccionarBarrioEstadistica,
@@ -81,7 +83,20 @@ function MapActions({
         <label className="layer-toggle external">
           <input
             type="checkbox"
+            checked={modoConsulta}
+            onChange={(e) =>
+              setModoConsulta(e.target.checked)
+            }
+          />
+
+          <span>Modo consulta</span>
+        </label>
+
+        <label className="layer-toggle external">
+          <input
+            type="checkbox"
             checked={modoDibujo}
+            disabled={modoConsulta}
             onChange={(e) =>
               setModoDibujo(e.target.checked)
             }
@@ -90,7 +105,7 @@ function MapActions({
           <span>Modo dibujo</span>
         </label>
 
-        {hayUbicacion && (
+        {!modoConsulta && hayUbicacion && (
           <button
             type="button"
             className="map-action-btn"

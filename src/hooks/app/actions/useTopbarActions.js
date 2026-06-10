@@ -13,6 +13,9 @@ import { exportarInformePeriodoPDF } from '@services/exportPeriodoPDF'
 import { exportarShpPeriodo } from '@services/exportSHP'
 import { importarArchivoGIS } from '@services/importGIS'
 import {
+  analizarCalidadIntervenciones,
+} from '@services/dataQuality'
+import {
   contarIntervencionesExportables,
 } from '@services/intervencionesGeoJSON'
 
@@ -22,6 +25,7 @@ export function useTopbarActions({
   intervencionesFiltradas,
   guardarIntervencionEnDB,
   guardarIntervencionesMasivoEnDB,
+  modoConsulta,
   setMenuAbierto,
   mostrarToast,
   confirmar,
@@ -65,6 +69,120 @@ export function useTopbarActions({
     return `${formato} exportado correctamente.`
   }
 
+  function contarPorGeometria(intervenciones = []) {
+    return intervenciones.reduce(
+      (acumulado, intervencion) => {
+        const tipo =
+          intervencion.geometriaTipo || 'Sin geometria'
+
+        acumulado[tipo] =
+          (acumulado[tipo] || 0) + 1
+
+        return acumulado
+      },
+      {}
+    )
+  }
+
+  function formatearConteoGeometrias(conteo) {
+    return Object.entries(conteo)
+      .map(([tipo, total]) => `${tipo}: ${total}`)
+      .join(' | ')
+  }
+
+  function primerasIntervencionesPreview(
+    intervenciones = []
+  ) {
+    return intervenciones
+      .slice(0, 5)
+      .map((intervencion, index) => {
+        const nombre =
+          intervencion.nombre ||
+          intervencion.obra ||
+          'Sin nombre'
+
+        const barrio =
+          intervencion.barrio || 'Sin barrio'
+
+        return `${index + 1}. ${nombre} - ${barrio}`
+      })
+      .join('\n')
+  }
+
+  function detalleImportacionGIS(resultado) {
+    const geometrias =
+      formatearConteoGeometrias(
+        contarPorGeometria(
+          resultado.intervenciones
+        )
+      )
+
+    const primeras =
+      primerasIntervencionesPreview(
+        resultado.intervenciones
+      )
+
+    return [
+      `Periodo destino: ${periodoActivo}`,
+      `Registros leidos: ${resultado.total}`,
+      `Importables: ${resultado.importables}`,
+      `Omitidos: ${resultado.omitidas}`,
+      geometrias
+        ? `Geometrias: ${geometrias}`
+        : '',
+      primeras
+        ? `Primeras intervenciones:\n${primeras}`
+        : '',
+      'Antes de importar se creara un backup preventivo.',
+    ]
+      .filter(Boolean)
+      .join('\n\n')
+  }
+
+  function detalleCalidadExportacion({
+    formato,
+    resumen,
+    requiereGeometria,
+  }) {
+    const reporte =
+      analizarCalidadIntervenciones(
+        intervencionesParaExportar
+      )
+
+    const detalleBase = requiereGeometria
+      ? `${resumen.exportables} tienen geometria valida. ${resumen.omitidas} se omitiran por no tener geometria exportable.`
+      : 'La exportacion usara exactamente los filtros activos.'
+
+    if (!reporte.totalIssues) {
+      return {
+        tieneIssues: false,
+        detalle: detalleBase,
+      }
+    }
+
+    const primeras = reporte.issues
+      .slice(0, 4)
+      .map(
+        (issue) =>
+          `- ${issue.severidad.toUpperCase()}: ${issue.nombre} (${issue.mensaje})`
+      )
+      .join('\n')
+
+    return {
+      tieneIssues: true,
+      detalle: [
+        detalleBase,
+        `Control de calidad para ${formato}: ${reporte.totalIssues} observaciones (${reporte.altas} altas, ${reporte.medias} medias, ${reporte.bajas} bajas).`,
+        primeras
+          ? `Primeras observaciones:\n${primeras}`
+          : '',
+        'Podes exportar igual, pero conviene revisar Calidad de datos si el archivo se va a entregar.',
+      ]
+        .filter(Boolean)
+        .join('\n\n'),
+    }
+  }
+
   function confirmarExportacion({
     formato,
     requiereGeometria = true,
@@ -92,14 +210,21 @@ export function useTopbarActions({
       return
     }
 
+    const calidad =
+      detalleCalidadExportacion({
+        formato,
+        resumen,
+        requiereGeometria,
+      })
+
     confirmar({
       titulo: `Exportar ${formato}`,
       mensaje:
         `Se exportaran ${resumen.total} intervenciones filtradas del periodo ${periodoActivo}.`,
-      detalle: requiereGeometria
-        ? `${resumen.exportables} tienen geometria valida. ${resumen.omitidas} se omitiran por no tener geometria exportable.`
-        : 'La exportacion usara exactamente los filtros activos.',
-      textoConfirmar: `Exportar ${formato}`,
+      detalle: calidad.detalle,
+      textoConfirmar: calidad.tieneIssues
+        ? 'Exportar igual'
+        : `Exportar ${formato}`,
       textoCancelar: 'Cancelar',
       onConfirmar,
     })
@@ -232,6 +357,14 @@ export function useTopbarActions({
 
     if (!file) return
 
+    if (modoConsulta) {
+      mostrarToast(
+        'El modo consulta esta activo. Desactivalo para importar datos.',
+        'error'
+      )
+      return
+    }
+
     try {
       const resultado =
         await importarArchivoGIS(
@@ -248,11 +381,10 @@ export function useTopbarActions({
       }
 
       confirmar({
-        titulo: 'Importar archivo GIS',
+        titulo: 'Vista previa importacion GIS',
         mensaje:
-          `Se importaran ${resultado.importables} intervenciones al periodo ${periodoActivo}.`,
-        detalle:
-          `${resultado.omitidas} geometrías se omitiran por no ser compatibles o no tener coordenadas validas.`,
+          `Se importaran ${resultado.importables} intervenciones desde ${file.name}.`,
+        detalle: detalleImportacionGIS(resultado),
         textoConfirmar: 'Importar',
         textoCancelar: 'Cancelar',
         onConfirmar: async () => {
@@ -303,6 +435,14 @@ export function useTopbarActions({
   function restaurarBackupActual() {
     setMenuAbierto(false)
 
+    if (modoConsulta) {
+      mostrarToast(
+        'El modo consulta esta activo. Desactivalo para restaurar backups.',
+        'error'
+      )
+      return
+    }
+
     confirmar({
       titulo: 'Restaurar backup',
       mensaje:
@@ -326,6 +466,14 @@ export function useTopbarActions({
 
   function restaurarPeriodoActualProtegido() {
     setMenuAbierto(false)
+
+    if (modoConsulta) {
+      mostrarToast(
+        'El modo consulta esta activo. Desactivalo para restaurar periodos.',
+        'error'
+      )
+      return
+    }
 
     confirmar({
       titulo: 'Restaurar periodo',
