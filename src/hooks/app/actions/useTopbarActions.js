@@ -219,7 +219,7 @@ export function useTopbarActions({
 
         mostrarToast(
           ok
-            ? 'Informe abierto. Elegi Guardar como PDF en la ventana de impresion.'
+            ? 'Informe abierto. Usa Descargar PDF desde la vista previa.'
             : 'No hay intervenciones para informar con los filtros actuales.',
           ok ? 'success' : 'error'
         )

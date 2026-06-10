@@ -137,6 +137,42 @@ function crearHtmlReporte({
             font-family: Arial, Helvetica, sans-serif;
             font-size: 12px;
           }
+          .report-actions {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+
+            padding: 12px;
+
+            background: rgba(246, 248, 251, 0.92);
+            border-bottom: 1px solid #dbe3ef;
+            backdrop-filter: blur(8px);
+          }
+          .report-actions button {
+            border: 1px solid #1d4ed8;
+            border-radius: 999px;
+            padding: 10px 16px;
+
+            background: #2563eb;
+            color: #fff;
+
+            cursor: pointer;
+
+            font-size: 13px;
+            font-weight: 700;
+          }
+          .report-actions button.secondary {
+            border-color: #cbd5e1;
+            background: #fff;
+            color: #334155;
+          }
+          .report-actions button:hover {
+            filter: brightness(0.96);
+          }
           main {
             width: min(100%, 960px);
             margin: 0 auto;
@@ -232,6 +268,7 @@ function crearHtmlReporte({
             page-break-before: always;
           }
           @media print {
+            .report-actions { display: none; }
             body { background: #fff; }
             main { padding: 0; }
             section, .card { break-inside: avoid; }
@@ -239,6 +276,23 @@ function crearHtmlReporte({
         </style>
       </head>
       <body>
+        <div class="report-actions">
+          <button
+            type="button"
+            onclick="window.print()"
+          >
+            Descargar PDF
+          </button>
+
+          <button
+            type="button"
+            class="secondary"
+            onclick="window.close()"
+          >
+            Cerrar vista previa
+          </button>
+        </div>
+
         <main>
           <header>
             <div>
@@ -293,11 +347,6 @@ function crearHtmlReporte({
 
           ${tablaIntervenciones(intervenciones)}
         </main>
-        <script>
-          window.addEventListener('load', () => {
-            setTimeout(() => window.print(), 250)
-          })
-        </script>
       </body>
     </html>
   `
