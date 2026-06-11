@@ -1,18 +1,31 @@
 /**
  * Hook de datos derivados para intervenciones.
  *
- * Filtra por período, búsqueda textual, tipo de obra y estado. Usa `useMemo`
- * para evitar recalcular filtros cuando las entradas no cambiaron.
+ * Filtra por periodo, busqueda textual, tipo de obra y estado. Precalcula el
+ * texto de busqueda cuando cambian los datos para no reconstruirlo en cada
+ * filtro.
  */
 
 import { useMemo } from 'react'
 
-// Normaliza texto para búsquedas simples sin distinguir mayúsculas/minúsculas.
 function normalizarTexto(valor) {
   return String(valor || '').toLowerCase().trim()
 }
 
-// Punto de entrada público del hook.
+function crearTextoBusqueda(intervencion) {
+  return normalizarTexto([
+    intervencion.nombre,
+    intervencion.obra,
+    intervencion.ubicacion,
+    intervencion.barrio,
+    intervencion.estado,
+    intervencion.fuente,
+    intervencion.inspector,
+    intervencion.realizo,
+    intervencion.descripcion,
+  ].join(' '))
+}
+
 export function useFiltrosIntervenciones({
   intervenciones = [],
   periodoActivo,
@@ -20,50 +33,61 @@ export function useFiltrosIntervenciones({
   filtroObra = '',
   filtroEstado = '',
 }) {
-  const intervencionesDelPeriodo =
+  const intervencionesIndexadas =
     useMemo(() => {
-      return intervenciones.filter(
-        (intervencion) =>
+      return intervenciones.map(
+        (intervencion) => ({
+          intervencion,
+          textoBusqueda:
+            crearTextoBusqueda(intervencion),
+        })
+      )
+    }, [intervenciones])
+
+  const registrosDelPeriodo =
+    useMemo(() => {
+      return intervencionesIndexadas.filter(
+        ({ intervencion }) =>
           intervencion.periodo === periodoActivo
       )
-    }, [intervenciones, periodoActivo])
+    }, [intervencionesIndexadas, periodoActivo])
+
+  const intervencionesDelPeriodo =
+    useMemo(() => {
+      return registrosDelPeriodo.map(
+        ({ intervencion }) => intervencion
+      )
+    }, [registrosDelPeriodo])
 
   const intervencionesFiltradas =
     useMemo(() => {
       const busquedaNormalizada =
         normalizarTexto(busqueda)
 
-      return intervencionesDelPeriodo.filter(
-        (intervencion) => {
-          const texto = normalizarTexto(`
-            ${intervencion.nombre || ''}
-            ${intervencion.obra || ''}
-            ${intervencion.ubicacion || ''}
-            ${intervencion.barrio || ''}
-            ${intervencion.estado || ''}
-            ${intervencion.fuente || ''}
-            ${intervencion.inspector || ''}
-            ${intervencion.realizo || ''}
-            ${intervencion.descripcion || ''}
-          `)
-
-          return (
-            texto.includes(busquedaNormalizada) &&
-            (!filtroObra ||
-              intervencion.obra === filtroObra) &&
-            (!filtroEstado ||
-              intervencion.estado === filtroEstado)
-          )
-        }
-      )
+      return registrosDelPeriodo
+        .filter(
+          ({ intervencion, textoBusqueda }) => {
+            return (
+              textoBusqueda.includes(
+                busquedaNormalizada
+              ) &&
+              (!filtroObra ||
+                intervencion.obra === filtroObra) &&
+              (!filtroEstado ||
+                intervencion.estado === filtroEstado)
+            )
+          }
+        )
+        .map(
+          ({ intervencion }) => intervencion
+        )
     }, [
-      intervencionesDelPeriodo,
+      registrosDelPeriodo,
       busqueda,
       filtroObra,
       filtroEstado,
     ])
 
-  // API pública que consume el resto de la aplicación.
   return {
     intervencionesDelPeriodo,
     intervencionesFiltradas,

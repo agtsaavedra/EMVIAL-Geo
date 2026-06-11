@@ -6,7 +6,7 @@
   "description": "Gestión operativa territorial con mapa de intervenciones",
   "main": "electron/main.js",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "electron": "electron .",
     "start": "concurrently \"npm run dev\" \"npm run electron\"",
     "build": "vite build",

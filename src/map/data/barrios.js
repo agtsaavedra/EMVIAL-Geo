@@ -1,9 +1,36 @@
-import * as turf from '@turf/turf'
-import barriosGeojsonRaw from '../../data/barrios.geojson?raw'
+import {
+  leerGeojsonDatos,
+} from '@services/staticData'
 
-export const barriosGeojson = JSON.parse(barriosGeojsonRaw)
+export const barriosGeojson = {
+  type: 'FeatureCollection',
+  features: [],
+}
 
 export const centroMarDelPlata = [-38.0055, -57.5426]
+
+let barriosCargados = false
+let barriosPromise = null
+
+export async function cargarBarriosGeojson() {
+  if (barriosCargados) {
+    return barriosGeojson
+  }
+
+  if (!barriosPromise) {
+    barriosPromise = leerGeojsonDatos(
+      'barrios.geojson'
+    )
+      .then((geojson) => {
+        barriosGeojson.features =
+          geojson.features || []
+        barriosCargados = true
+        return barriosGeojson
+      })
+  }
+
+  return barriosPromise
+}
 
 const PALETA_BARRIOS = [
   '#f97316',
@@ -44,11 +71,21 @@ function obtenerColorBarrio(nombre) {
   ]
 }
 
-export function detectarBarrio(lat, lon) {
-  const punto = turf.point([lon, lat])
+export async function detectarBarrio(lat, lon) {
+  await cargarBarriosGeojson()
+
+  const [
+    { default: booleanPointInPolygon },
+    { point },
+  ] = await Promise.all([
+    import('@turf/boolean-point-in-polygon'),
+    import('@turf/helpers'),
+  ])
+
+  const punto = point([lon, lat])
 
   const barrio = barriosGeojson.features.find((feature) =>
-    turf.booleanPointInPolygon(punto, feature)
+    booleanPointInPolygon(punto, feature)
   )
 
   return barrio ? obtenerNombreBarrio(barrio) : ''

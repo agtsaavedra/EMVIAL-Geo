@@ -8,14 +8,36 @@
  * - Exponer operaciones de base de datos y backups al renderer.
  * - Proteger el cierre accidental de la aplicación.
  */
-const { app, BrowserWindow, ipcMain } = require('electron')
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  session,
+  shell,
+} = require('electron')
 const path = require('path')
+const fs = require('fs')
 
 // Nombre de la app en Windows
 app.setName('EMVIAL Geo')
 
 // Detecta si estamos en desarrollo o build
 const isDev = !app.isPackaged
+const DEV_SERVER_URL = 'http://127.0.0.1:5173'
+const CSP_PRODUCCION = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://*.tile.openstreetmap.org",
+  "connect-src 'self'",
+  "font-src 'self' data:",
+  "worker-src 'self' blob:",
+].join('; ')
+
+const ARCHIVOS_DATOS_PERMITIDOS = new Set([
+  'barrios.geojson',
+  'calles-mar-del-plata.geojson',
+])
 
 // Base de datos / backups
 const {
@@ -45,6 +67,120 @@ const {
  * En desarrollo carga Vite y abre DevTools. En producción carga el build
  * estático desde dist/index.html.
  */
+function esperar(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function cargarServidorDev(win) {
+  const maxIntentos = 40
+
+  for (let intento = 1; intento <= maxIntentos; intento += 1) {
+    try {
+      await win.loadURL(DEV_SERVER_URL)
+      return
+    } catch (error) {
+      if (intento === maxIntentos) {
+        console.error(
+          `No se pudo cargar Vite en ${DEV_SERVER_URL}`,
+          error
+        )
+        throw error
+      }
+
+      await esperar(500)
+    }
+  }
+}
+
+function esUrlInterna(url) {
+  if (isDev) {
+    return url.startsWith(DEV_SERVER_URL)
+  }
+
+  return (
+    url.startsWith('file://') ||
+    url === 'about:blank'
+  )
+}
+
+function configurarSeguridadVentana(win) {
+  win.webContents.setWindowOpenHandler(
+    ({ url }) => {
+      if (url === 'about:blank') {
+        return { action: 'allow' }
+      }
+
+      if (
+        url.startsWith('https://') ||
+        url.startsWith('http://')
+      ) {
+        shell.openExternal(url)
+      }
+
+      return { action: 'deny' }
+    }
+  )
+
+  win.webContents.on(
+    'will-navigate',
+    (event, url) => {
+      if (esUrlInterna(url)) return
+
+      event.preventDefault()
+
+      if (
+        url.startsWith('https://') ||
+        url.startsWith('http://')
+      ) {
+        shell.openExternal(url)
+      }
+    }
+  )
+}
+
+function configurarSeguridadSesion() {
+  session.defaultSession.setPermissionRequestHandler(
+    (_webContents, _permission, callback) => {
+      callback(false)
+    }
+  )
+
+  if (isDev) return
+
+  session.defaultSession.webRequest.onHeadersReceived(
+    (details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': [
+            CSP_PRODUCCION,
+          ],
+        },
+      })
+    }
+  )
+}
+
+function obtenerRutaArchivoDatos(nombreArchivo) {
+  if (
+    !ARCHIVOS_DATOS_PERMITIDOS.has(
+      nombreArchivo
+    )
+  ) {
+    throw new Error(
+      'Archivo de datos no permitido.'
+    )
+  }
+
+  return path.join(
+    __dirname,
+    isDev
+      ? '../public/data'
+      : '../dist/data',
+    nombreArchivo
+  )
+}
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1400,
@@ -66,11 +202,13 @@ function createWindow() {
       ),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
     },
   })
 
   // nombre visible
   win.setTitle('EMVIAL Geo')
+  configurarSeguridadVentana(win)
 
   // proteger cierre accidental
   win.on('close', (event) => {
@@ -85,9 +223,7 @@ function createWindow() {
 
   // Desarrollo
   if (isDev) {
-    win.loadURL(
-      'http://localhost:5173'
-    )
+    cargarServidorDev(win).catch(() => {})
 
     win.webContents.openDevTools()
   }
@@ -317,6 +453,22 @@ ipcMain.handle(
   }
 )
 
+// Lee archivos GeoJSON estÃ¡ticos incluidos con la aplicaciÃ³n.
+ipcMain.handle(
+  'leer-archivo-datos',
+  async (event, nombreArchivo) => {
+    const ruta =
+      obtenerRutaArchivoDatos(
+        nombreArchivo
+      )
+
+    return await fs.promises.readFile(
+      ruta,
+      'utf-8'
+    )
+  }
+)
+
 //
 // ===============================
 // APP READY
@@ -325,6 +477,7 @@ ipcMain.handle(
 
 // Cuando Electron está listo, crea la ventana principal.
 app.whenReady().then(() => {
+  configurarSeguridadSesion()
   iniciarProgramadorBackupsAutomaticos()
   createWindow()
 })

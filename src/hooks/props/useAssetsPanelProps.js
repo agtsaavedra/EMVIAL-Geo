@@ -14,6 +14,7 @@ export function useAssetsPanelProps({
   manejarEditarIntervencion,
   eliminarIntervencionProtegida,
   manejarEnfocarIntervencion,
+  intervencionEnfocada,
 
   setIntervencionHoverId,
 
@@ -34,6 +35,8 @@ export function useAssetsPanelProps({
       enfocarIntervencion:
         manejarEnfocarIntervencion,
 
+      intervencionEnfocada,
+
       setIntervencionHoverId,
 
       abierto: assetsPanelAbierto,
@@ -45,6 +48,7 @@ export function useAssetsPanelProps({
       manejarEditarIntervencion,
       eliminarIntervencionProtegida,
       manejarEnfocarIntervencion,
+      intervencionEnfocada,
       setIntervencionHoverId,
       assetsPanelAbierto,
       setAssetsPanelAbierto,

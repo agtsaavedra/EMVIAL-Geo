@@ -62,6 +62,12 @@ contextBridge.exposeInMainWorld('api', {
   obtenerEstadoApp: () =>
     ipcRenderer.invoke('obtener-estado-app'),
 
+  leerArchivoDatos: (nombreArchivo) =>
+    ipcRenderer.invoke(
+      'leer-archivo-datos',
+      nombreArchivo
+    ),
+
   // Permite seleccionar una nueva carpeta de backups.
   configurarCarpetaBackups: () =>
     ipcRenderer.invoke(

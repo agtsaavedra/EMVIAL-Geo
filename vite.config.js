@@ -5,6 +5,25 @@ import path from 'node:path'
 export default defineConfig({
   base: './',
   plugins: [react()],
+  build: {
+    chunkSizeWarningLimit: 700,
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: 'vendor-react',
+              test: /node_modules[\\/](react|react-dom)[\\/]/,
+            },
+            {
+              name: 'vendor-map',
+              test: /node_modules[\\/](leaflet|react-leaflet|@react-leaflet)[\\/]/,
+            },
+          ],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '@components': path.resolve(__dirname, './src/components'),

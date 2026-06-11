@@ -1,19 +1,46 @@
-import { analizarCalidadIntervenciones } from '@services/dataQuality'
+import {
+  useEffect,
+  useState,
+} from 'react'
+import {
+  analizarCalidadIntervencionesAsync,
+} from '@services/dataQualityWorker'
 
 function DataQualityDialog({
   abierto,
   intervenciones = [],
   onClose,
 }) {
+  const [reporte, setReporte] =
+    useState(null)
+
+  useEffect(() => {
+    let activo = true
+
+    if (!abierto) {
+      setReporte(null)
+      return undefined
+    }
+
+    setReporte(null)
+
+    analizarCalidadIntervencionesAsync(
+      intervenciones
+    ).then((resultado) => {
+      if (activo) {
+        setReporte(resultado)
+      }
+    })
+
+    return () => {
+      activo = false
+    }
+  }, [abierto, intervenciones])
+
   if (!abierto) return null
 
-  const reporte =
-    analizarCalidadIntervenciones(
-      intervenciones
-    )
-
   const primerosIssues =
-    reporte.issues.slice(0, 12)
+    reporte?.issues.slice(0, 12) || []
 
   return (
     <div
@@ -45,27 +72,29 @@ function DataQualityDialog({
         </div>
 
         <p className="confirm-message">
-          {reporte.totalIssues
+          {!reporte
+            ? 'Analizando intervenciones filtradas...'
+            : reporte.totalIssues
             ? `Se encontraron ${reporte.totalIssues} observaciones sobre ${reporte.totalIntervenciones} intervenciones filtradas.`
             : `No se encontraron observaciones sobre ${reporte.totalIntervenciones} intervenciones filtradas.`}
         </p>
 
         <div className="data-quality-summary">
           <div>
-            <strong>{reporte.altas}</strong>
+            <strong>{reporte?.altas || 0}</strong>
             <span>Altas</span>
           </div>
           <div>
-            <strong>{reporte.medias}</strong>
+            <strong>{reporte?.medias || 0}</strong>
             <span>Medias</span>
           </div>
           <div>
-            <strong>{reporte.bajas}</strong>
+            <strong>{reporte?.bajas || 0}</strong>
             <span>Bajas</span>
           </div>
         </div>
 
-        {reporte.porTipo.length > 0 && (
+        {reporte?.porTipo.length > 0 && (
           <section className="data-quality-section">
             <h4>Resumen</h4>
             <div className="data-quality-tags">

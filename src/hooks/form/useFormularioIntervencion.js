@@ -127,6 +127,67 @@ export function useFormularioIntervencion({
   ])
 
   // =====================================================
+  // AUTOCÁLCULO DE CUADRAS
+  // =====================================================
+  // Usa la red vial cargada bajo demanda desde public/data. Si no detecta
+  // tramos cercanos, el servicio vuelve a una estimación por metros / 100.
+
+  useEffect(() => {
+    let activo = true
+
+    async function calcularCuadras() {
+      if (
+        form.geometriaTipo !== 'Línea' ||
+        !Array.isArray(form.geometria) ||
+        form.geometria.length < 2
+      ) {
+        setForm((prev) => {
+          if (!prev.cuadras) return prev
+
+          return {
+            ...prev,
+            cuadras: '',
+          }
+        })
+        return
+      }
+
+      const { calcularCuadrasLinea } =
+        await import('@services/callesMetrics')
+
+      const resultado =
+        await calcularCuadrasLinea(
+          form.geometria
+        )
+
+      if (!activo) return
+
+      setForm((prev) => {
+        if (
+          prev.cuadras ===
+          resultado.cuadras
+        ) {
+          return prev
+        }
+
+        return {
+          ...prev,
+          cuadras: resultado.cuadras,
+        }
+      })
+    }
+
+    calcularCuadras()
+
+    return () => {
+      activo = false
+    }
+  }, [
+    form.geometria,
+    form.geometriaTipo,
+  ])
+
+  // =====================================================
   // AUTOCÁLCULO DE METROS CUADRADOS
   // =====================================================
   // Cuando la intervención es un polígono, el campo "Metros cuadrados" se
@@ -226,6 +287,10 @@ export function useFormularioIntervencion({
         metrosCuadrados:
           value === 'Polígono'
             ? prev.metrosCuadrados
+            : '',
+        cuadras:
+          value === 'Línea'
+            ? prev.cuadras
             : '',
       }))
 

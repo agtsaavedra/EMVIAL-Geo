@@ -203,7 +203,7 @@ function ClickMapa({
       const punto = [lat, lon]
 
       const barrioDetectado =
-        detectarBarrio(lat, lon)
+        await detectarBarrio(lat, lon)
 
       if (esLineaOPoligono()) {
         const esPrimerPunto =

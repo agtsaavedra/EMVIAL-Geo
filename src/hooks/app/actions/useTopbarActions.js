@@ -6,18 +6,12 @@
   carpeta de backups y apertura del dialogo Acerca de.
 */
 
-import { exportarExcelPeriodo } from '@services/exportExcel'
-import { exportarGeoJSONPeriodo } from '@services/exportGeoJSON'
-import { exportarKml } from '@services/exportKML'
-import { exportarInformePeriodoPDF } from '@services/exportPeriodoPDF'
-import { exportarShpPeriodo } from '@services/exportSHP'
-import { importarArchivoGIS } from '@services/importGIS'
-import {
-  analizarCalidadIntervenciones,
-} from '@services/dataQuality'
 import {
   contarIntervencionesExportables,
 } from '@services/intervencionesGeoJSON'
+import {
+  analizarCalidadIntervencionesAsync,
+} from '@services/dataQualityWorker'
 
 export function useTopbarActions({
   periodoActivo,
@@ -139,13 +133,13 @@ export function useTopbarActions({
       .join('\n\n')
   }
 
-  function detalleCalidadExportacion({
+  async function detalleCalidadExportacion({
     formato,
     resumen,
     requiereGeometria,
   }) {
     const reporte =
-      analizarCalidadIntervenciones(
+      await analizarCalidadIntervencionesAsync(
         intervencionesParaExportar
       )
 
@@ -183,7 +177,7 @@ export function useTopbarActions({
     }
   }
 
-  function confirmarExportacion({
+  async function confirmarExportacion({
     formato,
     requiereGeometria = true,
     onConfirmar,
@@ -211,7 +205,7 @@ export function useTopbarActions({
     }
 
     const calidad =
-      detalleCalidadExportacion({
+      await detalleCalidadExportacion({
         formato,
         resumen,
         requiereGeometria,
@@ -235,7 +229,10 @@ export function useTopbarActions({
 
     confirmarExportacion({
       formato: 'KML',
-      onConfirmar: () => {
+      onConfirmar: async () => {
+        const { exportarKml } =
+          await import('@services/exportKML')
+
         const ok = exportarKml(
           intervencionesParaExportar
         )
@@ -256,7 +253,10 @@ export function useTopbarActions({
     confirmarExportacion({
       formato: 'Excel',
       requiereGeometria: false,
-      onConfirmar: () => {
+      onConfirmar: async () => {
+        const { exportarExcelPeriodo } =
+          await import('@services/exportExcel')
+
         const ok = exportarExcelPeriodo(
           intervencionesParaExportar,
           periodoActivo
@@ -277,7 +277,10 @@ export function useTopbarActions({
 
     confirmarExportacion({
       formato: 'GeoJSON',
-      onConfirmar: () => {
+      onConfirmar: async () => {
+        const { exportarGeoJSONPeriodo } =
+          await import('@services/exportGeoJSON')
+
         const resultado =
           exportarGeoJSONPeriodo(
             intervencionesParaExportar,
@@ -302,6 +305,9 @@ export function useTopbarActions({
       formato: 'SHP',
       onConfirmar: async () => {
         try {
+          const { exportarShpPeriodo } =
+            await import('@services/exportSHP')
+
           const resultado =
             await exportarShpPeriodo(
               intervencionesParaExportar,
@@ -336,7 +342,10 @@ export function useTopbarActions({
     confirmarExportacion({
       formato: 'Informe PDF',
       requiereGeometria: false,
-      onConfirmar: () => {
+      onConfirmar: async () => {
+        const { exportarInformePeriodoPDF } =
+          await import('@services/exportPeriodoPDF')
+
         const ok = exportarInformePeriodoPDF(
           intervencionesParaExportar,
           periodoActivo
@@ -366,6 +375,9 @@ export function useTopbarActions({
     }
 
     try {
+      const { importarArchivoGIS } =
+        await import('@services/importGIS')
+
       const resultado =
         await importarArchivoGIS(
           file,

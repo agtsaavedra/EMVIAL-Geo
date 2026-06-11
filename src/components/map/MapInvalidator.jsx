@@ -13,21 +13,58 @@ function MapInvalidator({ refreshKey }) {
   const map = useMap()
 
   useEffect(() => {
+    let animationFrame = null
+    let timerFinal = null
+
     function invalidar() {
-      map.invalidateSize()
+      map.invalidateSize({
+        animate: false,
+        pan: false,
+        debounceMoveend: true,
+      })
     }
 
-    const timers = [
-      setTimeout(invalidar, 80),
-      setTimeout(invalidar, 250),
-      setTimeout(invalidar, 500),
-    ]
+    function programarInvalidacion() {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame)
+      }
 
-    window.addEventListener('resize', invalidar)
+      animationFrame =
+        requestAnimationFrame(invalidar)
+
+      clearTimeout(timerFinal)
+      timerFinal = setTimeout(invalidar, 320)
+    }
+
+    const contenedor =
+      map.getContainer().parentElement ||
+      map.getContainer()
+
+    const observer =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(
+          programarInvalidacion
+        )
+        : null
+
+    observer?.observe(contenedor)
+    window.addEventListener(
+      'resize',
+      programarInvalidacion
+    )
+    programarInvalidacion()
 
     return () => {
-      timers.forEach(clearTimeout)
-      window.removeEventListener('resize', invalidar)
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame)
+      }
+
+      clearTimeout(timerFinal)
+      observer?.disconnect()
+      window.removeEventListener(
+        'resize',
+        programarInvalidacion
+      )
     }
   }, [map, refreshKey])
 

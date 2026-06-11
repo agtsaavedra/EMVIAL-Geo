@@ -15,7 +15,12 @@ import {
 } from 'react-leaflet'
 
 import 'leaflet/dist/leaflet.css'
-import { memo } from 'react'
+import {
+  memo,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import MapBarrioFocus from './MapBarrioFocus'
 import MapActions from './MapActions'
 import ControlBarrio from './ControlBarrio'
@@ -36,6 +41,7 @@ import { obtenerColorIntervencion } from '@map/config/mapColors'
 
 import {
   centroMarDelPlata,
+  cargarBarriosGeojson,
   estiloBarrio,
 } from '@map/data/barrios'
 
@@ -69,6 +75,23 @@ function MapView({
   assetsPanelAbierto,
   guideOverlay,
 }) {
+  const [barriosListos, setBarriosListos] =
+    useState(false)
+
+  useEffect(() => {
+    let activo = true
+
+    cargarBarriosGeojson().then(() => {
+      if (activo) {
+        setBarriosListos(true)
+      }
+    })
+
+    return () => {
+      activo = false
+    }
+  }, [])
+
   // =====================================================
   // LÓGICA DE EDICIÓN GEOMÉTRICA
   // useGeometryEditing:
@@ -106,14 +129,18 @@ function MapView({
   // GeoJSON de barrios filtrado según el barrio seleccionado.
   const barriosFiltrados =
     obtenerBarriosFiltrados(
-      barrioSeleccionado
+      barrioSeleccionado,
+      barriosListos
     )
 
   // Intervenciones visibles según período/filtros activos.
   const intervencionesVisibles =
-    obtenerIntervencionesVisibles(
-      intervencionesFiltradas,
-      intervencionEditandoId
+    useMemo(
+      () =>
+        obtenerIntervencionesVisibles(
+          intervencionesFiltradas
+        ),
+      [intervencionesFiltradas]
     )
 
   // Cuando se está redibujando una intervención existente,
@@ -129,17 +156,31 @@ function MapView({
     )
 
   const intervencionesMapa =
-    ocultarIntervencionEditada
-      ? intervencionesVisibles.filter(
+    useMemo(() => {
+      if (!ocultarIntervencionEditada) {
+        return intervencionesVisibles
+      }
+
+      return intervencionesVisibles.filter(
         (intervencion) =>
           intervencion.id !==
           intervencionEditandoId
       )
-      : intervencionesVisibles
+    }, [
+      ocultarIntervencionEditada,
+      intervencionesVisibles,
+      intervencionEditandoId,
+    ])
 
   // Estadísticas compactas por obra para la barra inferior.
   const statsPorObra =
-    obtenerStatsMapa(intervencionesVisibles)
+    useMemo(
+      () =>
+        obtenerStatsMapa(
+          intervencionesVisibles
+        ),
+      [intervencionesVisibles]
+    )
 
   // Color de la geometría activa del formulario.
   const colorFormulario =
@@ -211,7 +252,7 @@ function MapView({
           {/* Recalcula tamaño del mapa cuando cambia el layout
               por apertura/cierre de sidebar/panel. */}
           <MapInvalidator
-            refreshKey={sidebarAbierto}
+            refreshKey={`${sidebarAbierto}-${assetsPanelAbierto}`}
           />
 
           {/* Capa base OpenStreetMap. */}

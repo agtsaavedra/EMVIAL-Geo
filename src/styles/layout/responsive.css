@@ -181,20 +181,29 @@
   }
 
   .assets-panel {
+    position: relative;
     width: 100%;
     min-width: 0;
-    height: 220px;
-    min-height: 220px;
+    height: auto;
+    max-height: 220px;
+    min-height: 0;
     padding-left: 0;
     overflow: visible;
+
+    transition:
+      max-height 0.28s ease,
+      opacity 0.2s ease,
+      transform 0.28s ease;
   }
 
   .assets-panel.closed {
-    height: 0;
+    height: auto;
+    max-height: 0;
     min-height: 0;
     width: 100%;
     min-width: 0;
     overflow: visible;
+    transform: translateY(6px);
   }
 
   .assets-panel.closed .panel {
@@ -239,11 +248,12 @@
   }
 
   .assets-panel.closed .panel-toggle {
-    position: fixed;
+    position: absolute;
     top: auto;
     bottom: 0;
     left: 50%;
     right: auto;
+    transform: translateX(-50%);
 
     border-radius: 14px 14px 0 0;
   }

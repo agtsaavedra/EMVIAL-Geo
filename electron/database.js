@@ -66,6 +66,7 @@ let db
 let backupDirty = false
 let periodosDirty = new Set()
 let intervaloBackupAutomatico = null
+let escrituraArchivoPendiente = Promise.resolve()
 
 // =====================================================
 // ESQUEMA / MIGRACIONES
@@ -169,7 +170,7 @@ async function iniciarDB() {
     db = new SQL.Database(fileBuffer)
 
     asegurarEsquemaIntervenciones()
-    guardarArchivo()
+    await guardarArchivo()
 
     return
   }
@@ -178,7 +179,7 @@ async function iniciarDB() {
 
   crearTablaIntervenciones()
 
-  guardarArchivo()
+  await guardarArchivo()
 }
 
 /**
@@ -188,8 +189,25 @@ async function iniciarDB() {
  * llamando a esta función.
  */
 function guardarArchivo() {
-  const data = db.export()
-  fs.writeFileSync(dbPath, Buffer.from(data))
+  escrituraArchivoPendiente =
+    escrituraArchivoPendiente
+      .catch(() => {})
+      .then(async () => {
+        const data = db.export()
+        const tmpPath = `${dbPath}.tmp`
+
+        await fs.promises.writeFile(
+          tmpPath,
+          Buffer.from(data)
+        )
+
+        await fs.promises.rename(
+          tmpPath,
+          dbPath
+        )
+      })
+
+  return escrituraArchivoPendiente
 }
 
 function marcarBackupPendiente(periodo) {
@@ -205,8 +223,10 @@ function limpiarBackupPendiente() {
   periodosDirty = new Set()
 }
 
-function ejecutarBackupsAutomaticosPendientes() {
+async function ejecutarBackupsAutomaticosPendientes() {
   if (!backupDirty) return false
+
+  await guardarArchivo()
 
   crearBackupGeneralAutomatico()
 
@@ -222,9 +242,9 @@ function ejecutarBackupsAutomaticosPendientes() {
 function iniciarProgramadorBackupsAutomaticos() {
   if (intervaloBackupAutomatico) return
 
-  intervaloBackupAutomatico = setInterval(() => {
+  intervaloBackupAutomatico = setInterval(async () => {
     try {
-      ejecutarBackupsAutomaticosPendientes()
+      await ejecutarBackupsAutomaticosPendientes()
     } catch (error) {
       console.error(
         'Error al crear backups automáticos:',
@@ -437,7 +457,7 @@ async function guardarIntervencion(intervencion) {
     )
   }
 
-  guardarArchivo()
+  await guardarArchivo()
   marcarBackupPendiente(nueva.periodo)
 
   return nueva
@@ -479,7 +499,7 @@ async function eliminarIntervencion(id) {
     [idNormalizado]
   )
 
-  guardarArchivo()
+  await guardarArchivo()
   marcarBackupPendiente(periodo)
 
   return true
@@ -546,7 +566,7 @@ async function guardarIntervencionesMasivo(intervenciones = []) {
     throw error
   }
 
-  guardarArchivo()
+  await guardarArchivo()
 
   return guardadas
 }
@@ -710,7 +730,7 @@ function crearBackupPreRestauracion() {
 async function crearBackupPreventivo(motivo = 'manual') {
   if (!db) await iniciarDB()
 
-  guardarArchivo()
+  await guardarArchivo()
 
   const backupPath =
     crearBackupPreRestauracion()
@@ -732,7 +752,7 @@ async function crearBackupPreventivo(motivo = 'manual') {
 async function crearBackupManual(periodo) {
   if (!db) await iniciarDB()
 
-  guardarArchivo()
+  await guardarArchivo()
   asegurarCarpetaBackups()
 
   const fecha = new Date()
@@ -874,9 +894,9 @@ async function restaurarPeriodoManual(periodo) {
     })
   }
 
-  guardarArchivo()
+  await guardarArchivo()
   marcarBackupPendiente(periodo)
-  ejecutarBackupsAutomaticosPendientes()
+  await ejecutarBackupsAutomaticosPendientes()
 
   return {
     ok: true,

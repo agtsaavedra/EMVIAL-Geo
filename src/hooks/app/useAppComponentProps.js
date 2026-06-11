@@ -208,6 +208,7 @@ export function useAppComponentProps({
     manejarEditarIntervencion,
     eliminarIntervencionProtegida,
     manejarEnfocarIntervencion,
+    intervencionEnfocada,
 
     assetsPanelAbierto,
     setAssetsPanelAbierto,

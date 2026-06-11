@@ -41,12 +41,6 @@ export function useAppActions({
 
     if (window.innerWidth <= 1024) {
       setAssetsPanelAbierto(false)
-
-      setTimeout(() => {
-        window.dispatchEvent(
-          new Event('resize')
-        )
-      }, 320)
     }
 
     editarIntervencion(intervencion)
