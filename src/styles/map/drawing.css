@@ -49,3 +49,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.drawing-mode-banner small {
+  padding-left: 6px;
+
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+
+  color: #bfdbfe;
+  font-size: 9px;
+  font-weight: 700;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

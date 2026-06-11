@@ -9,6 +9,7 @@ import {
   MapContainer,
   TileLayer,
   Marker,
+  Pane,
   Popup,
   GeoJSON,
 } from 'react-leaflet'
@@ -179,6 +180,12 @@ function MapView({
                 : `${form.geometriaTipo} · ${form.geometria?.length || 0
                 } pts`}
             </span>
+
+            {form.barrio && (
+              <small>
+                Barrio: {form.barrio}
+              </small>
+            )}
           </div>
         )}
 
@@ -221,22 +228,27 @@ function MapView({
               IMPORTANTE:
               interactive:false evita que los barrios bloqueen
               clicks sobre líneas, puntos y polígonos. */}
-          {mostrarBarrios && (
-            <GeoJSON
-              key={
-                barrioSeleccionado ||
-                'todos-los-barrios'
-              }
-              data={barriosFiltrados}
-              style={(feature) => ({
-                ...estiloBarrio(
-                  feature,
-                  barrioSeleccionado
-                ),
-                interactive: false,
-              })}
-            />
-          )}
+          <Pane
+            name="barrios-pane"
+            style={{ zIndex: 320 }}
+          >
+            {mostrarBarrios && (
+              <GeoJSON
+                key={
+                  barrioSeleccionado ||
+                  'todos-los-barrios'
+                }
+                data={barriosFiltrados}
+                style={(feature) => ({
+                  ...estiloBarrio(
+                    feature,
+                    barrioSeleccionado
+                  ),
+                  interactive: false,
+                })}
+              />
+            )}
+          </Pane>
 
           {/* Selector Leaflet de barrios. */}
           {mostrarBarrios && (
