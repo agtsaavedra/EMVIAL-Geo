@@ -72,22 +72,38 @@ export function useAssetActions({
     })
   }
 
-  async function duplicarIntervencionProtegida(
+  function duplicarIntervencionProtegida(
     intervencion
   ) {
-    try {
-      await duplicarIntervencion(intervencion)
+    const nombre =
+      intervencion.nombre ||
+      intervencion.obra ||
+      'esta intervencion'
 
-      mostrarToast(
-        'Intervencion duplicada.',
-        'success'
-      )
-    } catch {
-      mostrarToast(
-        'No se pudo duplicar la intervencion.',
-        'error'
-      )
-    }
+    confirmar({
+      titulo: 'Duplicar intervencion',
+      mensaje:
+        `Se creara una copia independiente de "${nombre}".`,
+      detalle:
+        'La nueva intervencion conservara obra, ubicacion, geometria, metricas y observaciones. Luego podras editarla sin afectar la original.',
+      textoConfirmar: 'Duplicar',
+      textoCancelar: 'Cancelar',
+      onConfirmar: async () => {
+        try {
+          await duplicarIntervencion(intervencion)
+
+          mostrarToast(
+            'Intervencion duplicada.',
+            'success'
+          )
+        } catch {
+          mostrarToast(
+            'No se pudo duplicar la intervencion.',
+            'error'
+          )
+        }
+      },
+    })
   }
 
   return {
