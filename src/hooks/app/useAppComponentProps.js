@@ -104,6 +104,7 @@ export function useAppComponentProps({
 
   // Assets panel
   eliminarIntervencionProtegida,
+  duplicarIntervencionProtegida,
   setAssetsPanelAbierto,
   setIntervencionHoverId,
 }) {
@@ -207,6 +208,7 @@ export function useAppComponentProps({
 
     manejarEditarIntervencion,
     eliminarIntervencionProtegida,
+    duplicarIntervencionProtegida,
     manejarEnfocarIntervencion,
     intervencionEnfocada,
 

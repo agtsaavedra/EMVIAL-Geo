@@ -111,6 +111,7 @@ export function useAppServices() {
     guardarIntervencionesMasivoEnDB,
     eliminarIntervencion,
     restaurarIntervencion,
+    duplicarIntervencion,
 
     periodoActivo,
     setPeriodoActivo,
@@ -200,6 +201,7 @@ export function useAppServices() {
     guardarIntervencionesMasivoEnDB,
     eliminarIntervencion,
     restaurarIntervencion,
+    duplicarIntervencion,
     modoConsulta,
 
     crearBackup,
@@ -210,7 +212,9 @@ export function useAppServices() {
   const {
     aboutAbierto,
     estadoApp,
+    estadoGeocoding,
     cerrarAbout,
+    limpiarCacheGeocoding,
 
     manejarEnfocarIntervencion,
     manejarEditarIntervencion,
@@ -231,6 +235,7 @@ export function useAppServices() {
     abrirAboutDesdeMenu,
 
     eliminarIntervencionProtegida,
+    duplicarIntervencionProtegida,
   } = appActions
 
   function abrirDataQuality() {
@@ -239,6 +244,48 @@ export function useAppServices() {
   }
 
   function cerrarDataQuality() {
+    setDataQualityAbierto(false)
+  }
+
+  function obtenerIntervencionDesdeIssue(issue) {
+    if (!issue?.id) return null
+
+    return intervencionesFiltradas.find(
+      (intervencion) =>
+        intervencion.id === issue.id
+    )
+  }
+
+  function enfocarIssueDataQuality(issue) {
+    const intervencion =
+      obtenerIntervencionDesdeIssue(issue)
+
+    if (!intervencion) {
+      mostrarToast(
+        'No se encontro la intervencion seleccionada.',
+        'error'
+      )
+      return
+    }
+
+    manejarEnfocarIntervencion(intervencion)
+    setAssetsPanelAbierto(true)
+    setDataQualityAbierto(false)
+  }
+
+  function editarIssueDataQuality(issue) {
+    const intervencion =
+      obtenerIntervencionDesdeIssue(issue)
+
+    if (!intervencion) {
+      mostrarToast(
+        'No se encontro la intervencion seleccionada.',
+        'error'
+      )
+      return
+    }
+
+    manejarEditarIntervencion(intervencion)
     setDataQualityAbierto(false)
   }
 
@@ -340,6 +387,7 @@ export function useAppServices() {
     guideOverlayConAcciones,
 
     eliminarIntervencionProtegida,
+    duplicarIntervencionProtegida,
   })
 
   // =====================================================
@@ -366,10 +414,14 @@ export function useAppServices() {
     aboutAbierto,
     cerrarAbout,
     estadoApp,
+    estadoGeocoding,
+    limpiarCacheGeocoding,
     periodoActivo,
 
     dataQualityAbierto,
     cerrarDataQuality,
+    enfocarIssueDataQuality,
+    editarIssueDataQuality,
     intervencionesFiltradas,
 
     topbarProps,

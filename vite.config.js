@@ -32,6 +32,7 @@ export default defineConfig({
       '@assets': path.resolve(__dirname, './src/assets'),
       '@constants': path.resolve(__dirname, './src/constants'),
       '@services': path.resolve(__dirname, './src/services'),
+      '@domain': path.resolve(__dirname, './src/domain'),
     },
   },
 })

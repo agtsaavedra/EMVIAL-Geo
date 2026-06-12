@@ -27,6 +27,7 @@ export function useAppData({
     eliminarIntervencion,
     recargarIntervenciones,
     restaurarIntervencion,
+    duplicarIntervencion,
   } = useIntervenciones()
 
   const {
@@ -64,6 +65,7 @@ export function useAppData({
     guardarIntervencionesMasivoEnDB,
     eliminarIntervencion,
     restaurarIntervencion,
+    duplicarIntervencion,
     recargarIntervenciones,
 
     periodoActivo,

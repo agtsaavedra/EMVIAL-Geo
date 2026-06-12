@@ -10,6 +10,8 @@ function DataQualityDialog({
   abierto,
   intervenciones = [],
   onClose,
+  onFocusIssue,
+  onEditIssue,
 }) {
   const [reporte, setReporte] =
     useState(null)
@@ -119,16 +121,38 @@ function DataQualityDialog({
                   key={`${issue.id || issue.nombre}-${issue.tipo}-${index}`}
                   className="data-quality-item"
                 >
-                  <strong>{issue.nombre}</strong>
-                  <span>
-                    {issue.tipo} - {issue.mensaje}
-                  </span>
-                  <small>
-                    {issue.obra || 'Sin obra'}
-                    {issue.barrio
-                      ? ` - ${issue.barrio}`
-                      : ''}
-                  </small>
+                  <div className="data-quality-item-main">
+                    <strong>{issue.nombre}</strong>
+                    <span>
+                      {issue.tipo} - {issue.mensaje}
+                    </span>
+                    <small>
+                      {issue.obra || 'Sin obra'}
+                      {issue.barrio
+                        ? ` - ${issue.barrio}`
+                        : ''}
+                    </small>
+                  </div>
+
+                  <div className="data-quality-item-actions">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onFocusIssue?.(issue)
+                      }
+                    >
+                      Ver
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onEditIssue?.(issue)
+                      }
+                    >
+                      Editar
+                    </button>
+                  </div>
                 </article>
               ))}
             </div>

@@ -18,6 +18,12 @@ contextBridge.exposeInMainWorld('api', {
   obtenerDireccion: (lat, lon) =>
     ipcRenderer.invoke('obtener-direccion', lat, lon),
 
+  obtenerEstadoGeocoding: () =>
+    ipcRenderer.invoke('obtener-estado-geocoding'),
+
+  limpiarCacheGeocoding: () =>
+    ipcRenderer.invoke('limpiar-cache-geocoding'),
+
   // Carga todas las intervenciones guardadas.
   obtenerIntervenciones: () =>
     ipcRenderer.invoke('obtener-intervenciones'),
@@ -35,6 +41,12 @@ contextBridge.exposeInMainWorld('api', {
   // Elimina una intervención por id.
   eliminarIntervencion: (id) =>
     ipcRenderer.invoke('eliminar-intervencion', id),
+
+  obtenerHistorialIntervencion: (id) =>
+    ipcRenderer.invoke(
+      'obtener-historial-intervencion',
+      id
+    ),
 
   // Crea un backup manual para el período activo.
   crearBackupManual: (periodo) =>

@@ -1,5 +1,4 @@
 @import './styles/base/theme.css';
-@import './styles/base/scrollbar.css';
 
 @import './styles/layout/layout.css';
 @import './styles/layout/sidebar.css';
@@ -19,5 +18,3 @@
 @import './styles/components/confirm-dialog.css';
 @import './styles/components/boot.css';
 @import './styles/components/appsplash.css';
-
-@import './styles/map/guide-overlay.css';

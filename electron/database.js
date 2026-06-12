@@ -16,6 +16,28 @@ const path = require('path')
 const fs = require('fs')
 const initSqlJs = require('sql.js')
 const { app, dialog, shell } = require('electron')
+const {
+  crearTablaIntervenciones:
+    crearTablaIntervencionesSchema,
+  crearTablaHistorial:
+    crearTablaHistorialSchema,
+  asegurarEsquemaIntervenciones:
+    asegurarEsquemaIntervencionesSchema,
+} = require('./db/schema')
+const {
+  asegurarCarpeta:
+    asegurarCarpetaBackup,
+  obtenerCarpetaBackupsGeneral:
+    obtenerCarpetaBackupsGeneralBackup,
+  obtenerCarpetaPeriodo:
+    obtenerCarpetaPeriodoBackup,
+  sonMismaCarpeta:
+    sonMismaCarpetaBackup,
+  destinoEstaDentroDeOrigen:
+    destinoEstaDentroDeOrigenBackup,
+  copiarCarpetaSiExiste:
+    copiarCarpetaSiExisteBackup,
+} = require('./backups/backupUtils')
 
 // =====================================================
 // RUTAS PRINCIPALES
@@ -38,21 +60,6 @@ let backupsDir = obtenerCarpetaBackups()
 // =====================================================
 // CONSTANTES
 // =====================================================
-
-const MESES = [
-  'ENERO',
-  'FEBRERO',
-  'MARZO',
-  'ABRIL',
-  'MAYO',
-  'JUNIO',
-  'JULIO',
-  'AGOSTO',
-  'SEPTIEMBRE',
-  'OCTUBRE',
-  'NOVIEMBRE',
-  'DICIEMBRE',
-]
 
 const INTERVALO_BACKUP_AUTOMATICO_MS =
   10 * 60 * 1000
@@ -78,80 +85,17 @@ let escrituraArchivoPendiente = Promise.resolve()
  * El id se guarda como TEXT para soportar UUID generados desde el renderer.
  * El campo data conserva la intervención completa serializada como JSON.
  */
-function crearTablaIntervenciones() {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS intervenciones (
-      id TEXT PRIMARY KEY,
-      data TEXT NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    )
-  `)
-}
-
 /**
  * Consulta el tipo declarado de la columna id en la tabla intervenciones.
  *
  * Se usa para detectar bases antiguas donde id era INTEGER PRIMARY KEY.
  */
-function obtenerTipoColumnaId() {
-  const result = db.exec(`PRAGMA table_info(intervenciones)`)
-
-  if (!result.length) return null
-
-  const columnas = result[0].values
-  const columnaId = columnas.find((columna) => columna[1] === 'id')
-
-  return columnaId ? String(columnaId[2] || '').toUpperCase() : null
-}
-
 /**
  * Garantiza que la tabla intervenciones exista y tenga el esquema esperado.
  *
  * Si detecta una base antigua con id INTEGER, migra la tabla a id TEXT
  * conservando todos los datos existentes.
  */
-function asegurarEsquemaIntervenciones() {
-  const existeTabla = db.exec(`
-    SELECT name
-    FROM sqlite_master
-    WHERE type = 'table'
-      AND name = 'intervenciones'
-  `)
-
-  if (!existeTabla.length) {
-    crearTablaIntervenciones()
-    return
-  }
-
-  const tipoId = obtenerTipoColumnaId()
-
-  // Versiones anteriores usaban INTEGER PRIMARY KEY.
-  // Para soportar crypto.randomUUID(), migramos id a TEXT.
-  if (tipoId === 'INTEGER') {
-    db.run(`ALTER TABLE intervenciones RENAME TO intervenciones_old`)
-
-    crearTablaIntervenciones()
-
-    db.run(`
-      INSERT INTO intervenciones (
-        id,
-        data,
-        created_at,
-        updated_at
-      )
-      SELECT
-        CAST(id AS TEXT),
-        data,
-        created_at,
-        updated_at
-      FROM intervenciones_old
-    `)
-
-    db.run(`DROP TABLE intervenciones_old`)
-  }
-}
-
 // =====================================================
 // INICIALIZACIÓN DB
 // =====================================================
@@ -169,7 +113,7 @@ async function iniciarDB() {
     const fileBuffer = fs.readFileSync(dbPath)
     db = new SQL.Database(fileBuffer)
 
-    asegurarEsquemaIntervenciones()
+    asegurarEsquemaIntervencionesSchema(db)
     await guardarArchivo()
 
     return
@@ -177,7 +121,8 @@ async function iniciarDB() {
 
   db = new SQL.Database()
 
-  crearTablaIntervenciones()
+  crearTablaIntervencionesSchema(db)
+  crearTablaHistorialSchema(db)
 
   await guardarArchivo()
 }
@@ -216,6 +161,70 @@ function marcarBackupPendiente(periodo) {
   if (periodo) {
     periodosDirty.add(periodo)
   }
+}
+
+function crearIdHistorial() {
+  return `${Date.now()}-${Math.random()
+    .toString(16)
+    .slice(2)}`
+}
+
+function obtenerCambiosIntervencion(
+  anterior,
+  actual
+) {
+  if (!anterior) return actual
+
+  const cambios = {}
+  const claves = new Set([
+    ...Object.keys(anterior || {}),
+    ...Object.keys(actual || {}),
+  ])
+
+  claves.forEach((clave) => {
+    const valorAnterior = anterior?.[clave]
+    const valorActual = actual?.[clave]
+
+    if (
+      JSON.stringify(valorAnterior) !==
+      JSON.stringify(valorActual)
+    ) {
+      cambios[clave] = {
+        anterior: valorAnterior ?? null,
+        actual: valorActual ?? null,
+      }
+    }
+  })
+
+  return cambios
+}
+
+function registrarHistorialCambio({
+  intervencionId,
+  accion,
+  anterior = null,
+  actual = null,
+  fecha,
+}) {
+  db.run(
+    `
+    INSERT INTO historial_cambios
+    (id, intervencion_id, accion, cambios, created_at)
+    VALUES (?, ?, ?, ?, ?)
+    `,
+    [
+      crearIdHistorial(),
+      String(intervencionId),
+      accion,
+      JSON.stringify(
+        obtenerCambiosIntervencion(
+          anterior,
+          actual
+        )
+      ),
+      fecha,
+    ]
+  )
 }
 
 function limpiarBackupPendiente() {
@@ -302,9 +311,7 @@ function obtenerCarpetaBackups() {
  * Crea una carpeta de manera recursiva si todavía no existe.
  */
 function asegurarCarpeta(carpeta) {
-  if (!fs.existsSync(carpeta)) {
-    fs.mkdirSync(carpeta, { recursive: true })
-  }
+  asegurarCarpetaBackup(carpeta)
 }
 
 /**
@@ -318,7 +325,9 @@ function asegurarCarpetaBackups() {
  * Devuelve la carpeta donde se guardan los backups generales automáticos.
  */
 function obtenerCarpetaBackupsGeneral() {
-  return path.join(backupsDir, '_GENERAL')
+  return obtenerCarpetaBackupsGeneralBackup(
+    backupsDir
+  )
 }
 
 /**
@@ -327,21 +336,17 @@ function obtenerCarpetaBackupsGeneral() {
  * El período esperado es YYYY-MM. Si el valor no es válido, usa SIN_PERIODO.
  */
 function obtenerCarpetaPeriodo(periodo) {
-  if (!periodo || !/^\d{4}-\d{2}$/.test(periodo)) {
-    return path.join(backupsDir, 'SIN_PERIODO')
-  }
-
-  const [anio, mes] = periodo.split('-')
-  const nombreMes = MESES[Number(mes) - 1] || mes
-
-  return path.join(backupsDir, `${periodo}_${nombreMes}`)
+  return obtenerCarpetaPeriodoBackup(
+    backupsDir,
+    periodo
+  )
 }
 
 /**
  * Indica si dos rutas apuntan exactamente a la misma carpeta resuelta.
  */
 function sonMismaCarpeta(origen, destino) {
-  return path.resolve(origen) === path.resolve(destino)
+  return sonMismaCarpetaBackup(origen, destino)
 }
 
 /**
@@ -350,10 +355,7 @@ function sonMismaCarpeta(origen, destino) {
  * Esto previene copias recursivas peligrosas al migrar backups.
  */
 function destinoEstaDentroDeOrigen(origen, destino) {
-  const origenResolved = path.resolve(origen)
-  const destinoResolved = path.resolve(destino)
-
-  return destinoResolved.startsWith(origenResolved + path.sep)
+  return destinoEstaDentroDeOrigenBackup(origen, destino)
 }
 
 // Copia recursiva segura.
@@ -364,25 +366,7 @@ function destinoEstaDentroDeOrigen(origen, destino) {
  * No borra el origen y no pisa archivos existentes en destino.
  */
 function copiarCarpetaSiExiste(origen, destino) {
-  if (!fs.existsSync(origen)) return
-
-  asegurarCarpeta(destino)
-
-  const items = fs.readdirSync(origen, { withFileTypes: true })
-
-  items.forEach((item) => {
-    const origenItem = path.join(origen, item.name)
-    const destinoItem = path.join(destino, item.name)
-
-    if (item.isDirectory()) {
-      copiarCarpetaSiExiste(origenItem, destinoItem)
-      return
-    }
-
-    if (item.isFile() && !fs.existsSync(destinoItem)) {
-      fs.copyFileSync(origenItem, destinoItem)
-    }
-  })
+  copiarCarpetaSiExisteBackup(origen, destino)
 }
 
 // =====================================================
@@ -426,7 +410,7 @@ async function guardarIntervencion(intervencion) {
   }
 
   const buscarExistente = db.prepare(`
-    SELECT id
+    SELECT data
     FROM intervenciones
     WHERE id = ?
   `)
@@ -434,6 +418,9 @@ async function guardarIntervencion(intervencion) {
   buscarExistente.bind([nueva.id])
 
   const existe = buscarExistente.step()
+  const anterior = existe
+    ? JSON.parse(buscarExistente.get()[0] || '{}')
+    : null
 
   buscarExistente.free()
 
@@ -456,6 +443,14 @@ async function guardarIntervencion(intervencion) {
       [nueva.id, JSON.stringify(nueva), ahora, ahora]
     )
   }
+
+  registrarHistorialCambio({
+    intervencionId: nueva.id,
+    accion: existe ? 'editar' : 'crear',
+    anterior,
+    actual: nueva,
+    fecha: ahora,
+  })
 
   await guardarArchivo()
   marcarBackupPendiente(nueva.periodo)
@@ -483,12 +478,14 @@ async function eliminarIntervencion(id) {
   buscarIntervencion.bind([idNormalizado])
 
   let periodo = null
+  let intervencionEliminada = null
 
   if (buscarIntervencion.step()) {
     const data = JSON.parse(
       buscarIntervencion.get()[0]
     )
 
+    intervencionEliminada = data
     periodo = data.periodo
   }
 
@@ -498,6 +495,16 @@ async function eliminarIntervencion(id) {
     `DELETE FROM intervenciones WHERE id = ?`,
     [idNormalizado]
   )
+
+  if (intervencionEliminada) {
+    registrarHistorialCambio({
+      intervencionId: idNormalizado,
+      accion: 'eliminar',
+      anterior: intervencionEliminada,
+      actual: null,
+      fecha: new Date().toISOString(),
+    })
+  }
 
   await guardarArchivo()
   marcarBackupPendiente(periodo)
@@ -525,7 +532,7 @@ async function guardarIntervencionesMasivo(intervenciones = []) {
       }
 
       const buscarExistente = db.prepare(`
-        SELECT id
+        SELECT data
         FROM intervenciones
         WHERE id = ?
       `)
@@ -533,6 +540,9 @@ async function guardarIntervencionesMasivo(intervenciones = []) {
       buscarExistente.bind([nueva.id])
 
       const existe = buscarExistente.step()
+      const anterior = existe
+        ? JSON.parse(buscarExistente.get()[0] || '{}')
+        : null
 
       buscarExistente.free()
 
@@ -555,6 +565,14 @@ async function guardarIntervencionesMasivo(intervenciones = []) {
           [nueva.id, JSON.stringify(nueva), ahora, ahora]
         )
       }
+
+      registrarHistorialCambio({
+        intervencionId: nueva.id,
+        accion: existe ? 'editar' : 'crear',
+        anterior,
+        actual: nueva,
+        fecha: ahora,
+      })
 
       marcarBackupPendiente(nueva.periodo)
       guardadas.push(nueva)
@@ -999,6 +1017,40 @@ function obtenerEstadoApp() {
   }
 }
 
+function obtenerHistorialIntervencion(id) {
+  const stmt = db.prepare(`
+    SELECT
+      id,
+      intervencion_id AS intervencionId,
+      accion,
+      cambios,
+      created_at AS fecha
+    FROM historial_cambios
+    WHERE intervencion_id = ?
+    ORDER BY created_at DESC
+    LIMIT 25
+  `)
+
+  try {
+    stmt.bind([id])
+
+    const filas = []
+
+    while (stmt.step()) {
+      const row = stmt.getAsObject()
+
+      filas.push({
+        ...row,
+        cambios: JSON.parse(row.cambios || '[]'),
+      })
+    }
+
+    return filas
+  } finally {
+    stmt.free()
+  }
+}
+
 // =====================================================
 // EXPORTS
 // =====================================================
@@ -1015,6 +1067,7 @@ module.exports = {
   restaurarPeriodoManual,
   configurarCarpetaBackups,
   obtenerEstadoApp,
+  obtenerHistorialIntervencion,
   iniciarProgramadorBackupsAutomaticos,
   ejecutarBackupsAutomaticosPendientes,
 }

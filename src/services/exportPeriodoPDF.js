@@ -77,10 +77,23 @@ function tablaObras(filas) {
   `
 }
 
-function tablaIntervenciones(intervenciones) {
+function tablaIntervenciones(
+  intervenciones,
+  opciones = {}
+) {
+  const {
+    incluirObservaciones = true,
+    incluirCoordenadas = true,
+  } = opciones
+
   const cuerpo = intervenciones
-    .map(
-      (item) => `
+    .map((item) => {
+      const lat =
+        item.latitud || item.lat || ''
+      const lon =
+        item.longitud || item.lon || ''
+
+      return `
         <tr>
           <td>${escaparHtml(item.obra || 'Sin obra')}</td>
           <td>${escaparHtml(item.barrio || 'Sin barrio')}</td>
@@ -89,9 +102,19 @@ function tablaIntervenciones(intervenciones) {
           <td>${escaparHtml(item.cuadras || '')}</td>
           <td>${escaparHtml(item.metrosLineales || '')}</td>
           <td>${escaparHtml(item.metrosCuadrados || '')}</td>
+          ${
+            incluirCoordenadas
+              ? `<td>${escaparHtml(lat)}${lat || lon ? ', ' : ''}${escaparHtml(lon)}</td>`
+              : ''
+          }
+          ${
+            incluirObservaciones
+              ? `<td>${escaparHtml(item.observaciones || '')}</td>`
+              : ''
+          }
         </tr>
       `
-    )
+    })
     .join('')
 
   return `
@@ -107,6 +130,16 @@ function tablaIntervenciones(intervenciones) {
             <th>Cuadras</th>
             <th>ML</th>
             <th>M2</th>
+            ${
+              incluirCoordenadas
+                ? '<th>Coords.</th>'
+                : ''
+            }
+            ${
+              incluirObservaciones
+                ? '<th>Obs.</th>'
+                : ''
+            }
           </tr>
         </thead>
         <tbody>${cuerpo}</tbody>
@@ -118,9 +151,10 @@ function tablaIntervenciones(intervenciones) {
 function crearHtmlReporte({
   periodo,
   intervenciones,
+  opciones,
 }) {
   const stats = calcularStatsPeriodo(intervenciones)
-  const fecha = new Date().toLocaleDateString('es-AR')
+  const fecha = new Date().toLocaleString('es-AR')
 
   return `
     <!doctype html>
@@ -301,6 +335,7 @@ function crearHtmlReporte({
             </div>
             <div class="meta">
               <strong>${fecha}</strong><br />
+              Version 0.1.0<br />
               ${stats.total} intervenciones
             </div>
           </header>
@@ -338,14 +373,13 @@ function crearHtmlReporte({
 
           <div class="grid">
             ${tablaSimple('Por barrio', stats.porBarrio)}
-            ${tablaSimple('Por estado', stats.porEstado)}
-          </div>
-
-          <div class="grid">
             ${tablaSimple('Por geometria', stats.porGeometria)}
           </div>
 
-          ${tablaIntervenciones(intervenciones)}
+          ${tablaIntervenciones(
+            intervenciones,
+            opciones
+          )}
         </main>
       </body>
     </html>
@@ -354,7 +388,8 @@ function crearHtmlReporte({
 
 export function exportarInformePeriodoPDF(
   intervenciones = [],
-  periodo = ''
+  periodo = '',
+  opciones = {}
 ) {
   if (!intervenciones.length) {
     return false
@@ -371,6 +406,7 @@ export function exportarInformePeriodoPDF(
     crearHtmlReporte({
       periodo,
       intervenciones,
+      opciones,
     })
   )
   ventana.document.close()

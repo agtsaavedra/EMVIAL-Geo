@@ -211,6 +211,35 @@ export function useIntervenciones() {
     }
   }
 
+  async function duplicarIntervencion(
+    intervencion
+  ) {
+    const ahora = new Date().toISOString()
+    const duplicada = {
+      ...intervencion,
+      id: crypto.randomUUID(),
+      nombre: intervencion.nombre
+        ? `${intervencion.nombre} (copia)`
+        : `${intervencion.obra || 'Intervencion'} (copia)`,
+      createdAt: ahora,
+      updatedAt: ahora,
+      deletedAt: null,
+      version: 1,
+    }
+
+    const guardada =
+      await window.api.guardarIntervencion(
+        duplicada
+      )
+
+    setIntervenciones((prev) => [
+      guardada,
+      ...prev,
+    ])
+
+    return guardada
+  }
+
   // API pública que consume el resto de la aplicación.
   return {
     intervenciones,
@@ -220,6 +249,7 @@ export function useIntervenciones() {
     guardarIntervencionesMasivoEnDB,
     eliminarIntervencion,
     restaurarIntervencion,
+    duplicarIntervencion,
     recargarIntervenciones,
   }
 }

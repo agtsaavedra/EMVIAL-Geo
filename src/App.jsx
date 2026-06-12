@@ -43,10 +43,14 @@ function App() {
     aboutAbierto,
     cerrarAbout,
     estadoApp,
+    estadoGeocoding,
+    limpiarCacheGeocoding,
     periodoActivo,
 
     dataQualityAbierto,
     cerrarDataQuality,
+    enfocarIssueDataQuality,
+    editarIssueDataQuality,
     intervencionesFiltradas,
 
     topbarProps,
@@ -90,6 +94,8 @@ function App() {
           abierto={aboutAbierto}
           onCerrar={cerrarAbout}
           estadoApp={estadoApp}
+          estadoGeocoding={estadoGeocoding}
+          onLimpiarCacheGeocoding={limpiarCacheGeocoding}
           periodoActivo={periodoActivo}
         />
 
@@ -99,6 +105,8 @@ function App() {
             intervencionesFiltradas
           }
           onClose={cerrarDataQuality}
+          onFocusIssue={enfocarIssueDataQuality}
+          onEditIssue={editarIssueDataQuality}
         />
       </div>
     </>

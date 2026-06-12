@@ -20,9 +20,11 @@ const DISTANCIA_BUFFER_KM = 0.018
 const DISTANCIA_PUNTO_MEDIO_KM = 0.024
 const DISTANCIA_CALLE_CERCANA_KM = 0.045
 const DISTANCIA_ESQUINA_KM = 0.055
+const TAMANIO_CELDA_GRADOS = 0.01
 
 let callesPromise = null
 let callesIndexadas = null
+let callesGrid = null
 
 function expandirBbox(bbox, margen = 0.00022) {
   return [
@@ -40,6 +42,97 @@ function bboxIntersecta(a, b) {
     a[3] < b[1] ||
     a[1] > b[3]
   )
+}
+
+function obtenerRangoCeldas(bbox) {
+  const minX = Math.floor(
+    bbox[0] / TAMANIO_CELDA_GRADOS
+  )
+  const minY = Math.floor(
+    bbox[1] / TAMANIO_CELDA_GRADOS
+  )
+  const maxX = Math.floor(
+    bbox[2] / TAMANIO_CELDA_GRADOS
+  )
+  const maxY = Math.floor(
+    bbox[3] / TAMANIO_CELDA_GRADOS
+  )
+
+  return {
+    minX,
+    minY,
+    maxX,
+    maxY,
+  }
+}
+
+function crearIndiceCalles(calles) {
+  const grid = new Map()
+
+  calles.forEach((calle) => {
+    const {
+      minX,
+      minY,
+      maxX,
+      maxY,
+    } = obtenerRangoCeldas(calle.bbox)
+
+    for (let x = minX; x <= maxX; x += 1) {
+      for (let y = minY; y <= maxY; y += 1) {
+        const key = `${x}:${y}`
+        const existentes =
+          grid.get(key) || []
+
+        existentes.push(calle)
+        grid.set(key, existentes)
+      }
+    }
+  })
+
+  return grid
+}
+
+function buscarCallesPorBbox(bboxBusqueda) {
+  if (!callesGrid) {
+    return callesIndexadas || []
+  }
+
+  const {
+    minX,
+    minY,
+    maxX,
+    maxY,
+  } = obtenerRangoCeldas(bboxBusqueda)
+  const candidatas = new Map()
+
+  for (let x = minX; x <= maxX; x += 1) {
+    for (let y = minY; y <= maxY; y += 1) {
+      const key = `${x}:${y}`
+      const calles =
+        callesGrid.get(key) || []
+
+      calles.forEach((calle) => {
+        candidatas.set(calle.id, calle)
+      })
+    }
+  }
+
+  return [...candidatas.values()]
+    .filter((calle) =>
+      bboxIntersecta(
+        bboxBusqueda,
+        calle.bbox
+      )
+    )
+}
+
+function crearBboxPunto(lon, lat, margen = 0.0012) {
+  return [
+    lon - margen,
+    lat - margen,
+    lon + margen,
+    lat + margen,
+  ]
 }
 
 function geometriaAppALineString(geometria) {
@@ -400,6 +493,8 @@ async function cargarCallesIndexadas() {
               )
             )
             .map(normalizarFeatureCalle)
+        callesGrid =
+          crearIndiceCalles(callesIndexadas)
 
         return callesIndexadas
       })
@@ -461,8 +556,11 @@ export async function calcularCuadrasLinea(
     const calles =
       await cargarCallesIndexadas()
 
-    const tramosDetectados =
-      calles.filter((calle) => {
+      const callesCandidatas =
+        buscarCallesPorBbox(bboxBusqueda)
+
+      const tramosDetectados =
+      callesCandidatas.filter((calle) => {
         if (
           !bboxIntersecta(
             bboxBusqueda,
@@ -573,7 +671,14 @@ export async function sugerirUbicacionPunto(
     const calles =
       await cargarCallesIndexadas()
 
-    const candidatos = calles
+    const callesCandidatas =
+      calles.length
+        ? buscarCallesPorBbox(
+        crearBboxPunto(lonNum, latNum)
+      )
+        : calles
+
+    const candidatos = callesCandidatas
       .map((calle) => {
         const distancias =
           obtenerLineStrings(

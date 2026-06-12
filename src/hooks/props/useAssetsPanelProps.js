@@ -13,6 +13,7 @@ export function useAssetsPanelProps({
 
   manejarEditarIntervencion,
   eliminarIntervencionProtegida,
+  duplicarIntervencionProtegida,
   manejarEnfocarIntervencion,
   intervencionEnfocada,
 
@@ -31,6 +32,8 @@ export function useAssetsPanelProps({
 
       eliminarIntervencion:
         eliminarIntervencionProtegida,
+      duplicarIntervencion:
+        duplicarIntervencionProtegida,
 
       enfocarIntervencion:
         manejarEnfocarIntervencion,
@@ -47,6 +50,7 @@ export function useAssetsPanelProps({
       intervencionesFiltradas,
       manejarEditarIntervencion,
       eliminarIntervencionProtegida,
+      duplicarIntervencionProtegida,
       manejarEnfocarIntervencion,
       intervencionEnfocada,
       setIntervencionHoverId,

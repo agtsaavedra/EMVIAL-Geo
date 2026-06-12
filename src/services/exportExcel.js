@@ -15,6 +15,9 @@ import * as XLSX from 'xlsx'
 import {
   calcularStatsPorObra,
 } from '@map/data/mapStats'
+import {
+  calcularStatsPeriodo,
+} from '@services/periodoStats'
 
 /**
  * Convierte la geometría de una intervención a texto JSON.
@@ -131,6 +134,38 @@ function crearFilaEstadistica(item) {
   }
 }
 
+function crearFilasResumen(
+  intervenciones,
+  periodoActivo
+) {
+  const stats =
+    calcularStatsPeriodo(intervenciones)
+
+  return [
+    ['Producto', 'EMVIAL Geo'],
+    ['Periodo', periodoActivo || 'Sin periodo'],
+    [
+      'Fecha de exportacion',
+      new Date().toLocaleString('es-AR'),
+    ],
+    ['Intervenciones', stats.total],
+    ['Barrios', stats.porBarrio.length],
+    ['Tipos de obra', stats.porObra.length],
+    [
+      'Metros lineales',
+      stats.metrosLinealesTotal,
+    ],
+    [
+      'Metros cuadrados',
+      stats.metrosCuadradosTotal,
+    ],
+    ['Cuadras', stats.cuadrasTotal],
+  ].map(([Indicador, Valor]) => ({
+    Indicador,
+    Valor,
+  }))
+}
+
 /**
  * Exporta las intervenciones de un período a un archivo Excel.
  *
@@ -159,6 +194,11 @@ export function exportarExcelPeriodo(
 
   const filasStats =
     stats.map(crearFilaEstadistica)
+  const filasResumen =
+    crearFilasResumen(
+      intervenciones,
+      periodoActivo
+    )
 
   const workbook =
     XLSX.utils.book_new()
@@ -167,11 +207,21 @@ export function exportarExcelPeriodo(
     XLSX.utils.json_to_sheet(
       filasIntervenciones
     )
+  const hojaResumen =
+    XLSX.utils.json_to_sheet(
+      filasResumen
+    )
 
   const hojaStats =
     XLSX.utils.json_to_sheet(
       filasStats
     )
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    hojaResumen,
+    'Resumen'
+  )
 
   XLSX.utils.book_append_sheet(
     workbook,

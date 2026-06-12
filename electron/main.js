@@ -17,6 +17,17 @@ const {
 } = require('electron')
 const path = require('path')
 const fs = require('fs')
+const {
+  crearNominatimClient,
+} = require('./geocoding/nominatimClient')
+const logger = require('./logger')
+const {
+  validarArchivoDatos,
+  validarId,
+  validarIntervencion,
+  validarIntervencionesMasivo,
+  validarPeriodo,
+} = require('./validation')
 
 // Nombre de la app en Windows
 app.setName('EMVIAL Geo')
@@ -34,10 +45,20 @@ const CSP_PRODUCCION = [
   "worker-src 'self' blob:",
 ].join('; ')
 
-const ARCHIVOS_DATOS_PERMITIDOS = new Set([
-  'barrios.geojson',
-  'calles-mar-del-plata.geojson',
-])
+let nominatimClient = null
+
+function obtenerNominatimClient() {
+  if (!nominatimClient) {
+    nominatimClient = crearNominatimClient({
+      cachePath: path.join(
+        app.getPath('userData'),
+        'geocoding-cache.json'
+      ),
+    })
+  }
+
+  return nominatimClient
+}
 
 // Base de datos / backups
 const {
@@ -52,6 +73,7 @@ const {
   restaurarPeriodoManual,
   configurarCarpetaBackups,
   obtenerEstadoApp,
+  obtenerHistorialIntervencion,
   iniciarProgramadorBackupsAutomaticos,
 } = require('./database')
 
@@ -80,7 +102,7 @@ async function cargarServidorDev(win) {
       return
     } catch (error) {
       if (intento === maxIntentos) {
-        console.error(
+        logger.error(
           `No se pudo cargar Vite en ${DEV_SERVER_URL}`,
           error
         )
@@ -162,15 +184,7 @@ function configurarSeguridadSesion() {
 }
 
 function obtenerRutaArchivoDatos(nombreArchivo) {
-  if (
-    !ARCHIVOS_DATOS_PERMITIDOS.has(
-      nombreArchivo
-    )
-  ) {
-    throw new Error(
-      'Archivo de datos no permitido.'
-    )
-  }
+  validarArchivoDatos(nombreArchivo)
 
   return path.join(
     __dirname,
@@ -256,54 +270,17 @@ ipcMain.handle('confirmar-cierre-app', () => {
 ipcMain.handle(
   'buscar-direccion',
   async (event, direccion) => {
-    const consultas = [
-      `${direccion}, Mar del Plata, Buenos Aires, Argentina`,
-      `${direccion}, General Pueyrredon, Buenos Aires, Argentina`,
-      `${direccion}, Argentina`,
-      direccion,
-    ]
+    try {
+      return await obtenerNominatimClient()
+        .buscarDireccion(direccion)
+    } catch (error) {
+      logger.warn(
+        'No se pudo geocodificar la direccion:',
+        error.message
+      )
 
-    for (const consulta of consultas) {
-      const url =
-        `https://nominatim.openstreetmap.org/search?format=jsonv2&q=` +
-        `${encodeURIComponent(
-          consulta
-        )}` +
-        `&limit=5&addressdetails=1&countrycodes=ar`
-
-      const respuesta = await fetch(url, {
-        headers: {
-          'User-Agent':
-            'EMVIAL-App/1.0',
-          Accept:
-            'application/json',
-        },
-      })
-
-      const texto =
-        await respuesta.text()
-
-      try {
-        const datos =
-          JSON.parse(texto)
-
-        if (datos.length > 0) {
-          console.log(
-            'Consulta usada:',
-            consulta
-          )
-
-          return datos
-        }
-      } catch {
-        console.log(
-          'Respuesta inesperada de Nominatim:',
-          texto
-        )
-      }
+      return []
     }
-
-    return []
   }
 )
 
@@ -311,33 +288,13 @@ ipcMain.handle(
 ipcMain.handle(
   'obtener-direccion',
   async (event, lat, lon) => {
-    const url =
-      `https://nominatim.openstreetmap.org/reverse?format=jsonv2` +
-      `&lat=${lat}&lon=${lon}`
-
-    const respuesta = await fetch(url, {
-      headers: {
-        'User-Agent':
-          'EMVIAL-App/1.0',
-        Accept:
-          'application/json',
-      },
-    })
-
-    const texto =
-      await respuesta.text()
-
     try {
-      const datos =
-        JSON.parse(texto)
-
-      return (
-        datos.display_name || ''
-      )
-    } catch {
-      console.log(
-        'Respuesta inesperada de Nominatim:',
-        texto
+      return await obtenerNominatimClient()
+        .obtenerDireccion(lat, lon)
+    } catch (error) {
+      logger.warn(
+        'No se pudo obtener direccion inversa:',
+        error.message
       )
 
       return ''
@@ -364,7 +321,7 @@ ipcMain.handle(
   'guardar-intervencion',
   async (event, intervencion) => {
     return await guardarIntervencion(
-      intervencion
+      validarIntervencion(intervencion)
     )
   }
 )
@@ -373,7 +330,7 @@ ipcMain.handle(
   'guardar-intervenciones-masivo',
   async (event, intervenciones) => {
     return await guardarIntervencionesMasivo(
-      intervenciones
+      validarIntervencionesMasivo(intervenciones)
     )
   }
 )
@@ -383,7 +340,16 @@ ipcMain.handle(
   'eliminar-intervencion',
   async (event, id) => {
     return await eliminarIntervencion(
-      id
+      validarId(id)
+    )
+  }
+)
+
+ipcMain.handle(
+  'obtener-historial-intervencion',
+  async (event, id) => {
+    return obtenerHistorialIntervencion(
+      validarId(id)
     )
   }
 )
@@ -399,7 +365,7 @@ ipcMain.handle(
   'crear-backup-manual',
   async (event, periodo) => {
     return await crearBackupManual(
-      periodo
+      validarPeriodo(periodo)
     )
   }
 )
@@ -432,7 +398,7 @@ ipcMain.handle(
   'restaurar-periodo-manual',
   async (event, periodo) => {
     return await restaurarPeriodoManual(
-      periodo
+      validarPeriodo(periodo)
     )
   }
 )
@@ -466,6 +432,22 @@ ipcMain.handle(
       ruta,
       'utf-8'
     )
+  }
+)
+
+ipcMain.handle(
+  'obtener-estado-geocoding',
+  async () => {
+    return obtenerNominatimClient()
+      .obtenerEstadoCache()
+  }
+)
+
+ipcMain.handle(
+  'limpiar-cache-geocoding',
+  async () => {
+    return obtenerNominatimClient()
+      .limpiarCache()
   }
 )
 

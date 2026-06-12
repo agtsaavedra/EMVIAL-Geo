@@ -11,6 +11,7 @@ export function useAssetActions({
   confirmar,
   eliminarIntervencion,
   restaurarIntervencion,
+  duplicarIntervencion,
   mostrarToast,
 }) {
   // Elimina una intervención con confirmación previa y opción de deshacer por toast.
@@ -71,7 +72,26 @@ export function useAssetActions({
     })
   }
 
+  async function duplicarIntervencionProtegida(
+    intervencion
+  ) {
+    try {
+      await duplicarIntervencion(intervencion)
+
+      mostrarToast(
+        'Intervencion duplicada.',
+        'success'
+      )
+    } catch {
+      mostrarToast(
+        'No se pudo duplicar la intervencion.',
+        'error'
+      )
+    }
+  }
+
   return {
     eliminarIntervencionProtegida,
+    duplicarIntervencionProtegida,
   }
 }

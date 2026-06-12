@@ -348,7 +348,11 @@ export function useTopbarActions({
 
         const ok = exportarInformePeriodoPDF(
           intervencionesParaExportar,
-          periodoActivo
+          periodoActivo,
+          {
+            incluirCoordenadas: true,
+            incluirObservaciones: true,
+          }
         )
 
         mostrarToast(

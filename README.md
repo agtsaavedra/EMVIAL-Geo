@@ -168,7 +168,6 @@ La exportación KML es útil para My Maps / Google Earth. La exportación Excel 
 │   └── exportKML.js
 ├── styles
 │   ├── base
-│   │   ├── scrollbar.css
 │   │   └── theme.css
 │   ├── components
 │   │   ├── appsplash.css

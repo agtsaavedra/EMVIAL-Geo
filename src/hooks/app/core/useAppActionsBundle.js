@@ -46,6 +46,7 @@ export function useAppActionsBundle({
   guardarIntervencionesMasivoEnDB,
   eliminarIntervencion,
   restaurarIntervencion,
+  duplicarIntervencion,
   modoConsulta,
 
   // backups
@@ -56,8 +57,10 @@ export function useAppActionsBundle({
   const {
     aboutAbierto,
     estadoApp,
+    estadoGeocoding,
     abrirAbout,
     cerrarAbout,
+    limpiarCacheGeocoding,
   } = useAboutDialog()
 
   const {
@@ -107,11 +110,13 @@ export function useAppActionsBundle({
 
   const {
     eliminarIntervencionProtegida,
+    duplicarIntervencionProtegida,
   } = useAssetActions({
     confirmar,
     eliminarIntervencion,
     mostrarToast,
     restaurarIntervencion,
+    duplicarIntervencion,
   })
 
   useKeyboardShortcuts({
@@ -128,7 +133,9 @@ export function useAppActionsBundle({
   return {
     aboutAbierto,
     estadoApp,
+    estadoGeocoding,
     cerrarAbout,
+    limpiarCacheGeocoding,
 
     manejarEnfocarIntervencion,
     manejarEditarIntervencion,
@@ -149,5 +156,6 @@ export function useAppActionsBundle({
     abrirAboutDesdeMenu,
 
     eliminarIntervencionProtegida,
+    duplicarIntervencionProtegida,
   }
 }
