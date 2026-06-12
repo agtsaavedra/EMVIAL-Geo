@@ -104,10 +104,14 @@ export function useGeometryEditing({
       ...prev,
 
       direccion: '',
+      ubicacion: '',
       latitud: '',
       longitud: '',
       barrio: '',
       geometria: [],
+      cuadras: '',
+      metrosLineales: '',
+      metrosCuadrados: '',
     }))
 
     setPuntoSeleccionado(null)
@@ -143,6 +147,9 @@ export function useGeometryEditing({
 
       direccion:
         original.direccion,
+
+      ubicacion:
+        original.ubicacion,
 
       latitud:
         original.latitud,
@@ -291,6 +298,9 @@ export function useGeometryEditing({
 
       direccion:
         original.direccion || '',
+
+      ubicacion:
+        original.ubicacion || '',
 
       latitud:
         original.latitud || '',

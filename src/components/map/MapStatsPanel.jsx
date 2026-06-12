@@ -216,26 +216,6 @@ function MapStatsPanel({
         </section>
 
         {/* ===============================
-            POR ESTADO
-        ================================ */}
-
-        <section className="map-stats-panel-section">
-          <h4>Por estado</h4>
-
-          {statsDetalle.porEstado.map(
-            ([estado, total]) => (
-              <div
-                key={estado}
-                className="stats-detail-row"
-              >
-                <span>{estado}</span>
-                <strong>{total}</strong>
-              </div>
-            )
-          )}
-        </section>
-
-        {/* ===============================
             POR GEOMETRÍA
         ================================ */}
 

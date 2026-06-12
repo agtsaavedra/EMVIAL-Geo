@@ -78,7 +78,7 @@ function ControlBarrio({
 
       const select = L.DomUtil.create(
         'select',
-        '',
+        'map-control-select',
         container
       )
 

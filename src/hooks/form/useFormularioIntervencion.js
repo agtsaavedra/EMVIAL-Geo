@@ -6,7 +6,11 @@
  * mapa y filtros.
  */
 
-import { useEffect, useState } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 
 import { formInicial } from '@constants/formInicial'
 
@@ -47,6 +51,15 @@ export function useFormularioIntervencion({
     formOriginal,
     setFormOriginal,
   ] = useState(null)
+  const ubicacionAutoLineaRef =
+    useRef('')
+  const calculoCuadrasVersionRef =
+    useRef(0)
+
+  function invalidarUbicacionAutoLinea() {
+    ubicacionAutoLineaRef.current = ''
+    calculoCuadrasVersionRef.current += 1
+  }
 
   // =====================================================
   // RESET AL CAMBIAR PERÍODO
@@ -60,6 +73,7 @@ export function useFormularioIntervencion({
   useEffect(() => {
     setForm(formInicial)
     setFormOriginal(null)
+    invalidarUbicacionAutoLinea()
 
     setPuntoSeleccionado(null)
 
@@ -134,6 +148,10 @@ export function useFormularioIntervencion({
 
   useEffect(() => {
     let activo = true
+    const versionCalculo =
+      calculoCuadrasVersionRef.current + 1
+    calculoCuadrasVersionRef.current =
+      versionCalculo
 
     async function calcularCuadras() {
       if (
@@ -160,19 +178,42 @@ export function useFormularioIntervencion({
           form.geometria
         )
 
-      if (!activo) return
+      if (
+        !activo ||
+        versionCalculo !==
+          calculoCuadrasVersionRef.current
+      ) {
+        return
+      }
 
       setForm((prev) => {
+        const debeActualizarUbicacion =
+          resultado.ubicacion &&
+          (
+            !prev.ubicacion ||
+            prev.ubicacion ===
+              ubicacionAutoLineaRef.current
+          )
+
         if (
           prev.cuadras ===
-          resultado.cuadras
+            resultado.cuadras &&
+          !debeActualizarUbicacion
         ) {
           return prev
+        }
+
+        if (debeActualizarUbicacion) {
+          ubicacionAutoLineaRef.current =
+            resultado.ubicacion
         }
 
         return {
           ...prev,
           cuadras: resultado.cuadras,
+          ubicacion: debeActualizarUbicacion
+            ? resultado.ubicacion
+            : prev.ubicacion,
         }
       })
     }
@@ -295,6 +336,7 @@ export function useFormularioIntervencion({
       }))
 
       setPuntoSeleccionado(null)
+      invalidarUbicacionAutoLinea()
 
       return
     }
@@ -389,6 +431,7 @@ export function useFormularioIntervencion({
 
     setForm(formInicial)
     setFormOriginal(null)
+    invalidarUbicacionAutoLinea()
 
     setBarrioSeleccionado('')
     setSugerencias([])
@@ -482,6 +525,7 @@ export function useFormularioIntervencion({
 
     setForm(formEditado)
     setFormOriginal(formEditado)
+    invalidarUbicacionAutoLinea()
 
     if (
       intervencion.latitud &&
@@ -512,6 +556,7 @@ export function useFormularioIntervencion({
 
     setForm(formInicial)
     setFormOriginal(null)
+    invalidarUbicacionAutoLinea()
 
     setPuntoSeleccionado(null)
 

@@ -110,13 +110,28 @@ function ClickMapa({
   }) {
     setPuntoSeleccionado(punto)
 
-    const direccion =
-      await obtenerDireccion(lat, lon)
+    const [
+      direccion,
+      sugerenciaUbicacion,
+    ] = await Promise.all([
+      obtenerDireccion(lat, lon),
+      import('@services/callesMetrics')
+        .then((modulo) =>
+          modulo.sugerirUbicacionPunto(
+            lat,
+            lon
+          )
+        )
+        .catch(() => null),
+    ])
 
     setForm((prev) => ({
       ...prev,
 
       barrio: barrioDetectado,
+      ubicacion:
+        sugerenciaUbicacion?.ubicacion ||
+        '',
       direccion,
 
       latitud: lat.toFixed(6),

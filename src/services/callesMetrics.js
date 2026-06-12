@@ -2,9 +2,11 @@ import along from '@turf/along'
 import bbox from '@turf/bbox'
 import booleanIntersects from '@turf/boolean-intersects'
 import buffer from '@turf/buffer'
+import distance from '@turf/distance'
 import length from '@turf/length'
 import nearestPointOnLine from '@turf/nearest-point-on-line'
 import {
+  point,
   lineString,
 } from '@turf/helpers'
 import {
@@ -16,6 +18,8 @@ import {
 
 const DISTANCIA_BUFFER_KM = 0.018
 const DISTANCIA_PUNTO_MEDIO_KM = 0.024
+const DISTANCIA_CALLE_CERCANA_KM = 0.045
+const DISTANCIA_ESQUINA_KM = 0.055
 
 let callesPromise = null
 let callesIndexadas = null
@@ -89,6 +93,262 @@ function puntoMedioLinea(coordinates) {
   return along(line, longitud / 2, {
     units: 'kilometers',
   })
+}
+
+function obtenerExtremosCalle(feature) {
+  const coordinates =
+    obtenerLineStrings(feature)[0] || []
+
+  if (coordinates.length < 2) {
+    return []
+  }
+
+  return [
+    point(coordinates[0]),
+    point(coordinates[coordinates.length - 1]),
+  ]
+}
+
+function obtenerAlturaAproximada(properties = {}) {
+  const valores = [
+    properties.l_f_add,
+    properties.l_t_add,
+    properties.r_f_add,
+    properties.r_t_add,
+  ]
+    .map(Number)
+    .filter(
+      (valor) =>
+        Number.isFinite(valor) && valor > 0
+    )
+
+  if (!valores.length) return ''
+
+  const promedio =
+    valores.reduce(
+      (total, valor) => total + valor,
+      0
+    ) / valores.length
+
+  return String(
+    Math.round(promedio / 100) * 100
+  )
+}
+
+function obtenerRangoAlturas(features = []) {
+  const valores =
+    features.flatMap((feature) => [
+      feature.properties?.l_f_add,
+      feature.properties?.l_t_add,
+      feature.properties?.r_f_add,
+      feature.properties?.r_t_add,
+    ])
+      .map(Number)
+      .filter(
+        (valor) =>
+          Number.isFinite(valor) && valor > 0
+      )
+
+  if (!valores.length) return ''
+
+  const min =
+    Math.floor(Math.min(...valores) / 100) *
+    100
+  const max =
+    Math.ceil(Math.max(...valores) / 100) *
+    100
+
+  if (min === max) {
+    return String(min)
+  }
+
+  return `${min}/${max}`
+}
+
+function obtenerCallePrincipal(
+  tramosDetectados
+) {
+  const conteo = new Map()
+
+  tramosDetectados.forEach((tramo) => {
+    if (!tramo.nombre || tramo.nombre === 'Sin nombre') {
+      return
+    }
+
+    conteo.set(
+      tramo.nombre,
+      (conteo.get(tramo.nombre) || 0) + 1
+    )
+  })
+
+  return [...conteo.entries()]
+    .sort((a, b) => b[1] - a[1])[0]?.[0] || ''
+}
+
+function construirUbicacionLinea({
+  callePrincipal,
+  tramosDetectados,
+  callesInicio,
+  callesFin,
+}) {
+  const nombre =
+    normalizarNombreCalle(callePrincipal)
+
+  if (!nombre) return ''
+
+  const featuresPrincipales =
+    tramosDetectados
+      .filter(
+        (tramo) =>
+          tramo.nombre === callePrincipal
+      )
+      .map((tramo) => tramo.feature)
+
+  const rango =
+    obtenerRangoAlturas(
+      featuresPrincipales.length
+        ? featuresPrincipales
+        : tramosDetectados.map(
+          (tramo) => tramo.feature
+        )
+    )
+
+  const entreCalles = [
+    callesInicio.find(
+      (item) => item !== callePrincipal
+    ),
+    callesFin.find(
+      (item) =>
+        item !== callePrincipal &&
+        item !== callesInicio[0]
+    ) || callesFin.find(
+      (item) => item !== callePrincipal
+    ),
+  ].filter(Boolean)
+
+  const base = rango
+    ? `${nombre} ${rango}`
+    : nombre
+
+  if (entreCalles.length >= 2) {
+    return `${base} e/ ${entreCalles[0]} y ${entreCalles[1]}`
+  }
+
+  return base
+}
+
+function normalizarNombreCalle(nombre) {
+  return String(nombre || '').trim()
+}
+
+function buscarCallesCercanasAPunto({
+  calles,
+  puntoUsuario,
+  excluirNombre,
+}) {
+  return calles
+    .map((calle) => {
+      const distancias =
+        obtenerLineStrings(calle.feature).map(
+          (coordinates) => {
+            const cercano =
+              nearestPointOnLine(
+                lineString(coordinates),
+                puntoUsuario,
+                {
+                  units: 'kilometers',
+                }
+              )
+
+            return Number(
+              cercano.properties?.dist
+            )
+          }
+        )
+
+      return {
+        nombre: calle.nombre,
+        distancia:
+          Math.min(...distancias),
+      }
+    })
+    .filter(
+      (calle) =>
+        calle.nombre &&
+        calle.nombre !== 'Sin nombre' &&
+        calle.nombre !== excluirNombre &&
+        Number.isFinite(calle.distancia) &&
+        calle.distancia <=
+          DISTANCIA_ESQUINA_KM
+    )
+    .sort(
+      (a, b) => a.distancia - b.distancia
+    )
+    .map((calle) => calle.nombre)
+}
+
+function buscarCallesDeEsquina({
+  calles,
+  puntoExtremo,
+  calleBase,
+}) {
+  return calles
+    .filter((calle) => {
+      if (calle.id === calleBase.id) {
+        return false
+      }
+
+      if (
+        calle.nombre === 'Sin nombre' ||
+        calle.nombre === calleBase.nombre
+      ) {
+        return false
+      }
+
+      return obtenerExtremosCalle(
+        calle.feature
+      ).some((extremo) => (
+        distance(puntoExtremo, extremo, {
+          units: 'kilometers',
+        }) <= DISTANCIA_ESQUINA_KM
+      ))
+    })
+    .map((calle) => calle.nombre)
+}
+
+function construirUbicacionPunto({
+  calle,
+  callesExtremoA,
+  callesExtremoB,
+}) {
+  const nombre =
+    normalizarNombreCalle(calle.nombre)
+
+  if (!nombre || nombre === 'Sin nombre') {
+    return ''
+  }
+
+  const altura =
+    obtenerAlturaAproximada(
+      calle.feature.properties
+    )
+
+  const entreCalles = [
+    callesExtremoA[0],
+    callesExtremoB.find(
+      (item) => item !== callesExtremoA[0]
+    ) || callesExtremoB[0],
+  ].filter(Boolean)
+
+  const base = altura
+    ? `${nombre} ${altura}`
+    : nombre
+
+  if (entreCalles.length >= 2) {
+    return `${base} e/ ${entreCalles[0]} y ${entreCalles[1]}`
+  }
+
+  return base
 }
 
 function tienePuntoMedioCercano(
@@ -223,12 +483,45 @@ export async function calcularCuadrasLinea(
       })
 
     if (tramosDetectados.length > 0) {
+      const callePrincipal =
+        obtenerCallePrincipal(
+          tramosDetectados
+        )
+      const inicio = point(
+        linea.geometry.coordinates[0]
+      )
+      const fin = point(
+        linea.geometry.coordinates[
+          linea.geometry.coordinates.length - 1
+        ]
+      )
+      const callesInicio =
+        buscarCallesCercanasAPunto({
+          calles,
+          puntoUsuario: inicio,
+          excluirNombre: callePrincipal,
+        })
+      const callesFin =
+        buscarCallesCercanasAPunto({
+          calles,
+          puntoUsuario: fin,
+          excluirNombre: callePrincipal,
+        })
+      const ubicacion =
+        construirUbicacionLinea({
+          callePrincipal,
+          tramosDetectados,
+          callesInicio,
+          callesFin,
+        })
+
       return {
         cuadras: String(
           tramosDetectados.length
         ),
         metodo: 'red-vial',
         tramos: tramosDetectados.length,
+        ubicacion,
         calles: [
           ...new Set(
             tramosDetectados
@@ -254,5 +547,113 @@ export async function calcularCuadrasLinea(
     ),
     metodo: 'distancia-100m',
     tramos: 0,
+  }
+}
+
+export async function sugerirUbicacionPunto(
+  lat,
+  lon
+) {
+  const latNum = Number(lat)
+  const lonNum = Number(lon)
+
+  if (
+    !Number.isFinite(latNum) ||
+    !Number.isFinite(lonNum)
+  ) {
+    return null
+  }
+
+  const puntoUsuario = point([
+    lonNum,
+    latNum,
+  ])
+
+  try {
+    const calles =
+      await cargarCallesIndexadas()
+
+    const candidatos = calles
+      .map((calle) => {
+        const distancias =
+          obtenerLineStrings(
+            calle.feature
+          ).map((coordinates) => {
+            const cercano =
+              nearestPointOnLine(
+                lineString(coordinates),
+                puntoUsuario,
+                {
+                  units: 'kilometers',
+                }
+              )
+
+            return Number(
+              cercano.properties?.dist
+            )
+          })
+
+        return {
+          ...calle,
+          distancia:
+            Math.min(...distancias),
+        }
+      })
+      .filter(
+        (calle) =>
+          calle.nombre !== 'Sin nombre' &&
+          Number.isFinite(calle.distancia) &&
+          calle.distancia <=
+            DISTANCIA_CALLE_CERCANA_KM
+      )
+      .sort(
+        (a, b) => a.distancia - b.distancia
+      )
+
+    const calle = candidatos[0]
+
+    if (!calle) return null
+
+    const [extremoA, extremoB] =
+      obtenerExtremosCalle(calle.feature)
+
+    const callesExtremoA = extremoA
+      ? buscarCallesDeEsquina({
+        calles,
+        puntoExtremo: extremoA,
+        calleBase: calle,
+      })
+      : []
+
+    const callesExtremoB = extremoB
+      ? buscarCallesDeEsquina({
+        calles,
+        puntoExtremo: extremoB,
+        calleBase: calle,
+      })
+      : []
+
+    const ubicacion =
+      construirUbicacionPunto({
+        calle,
+        callesExtremoA,
+        callesExtremoB,
+      })
+
+    if (!ubicacion) return null
+
+    return {
+      ubicacion,
+      calle: calle.nombre,
+      distanciaMetros:
+        calle.distancia * 1000,
+    }
+  } catch (error) {
+    console.warn(
+      'No se pudo sugerir ubicacion del punto:',
+      error
+    )
+
+    return null
   }
 }

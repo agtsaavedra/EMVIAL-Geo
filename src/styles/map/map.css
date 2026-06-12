@@ -51,6 +51,27 @@
 
   background: var(--input-bg);
   color: var(--input-text);
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+  color-scheme: dark;
+}
+
+.map-control-select::-webkit-scrollbar {
+  width: 6px;
+}
+
+.map-control-select::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.map-control-select::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+}
+
+.map-control-select::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.52);
 }
 
 

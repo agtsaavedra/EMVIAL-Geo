@@ -118,6 +118,10 @@
     0 14px 30px rgba(37, 99, 235, 0.18);
 }
 
+.card-expanded {
+  contain-intrinsic-size: 360px;
+}
+
 /* ===============================
    HEADER DE CARD
    Robusto para zoom 125/150%
@@ -418,6 +422,98 @@
 .card-compact-detail b {
   color: var(--text-secondary);
   font-weight: 700;
+}
+
+.card-detail-toggle {
+  width: 100%;
+
+  margin-top: 10px;
+  padding: 7px 9px;
+
+  border: 1px solid rgba(96, 165, 250, 0.26);
+  border-radius: 10px;
+
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--text);
+
+  cursor: pointer;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.14s ease;
+}
+
+.card-detail-toggle:hover {
+  border-color: rgba(96, 165, 250, 0.48);
+  background: rgba(37, 99, 235, 0.18);
+  transform: translateY(-1px);
+}
+
+.card-detail {
+  max-height: 0;
+  opacity: 0;
+
+  overflow: hidden;
+
+  transition:
+    max-height 0.26s ease,
+    opacity 0.18s ease,
+    margin-top 0.2s ease;
+}
+
+.card-expanded .card-detail {
+  max-height: 760px;
+  opacity: 1;
+  margin-top: 9px;
+}
+
+.card-detail-inner {
+  display: grid;
+  gap: 6px;
+
+  padding: 9px;
+
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 12px;
+
+  background: rgba(15, 23, 42, 0.18);
+}
+
+.card-detail-row {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 8px;
+
+  padding-bottom: 6px;
+
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.card-detail-row:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.card-detail-row b {
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.card-detail-row span {
+  display: block;
+
+  margin: 0;
+
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.28;
+
+  overflow-wrap: anywhere;
 }
 
 .card-geometry {
