@@ -2,6 +2,67 @@ const FORMATEADOR_AR = new Intl.NumberFormat('es-AR', {
   maximumFractionDigits: 2,
 })
 
+const GEOMETRIAS_VALIDAS = new Map([
+  ['punto', 'Punto'],
+  ['linea', 'Linea'],
+  ['lÃ­nea', 'LÃ­nea'],
+  ['poligono', 'Poligono'],
+  ['polÃ­gono', 'PolÃ­gono'],
+])
+
+function normalizarTexto(valor) {
+  return String(valor || '').trim()
+}
+
+function normalizarFecha(valor, fallback) {
+  const fecha = normalizarTexto(valor)
+
+  return fecha || fallback
+}
+
+function normalizarVersion(valor) {
+  const version = Number.parseInt(valor, 10)
+
+  if (!Number.isFinite(version) || version < 1) {
+    return 1
+  }
+
+  return version
+}
+
+function normalizarGeometriaTipo(valor) {
+  const texto = normalizarTexto(valor)
+
+  if (!texto) return 'Punto'
+
+  const clave = texto.toLowerCase()
+
+  return GEOMETRIAS_VALIDAS.get(clave) || texto
+}
+
+function normalizarPuntoGeometria(punto) {
+  if (!Array.isArray(punto) || punto.length < 2) {
+    return null
+  }
+
+  const lat = Number(punto[0])
+  const lon = Number(punto[1])
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+    return null
+  }
+
+  return [lat, lon]
+}
+
+function normalizarGeometria(geometria) {
+  if (!Array.isArray(geometria)) return []
+
+  return geometria
+    .map(normalizarPuntoGeometria)
+    .filter(Boolean)
+}
+
 export function obtenerTituloIntervencion(intervencion = {}) {
   return (
     intervencion.nombre ||
@@ -181,14 +242,54 @@ export function obtenerDetalleIntervencion(
   })
 }
 
-export function normalizarIntervencion(intervencion = {}) {
+export function normalizarIntervencion(
+  intervencion = {},
+  opciones = {}
+) {
+  const ahora =
+    opciones.ahora || new Date().toISOString()
+  const createdAt =
+    normalizarFecha(
+      intervencion.createdAt,
+      ahora
+    )
+  const updatedAt =
+    normalizarFecha(
+      intervencion.updatedAt,
+      createdAt
+    )
+
   return {
     ...intervencion,
+    id:
+      intervencion.id === undefined ||
+      intervencion.id === null
+        ? intervencion.id
+        : String(intervencion.id),
+    nombre: normalizarTexto(intervencion.nombre),
+    obra: normalizarTexto(intervencion.obra),
+    ubicacion: normalizarTexto(intervencion.ubicacion),
+    direccion: normalizarTexto(intervencion.direccion),
+    barrio: normalizarTexto(intervencion.barrio),
+    fuente: normalizarTexto(intervencion.fuente),
+    inspector: normalizarTexto(intervencion.inspector),
+    realizo: normalizarTexto(intervencion.realizo),
     estado: 'Finalizada',
     geometriaTipo:
-      intervencion.geometriaTipo || 'Punto',
-    geometria: Array.isArray(intervencion.geometria)
-      ? intervencion.geometria
-      : [],
+      normalizarGeometriaTipo(
+        intervencion.geometriaTipo
+      ),
+    geometria: normalizarGeometria(
+      intervencion.geometria
+    ),
+    createdAt,
+    updatedAt,
+    deletedAt: intervencion.deletedAt || null,
+    version: normalizarVersion(
+      intervencion.version
+    ),
+    syncStatus:
+      intervencion.syncStatus || 'synced',
+    updatedBy: intervencion.updatedBy || null,
   }
 }

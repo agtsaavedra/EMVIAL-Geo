@@ -8,6 +8,8 @@
 import TopbarTitle from '@components/topbar/TopbarTitle'
 import TopbarFilters from '@components/topbar/TopbarFilters'
 import TopbarMenu from '@components/topbar/TopbarMenu'
+import { formatearPeriodo } from '@domain/periodo'
+import { useEffect } from 'react'
 
 // Punto de entrada visual del componente.
 function Topbar({
@@ -45,6 +47,10 @@ function Topbar({
   periodoActivo,
   setPeriodoActivo,
 }) {
+  useEffect(() => {
+    document.title = `EMVIAL Geo - ${formatearPeriodo(periodoActivo)}`
+  }, [periodoActivo])
+
   // =====================================================
   // RENDER
   // =====================================================

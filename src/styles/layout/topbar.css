@@ -43,7 +43,7 @@
   min-width: 0;
 }
 
-.topbar-title h2 {
+.topbar-title h3 {
   margin: 0;
 
   color: var(--text);
@@ -55,7 +55,16 @@
 }
 
 .topbar-title span {
-  display: none;
+  display: block;
+  margin-top: 2px;
+
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 /* El input de búsqueda es hijo directo de .topbar-main */
@@ -97,8 +106,8 @@
 }
 
 .periodo-input {
-  width: 170px;
-  min-width: 170px;
+  width: 230px;
+  min-width: 230px;
 }
 
 .clear-filters-btn {

@@ -7,10 +7,12 @@ const {
   obtenerMetricasIntervencion,
   obtenerSubtituloIntervencion,
   obtenerReferenciaIntervencion,
+  normalizarIntervencion,
 } = loadPureModule('src/domain/intervencion.js', [
   'obtenerMetricasIntervencion',
   'obtenerSubtituloIntervencion',
   'obtenerReferenciaIntervencion',
+  'normalizarIntervencion',
 ])
 
 test('no muestra metricas para puntos', () => {
@@ -39,5 +41,37 @@ test('resume titulo secundario y referencia', () => {
   assert.equal(
     obtenerReferenciaIntervencion(intervencion),
     'ARENales 2300'
+  )
+})
+
+test('normaliza el contrato base de intervencion', () => {
+  const intervencion = normalizarIntervencion(
+    {
+      id: 123,
+      nombre: '  Prueba  ',
+      geometriaTipo: '',
+      geometria: [
+        ['-38.1', '-57.2'],
+        ['x', '-57.3'],
+      ],
+      version: '0',
+    },
+    {
+      ahora: '2026-06-12T00:00:00.000Z',
+    }
+  )
+
+  assert.equal(intervencion.id, '123')
+  assert.equal(intervencion.nombre, 'Prueba')
+  assert.equal(intervencion.estado, 'Finalizada')
+  assert.equal(intervencion.geometriaTipo, 'Punto')
+  assert.deepEqual(intervencion.geometria, [
+    [-38.1, -57.2],
+  ])
+  assert.equal(intervencion.version, 1)
+  assert.equal(intervencion.syncStatus, 'synced')
+  assert.equal(
+    intervencion.createdAt,
+    '2026-06-12T00:00:00.000Z'
   )
 })

@@ -57,8 +57,8 @@
   }
 
   .periodo-input {
-    width: 155px;
-    min-width: 155px;
+    width: 220px;
+    min-width: 220px;
   }
 
   .topbar-logo {
@@ -66,7 +66,7 @@
     height: 44px;
   }
 
-  .topbar-title h2 {
+  .topbar-title h3 {
     font-size: 20px;
   }
 }
@@ -95,7 +95,7 @@
     gap: 10px;
   }
 
-  .topbar-title h2 {
+  .topbar-title h3 {
     font-size: 18px;
   }
 
@@ -123,8 +123,8 @@
   }
 
   .periodo-input {
-    width: 145px;
-    min-width: 145px;
+    width: 210px;
+    min-width: 210px;
   }
 }
 
@@ -299,7 +299,7 @@
     gap: 8px;
   }
 
-  .topbar-title h2 {
+  .topbar-title h3 {
     font-size: 16px;
     max-width: 260px;
     overflow: hidden;
@@ -344,7 +344,7 @@
   }
 
   .periodo-input {
-    width: 140px;
-    min-width: 140px;
+    width: 205px;
+    min-width: 205px;
   }
 }

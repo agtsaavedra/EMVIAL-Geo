@@ -15,6 +15,9 @@ import {
 import {
   leerGeojsonDatos,
 } from '@services/staticData'
+import {
+  formatearCuadrasOperativas,
+} from '@domain/cuadras'
 
 const DISTANCIA_BUFFER_KM = 0.018
 const DISTANCIA_PUNTO_MEDIO_KM = 0.024
@@ -228,7 +231,9 @@ function obtenerAlturaAproximada(properties = {}) {
   )
 }
 
-function obtenerRangoAlturas(features = []) {
+function obtenerRangoAlturas(
+  features = []
+) {
   const valores =
     features.flatMap((feature) => [
       feature.properties?.l_f_add,
@@ -250,7 +255,6 @@ function obtenerRangoAlturas(features = []) {
   const max =
     Math.ceil(Math.max(...valores) / 100) *
     100
-
   if (min === max) {
     return String(min)
   }
@@ -276,6 +280,281 @@ function obtenerCallePrincipal(
 
   return [...conteo.entries()]
     .sort((a, b) => b[1] - a[1])[0]?.[0] || ''
+}
+
+function obtenerNombreCallePrincipal(
+  tramosDetectados
+) {
+  const nombres =
+    tramosDetectados
+      .map((tramo) => tramo.nombre)
+      .filter(
+        (nombre) =>
+          nombre && nombre !== 'Sin nombre'
+      )
+
+  return nombres[0] || ''
+}
+
+function obtenerPuntoMedioSegmento(
+  coordenadaA,
+  coordenadaB
+) {
+  return point([
+    (coordenadaA[0] + coordenadaB[0]) / 2,
+    (coordenadaA[1] + coordenadaB[1]) / 2,
+  ])
+}
+
+function calcularDistanciaPuntoACalle(
+  puntoUsuario,
+  calle
+) {
+  const distancias =
+    obtenerLineStrings(calle.feature).map(
+      (coordinates) => {
+        const cercano =
+          nearestPointOnLine(
+            lineString(coordinates),
+            puntoUsuario,
+            {
+              units: 'kilometers',
+            }
+          )
+
+        return Number(
+          cercano.properties?.dist
+        )
+      }
+    )
+
+  return Math.min(...distancias)
+}
+
+function detectarCalleSegmento({
+  segmento,
+  calles,
+}) {
+  const bboxSegmento =
+    expandirBbox(bbox(segmento), 0.00035)
+  const coordenadas =
+    segmento.geometry.coordinates
+  const puntoMedio =
+    obtenerPuntoMedioSegmento(
+      coordenadas[0],
+      coordenadas[1]
+    )
+
+  return calles
+    .filter((calle) =>
+      bboxIntersecta(
+        bboxSegmento,
+        calle.bbox
+      )
+    )
+    .map((calle) => ({
+      ...calle,
+      distancia:
+        calcularDistanciaPuntoACalle(
+          puntoMedio,
+          calle
+        ),
+    }))
+    .filter(
+      (calle) =>
+        calle.nombre &&
+        calle.nombre !== 'Sin nombre' &&
+        Number.isFinite(calle.distancia) &&
+        calle.distancia <=
+          DISTANCIA_CALLE_CERCANA_KM
+    )
+    .sort(
+      (a, b) => a.distancia - b.distancia
+    )[0]
+}
+
+function buscarCallePorNombreCercanaAPunto({
+  calles,
+  puntoUsuario,
+  nombre,
+}) {
+  return calles
+    .filter(
+      (calle) =>
+        calle.nombre === nombre &&
+        calle.nombre !== 'Sin nombre'
+    )
+    .map((calle) => ({
+      ...calle,
+      distancia:
+        calcularDistanciaPuntoACalle(
+          puntoUsuario,
+          calle
+        ),
+    }))
+    .filter(
+      (calle) =>
+        Number.isFinite(calle.distancia) &&
+        calle.distancia <=
+          DISTANCIA_CALLE_CERCANA_KM
+    )
+    .sort(
+      (a, b) => a.distancia - b.distancia
+    )[0]
+}
+
+function unirCallesUnicas(calles = []) {
+  const porId = new Map()
+
+  calles.filter(Boolean).forEach((calle) => {
+    porId.set(calle.id, calle)
+  })
+
+  return [...porId.values()]
+}
+
+function buscarCallesPorNombreEnPuntos({
+  calles,
+  puntos,
+  nombre,
+}) {
+  return puntos
+    .map((puntoUsuario) =>
+      buscarCallePorNombreCercanaAPunto({
+        calles,
+        puntoUsuario,
+        nombre,
+      })
+    )
+    .filter(Boolean)
+}
+
+function obtenerPuntosMuestreoLinea(linea) {
+  const longitud = length(linea, {
+    units: 'kilometers',
+  })
+
+  if (!longitud) {
+    return []
+  }
+
+  const intervaloKm = 0.08
+  const puntos = [
+    point(linea.geometry.coordinates[0]),
+  ]
+
+  for (
+    let distanciaKm = intervaloKm;
+    distanciaKm < longitud;
+    distanciaKm += intervaloKm
+  ) {
+    puntos.push(
+      along(linea, distanciaKm, {
+        units: 'kilometers',
+      })
+    )
+  }
+
+  puntos.push(
+    point(
+      linea.geometry.coordinates[
+        linea.geometry.coordinates.length - 1
+      ]
+    )
+  )
+
+  return puntos
+}
+
+function detectarCallesPorSegmento({
+  linea,
+  calles,
+}) {
+  const coordenadas =
+    linea.geometry.coordinates
+
+  if (coordenadas.length < 2) {
+    return []
+  }
+
+  return coordenadas
+    .slice(1)
+    .map((coordenada, index) =>
+      lineString([
+        coordenadas[index],
+        coordenada,
+      ])
+    )
+    .map((segmento) =>
+      detectarCalleSegmento({
+        segmento,
+        calles,
+      })
+    )
+    .filter(Boolean)
+}
+
+function obtenerNombresDistintos(calles = []) {
+  return [
+    ...new Set(
+      calles
+        .map((calle) => calle.nombre)
+        .filter(
+          (nombre) =>
+            nombre && nombre !== 'Sin nombre'
+        )
+    ),
+  ]
+}
+
+function detectarInterferenciasLinea({
+  calles,
+  linea,
+  callePrincipal,
+}) {
+  const bufferLinea = buffer(
+    linea,
+    DISTANCIA_BUFFER_KM,
+    {
+      units: 'kilometers',
+    }
+  )
+
+  return [
+    ...new Set(
+      calles
+        .filter((calle) => {
+          if (
+            !calle.nombre ||
+            calle.nombre === 'Sin nombre' ||
+            calle.nombre === callePrincipal
+          ) {
+            return false
+          }
+
+          return booleanIntersects(
+            bufferLinea,
+            calle.feature
+          )
+        })
+        .map((calle) => calle.nombre)
+    ),
+  ]
+}
+
+function calcularCuadrasPorInterferencias({
+  interferencias = [],
+  fallback = 0,
+}) {
+  if (interferencias.length >= 2) {
+    return String(interferencias.length - 1)
+  }
+
+  if (interferencias.length === 1) {
+    return '1'
+  }
+
+  return String(Math.max(1, fallback))
 }
 
 function construirUbicacionLinea({
@@ -512,18 +791,6 @@ function calcularCuadrasPorDistancia(geometria) {
   return metros / 100
 }
 
-function formatearCuadras(valor) {
-  if (!Number.isFinite(valor) || valor <= 0) {
-    return ''
-  }
-
-  if (Number.isInteger(valor)) {
-    return String(valor)
-  }
-
-  return valor.toFixed(2)
-}
-
 export async function calcularCuadrasLinea(
   geometria
 ) {
@@ -541,25 +808,131 @@ export async function calcularCuadrasLinea(
   const linea = geometriaAppALineString(
     geometria
   )
-  const bufferLinea = buffer(
-    linea,
-    DISTANCIA_BUFFER_KM,
-    {
-      units: 'kilometers',
-    }
-  )
   const bboxBusqueda = expandirBbox(
-    bbox(bufferLinea)
+    bbox(linea),
+    0.00055
   )
 
   try {
     const calles =
       await cargarCallesIndexadas()
 
-      const callesCandidatas =
-        buscarCallesPorBbox(bboxBusqueda)
+    const callesCandidatas =
+      buscarCallesPorBbox(bboxBusqueda)
 
-      const tramosDetectados =
+    const tramosPorSegmento =
+      detectarCallesPorSegmento({
+        linea,
+        calles: callesCandidatas.length
+          ? callesCandidatas
+          : calles,
+      })
+    const nombresPorSegmento =
+      obtenerNombresDistintos(
+        tramosPorSegmento
+      )
+    let tramosDetectados = []
+    let tramosParaUbicacion =
+      tramosPorSegmento
+
+    if (tramosParaUbicacion.length > 0) {
+      const callePrincipal =
+        obtenerNombreCallePrincipal(
+          tramosPorSegmento
+        )
+      const inicio = point(
+        linea.geometry.coordinates[0]
+      )
+      const fin = point(
+        linea.geometry.coordinates[
+          linea.geometry.coordinates.length - 1
+        ]
+      )
+      const puntosLinea =
+        obtenerPuntosMuestreoLinea(linea)
+      const callesBase =
+        callesCandidatas.length
+          ? callesCandidatas
+          : calles
+      const tramosPorPuntos =
+        buscarCallesPorNombreEnPuntos({
+          calles: callesBase,
+          puntos: puntosLinea,
+          nombre: callePrincipal,
+        })
+
+      tramosParaUbicacion =
+        unirCallesUnicas([
+          ...tramosPorSegmento,
+          ...tramosPorPuntos,
+        ])
+
+      const callesInicio =
+        buscarCallesCercanasAPunto({
+          calles,
+          puntoUsuario: inicio,
+          excluirNombre: callePrincipal,
+        })
+      const callesFin =
+        buscarCallesCercanasAPunto({
+          calles,
+          puntoUsuario: fin,
+          excluirNombre: callePrincipal,
+        })
+      const ubicacion =
+        construirUbicacionLinea({
+          callePrincipal,
+          tramosDetectados:
+            tramosParaUbicacion,
+          callesInicio,
+          callesFin,
+        })
+      const callesDetectadas =
+        obtenerNombresDistintos(
+          tramosParaUbicacion
+        )
+      const interferencias =
+        detectarInterferenciasLinea({
+          calles: callesCandidatas.length
+            ? callesCandidatas
+            : calles,
+          linea,
+          callePrincipal,
+        })
+
+      return {
+        cuadras:
+          calcularCuadrasPorInterferencias({
+            interferencias,
+            fallback:
+              tramosPorSegmento.length,
+          }),
+        metodo: 'red-vial',
+        tramos: tramosPorSegmento.length,
+        ubicacion,
+        calles: callesDetectadas.slice(0, 5),
+        interferencias,
+        advertencia:
+          nombresPorSegmento.length > 1
+            ? {
+              tipo: 'linea-multicalle',
+              mensaje:
+                `La linea dibujada recorre mas de una calle (${nombresPorSegmento.join(', ')}). Para mantener datos consistentes, cargue cada calle como una intervencion separada.`,
+              calles: nombresPorSegmento,
+            }
+            : null,
+      }
+    }
+
+    const bufferLinea = buffer(
+      linea,
+      DISTANCIA_BUFFER_KM,
+      {
+        units: 'kilometers',
+      }
+    )
+
+    tramosDetectados =
       callesCandidatas.filter((calle) => {
         if (
           !bboxIntersecta(
@@ -612,21 +985,28 @@ export async function calcularCuadrasLinea(
           callesInicio,
           callesFin,
         })
+      const callesDetectadas =
+        obtenerNombresDistintos(
+          tramosDetectados
+        )
 
       return {
-        cuadras: String(
-          tramosDetectados.length
-        ),
+        cuadras:
+          calcularCuadrasPorInterferencias({
+            interferencias:
+              detectarInterferenciasLinea({
+                calles: callesCandidatas,
+                linea,
+                callePrincipal,
+              }),
+            fallback:
+              tramosDetectados.length,
+          }),
         metodo: 'red-vial',
         tramos: tramosDetectados.length,
         ubicacion,
-        calles: [
-          ...new Set(
-            tramosDetectados
-              .map((tramo) => tramo.nombre)
-              .filter(Boolean)
-          ),
-        ].slice(0, 5),
+        calles: callesDetectadas.slice(0, 5),
+        advertencia: null,
       }
     }
   } catch (error) {
@@ -640,7 +1020,7 @@ export async function calcularCuadrasLinea(
     calcularCuadrasPorDistancia(geometria)
 
   return {
-    cuadras: formatearCuadras(
+    cuadras: formatearCuadrasOperativas(
       cuadrasEstimadas
     ),
     metodo: 'distancia-100m',

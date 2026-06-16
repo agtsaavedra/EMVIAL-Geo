@@ -53,11 +53,17 @@ export function useFormularioIntervencion({
   ] = useState(null)
   const ubicacionAutoLineaRef =
     useRef('')
+  const ubicacionLineaManualRef =
+    useRef(false)
   const calculoCuadrasVersionRef =
     useRef(0)
+  const advertenciaLineaRef =
+    useRef('')
 
   function invalidarUbicacionAutoLinea() {
     ubicacionAutoLineaRef.current = ''
+    ubicacionLineaManualRef.current = false
+    advertenciaLineaRef.current = ''
     calculoCuadrasVersionRef.current += 1
   }
 
@@ -170,11 +176,11 @@ export function useFormularioIntervencion({
         return
       }
 
-      const { calcularCuadrasLinea } =
-        await import('@services/callesMetrics')
+      const { calcularCuadrasLineaAsync } =
+        await import('@services/callesMetricsWorker')
 
       const resultado =
-        await calcularCuadrasLinea(
+        await calcularCuadrasLineaAsync(
           form.geometria
         )
 
@@ -186,14 +192,33 @@ export function useFormularioIntervencion({
         return
       }
 
+      if (resultado.advertencia?.tipo) {
+        const claveAdvertencia = [
+          resultado.advertencia.tipo,
+          ...(resultado.advertencia.calles || []),
+        ].join(':')
+
+        if (
+          advertenciaLineaRef.current !==
+          claveAdvertencia
+        ) {
+          advertenciaLineaRef.current =
+            claveAdvertencia
+
+          mostrarToast(
+            resultado.advertencia.mensaje ||
+              'La linea dibujada pertenece a mas de una calle. Cargue otra intervencion para el tramo adicional.',
+            'error'
+          )
+        }
+      } else {
+        advertenciaLineaRef.current = ''
+      }
+
       setForm((prev) => {
         const debeActualizarUbicacion =
           resultado.ubicacion &&
-          (
-            !prev.ubicacion ||
-            prev.ubicacion ===
-              ubicacionAutoLineaRef.current
-          )
+          !ubicacionLineaManualRef.current
 
         if (
           prev.cuadras ===
@@ -218,14 +243,19 @@ export function useFormularioIntervencion({
       })
     }
 
-    calcularCuadras()
+    const timeoutId = window.setTimeout(
+      calcularCuadras,
+      160
+    )
 
     return () => {
       activo = false
+      window.clearTimeout(timeoutId)
     }
   }, [
     form.geometria,
     form.geometriaTipo,
+    mostrarToast,
   ])
 
   // =====================================================
@@ -339,6 +369,12 @@ export function useFormularioIntervencion({
       invalidarUbicacionAutoLinea()
 
       return
+    }
+
+    if (name === 'ubicacion') {
+      ubicacionLineaManualRef.current =
+        form.geometriaTipo === 'LÃ­nea'
+      ubicacionAutoLineaRef.current = ''
     }
 
     // ===============================

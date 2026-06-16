@@ -6,6 +6,9 @@ import {
 } from 'react'
 
 import AssetCard from './AssetCard'
+import {
+  intervencionesRepository,
+} from '@repositories/intervencionesRepository'
 
 function AssetsPanel({
   intervencionesFiltradas = [],
@@ -102,12 +105,10 @@ function AssetsPanel({
 
     if (
       !historialPorId[intervencionId] &&
-      window.api?.obtenerHistorialIntervencion
+      intervencionesRepository.obtenerHistorial
     ) {
-      window.api
-        .obtenerHistorialIntervencion(
-          intervencionId
-        )
+      intervencionesRepository
+        .obtenerHistorial(intervencionId)
         .then((historial) => {
           setHistorialPorId((actual) => ({
             ...actual,

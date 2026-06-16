@@ -7,6 +7,9 @@
  */
 
 import { useEffect, useState } from 'react'
+import {
+  intervencionesRepository,
+} from '@repositories/intervencionesRepository'
 
 // Punto de entrada público del hook.
 export function useIntervenciones() {
@@ -26,7 +29,7 @@ export function useIntervenciones() {
   async function recargarIntervenciones() {
     try {
       const datos =
-        await window.api.obtenerIntervenciones()
+        await intervencionesRepository.obtenerTodas()
 
       setIntervenciones(datos || [])
     } catch (error) {
@@ -44,7 +47,7 @@ export function useIntervenciones() {
     try {
       if (intervencionEditandoId) {
         const actualizada =
-          await window.api.guardarIntervencion({
+          await intervencionesRepository.guardar({
             ...form,
 
             id: intervencionEditandoId,
@@ -71,7 +74,7 @@ export function useIntervenciones() {
       }
 
       const nueva =
-        await window.api.guardarIntervencion({
+        await intervencionesRepository.guardar({
           ...form,
 
           id: crypto.randomUUID(),
@@ -106,7 +109,7 @@ export function useIntervenciones() {
   // Elimina una intervención por id y sincroniza el estado local.
   async function eliminarIntervencion(id) {
     try {
-      await window.api.eliminarIntervencion(id)
+      await intervencionesRepository.eliminar(id)
 
       setIntervenciones((prev) =>
         prev.filter(
@@ -142,7 +145,7 @@ export function useIntervenciones() {
       }))
 
       const guardadas =
-        await window.api.guardarIntervencionesMasivo(
+        await intervencionesRepository.guardarMasivo(
           preparadas
         )
 
@@ -168,7 +171,7 @@ export function useIntervenciones() {
   ) {
     try {
       const restaurada =
-        await window.api.guardarIntervencion({
+        await intervencionesRepository.guardar({
           ...intervencion,
 
           deletedAt: null,
@@ -228,7 +231,7 @@ export function useIntervenciones() {
     }
 
     const guardada =
-      await window.api.guardarIntervencion(
+      await intervencionesRepository.guardar(
         duplicada
       )
 
