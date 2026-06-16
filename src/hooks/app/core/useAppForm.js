@@ -31,6 +31,9 @@ export function useAppForm({
   const {
     form,
     setForm,
+    ubicacionAutomaticaLinea,
+    ubicacionManualLinea,
+    recalcularUbicacionLinea,
     manejarCambio,
     guardarIntervencion,
     editarIntervencion,
@@ -73,6 +76,9 @@ export function useAppForm({
   return {
     form,
     setForm,
+    ubicacionAutomaticaLinea,
+    ubicacionManualLinea,
+    recalcularUbicacionLinea,
     manejarCambio,
     guardarIntervencion,
     editarIntervencion,

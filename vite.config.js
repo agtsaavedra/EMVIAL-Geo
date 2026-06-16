@@ -19,6 +19,14 @@ export default defineConfig({
               name: 'vendor-map',
               test: /node_modules[\\/](leaflet|react-leaflet|@react-leaflet)[\\/]/,
             },
+            {
+              name: 'vendor-export',
+              test: /node_modules[\\/](xlsx|jszip|@mapbox[\\/]shp-write|shpjs)[\\/]/,
+            },
+            {
+              name: 'vendor-geo',
+              test: /node_modules[\\/]@turf[\\/]/,
+            },
           ],
         },
       },

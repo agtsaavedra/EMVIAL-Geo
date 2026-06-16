@@ -57,6 +57,9 @@ export function useAppComponentProps({
   setSidebarAbierto,
 
   form,
+  ubicacionAutomaticaLinea,
+  ubicacionManualLinea,
+  recalcularUbicacionLinea,
   manejarCambio,
   guardarIntervencion,
 
@@ -152,6 +155,9 @@ export function useAppComponentProps({
     setSidebarAbierto,
 
     form,
+    ubicacionAutomaticaLinea,
+    ubicacionManualLinea,
+    recalcularUbicacionLinea,
     manejarCambio,
     guardarIntervencion,
 

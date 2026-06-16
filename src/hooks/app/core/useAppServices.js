@@ -148,6 +148,9 @@ export function useAppServices() {
   const {
     form,
     setForm,
+    ubicacionAutomaticaLinea,
+    ubicacionManualLinea,
+    recalcularUbicacionLinea,
     manejarCambio,
     guardarIntervencion,
     editarIntervencion,
@@ -342,6 +345,9 @@ export function useAppServices() {
 
     form,
     setForm,
+    ubicacionAutomaticaLinea,
+    ubicacionManualLinea,
+    recalcularUbicacionLinea,
     manejarCambio,
     guardarIntervencion,
 

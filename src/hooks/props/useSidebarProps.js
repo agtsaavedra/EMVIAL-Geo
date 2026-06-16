@@ -11,6 +11,9 @@ export function useSidebarProps({
   setSidebarAbierto,
 
   form,
+  ubicacionAutomaticaLinea,
+  ubicacionManualLinea,
+  recalcularUbicacionLinea,
   manejarCambio,
   guardarIntervencion,
 
@@ -30,6 +33,9 @@ export function useSidebarProps({
     setAbierto: setSidebarAbierto,
 
     form,
+    ubicacionAutomaticaLinea,
+    ubicacionManualLinea,
+    recalcularUbicacionLinea,
     manejarCambio,
     guardarIntervencion,
 

@@ -1,3 +1,8 @@
+import {
+  useLayoutEffect,
+  useRef,
+} from 'react'
+
 /**
  * Componente de interfaz de EMVIAL Geo.
  *
@@ -10,10 +15,66 @@ import {
   FUENTES,
 } from '@constants/intervenciones'
 
+function AutoGrowTextarea({
+  value,
+  onChange,
+  className,
+  minRows = 2,
+  ...props
+}) {
+  const ref = useRef(null)
+
+  function ajustarAltura() {
+    const textarea = ref.current
+    if (!textarea) return
+
+    const computed =
+      window.getComputedStyle(textarea)
+    const minHeight =
+      Number.parseFloat(computed.minHeight) || 0
+
+    textarea.style.height = 'auto'
+    textarea.style.height = `${Math.max(
+      textarea.scrollHeight + 4,
+      minHeight
+    )}px`
+  }
+
+  useLayoutEffect(() => {
+    const frameId =
+      window.requestAnimationFrame(ajustarAltura)
+
+    return () =>
+      window.cancelAnimationFrame(frameId)
+  }, [value])
+
+  function manejarCambio(e) {
+    onChange?.(e)
+
+    window.requestAnimationFrame(
+      ajustarAltura
+    )
+  }
+
+  return (
+    <textarea
+      ref={ref}
+      className={className}
+      value={value}
+      onChange={manejarCambio}
+      onFocus={ajustarAltura}
+      rows={minRows}
+      {...props}
+    />
+  )
+}
 
 // Punto de entrada visual del componente.
 function InterventionForm({
   form,
+  ubicacionAutomaticaLinea,
+  ubicacionManualLinea,
+  recalcularUbicacionLinea,
   manejarCambio,
   guardarIntervencion,
   buscarDireccion,
@@ -112,13 +173,42 @@ function InterventionForm({
         ))}
       </select>
 
-      <label>Ubicación</label>
-      <input
-        name="ubicacion"
-        value={form.ubicacion}
-        onChange={manejarCambio}
-        placeholder="Ej: Falucho 2400 e/ Stgo. del Estero y Santa Fe"
-      />
+      <label>
+        Ubicación
+        {ubicacionAutomaticaLinea && (
+          <span className="field-chip">
+            Automatica
+          </span>
+        )}
+        {ubicacionManualLinea && (
+          <span className="field-chip field-chip-manual">
+            Manual
+          </span>
+        )}
+      </label>
+      <div className="location-row">
+        <AutoGrowTextarea
+          className="location-input"
+          name="ubicacion"
+          value={form.ubicacion}
+          title={form.ubicacion}
+          onChange={manejarCambio}
+          minRows={2}
+          placeholder="Ej: Falucho 2400 e/ Stgo. del Estero y Santa Fe"
+        />
+
+        {form.geometriaTipo === 'Línea' &&
+          cantidadPuntos >= 2 && (
+            <button
+              type="button"
+              className="secondary-form-btn"
+              onClick={recalcularUbicacionLinea}
+              title="Recalcular ubicacion y cuadras"
+            >
+              Recalcular
+            </button>
+          )}
+      </div>
 
       <label>Barrio / zona</label>
       <input
@@ -198,7 +288,8 @@ function InterventionForm({
 
       <div className="address-wrapper">
         <div className="address-row">
-          <input
+          <AutoGrowTextarea
+            className="address-input"
             name="direccion"
             value={form.direccion}
             onChange={manejarCambio}
@@ -208,10 +299,15 @@ function InterventionForm({
                 buscarDireccion()
               }
             }}
+            minRows={2}
             placeholder="Ej: Av. Colón 3200"
           />
 
-          <button type="button" onClick={buscarDireccion}>
+          <button
+            type="button"
+            className="secondary-form-btn"
+            onClick={buscarDireccion}
+          >
             Buscar
           </button>
         </div>

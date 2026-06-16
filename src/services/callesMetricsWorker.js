@@ -1,6 +1,7 @@
 import {
   calcularCuadrasLinea,
 } from '@services/callesMetrics'
+import { logger } from '@services/logger'
 
 let worker
 let requestId = 0
@@ -85,7 +86,7 @@ export async function calcularCuadrasLineaAsync(
   try {
     return await calcularConWorker(geometria)
   } catch (error) {
-    console.warn(
+    logger.warn(
       'Fallback de red vial sin worker:',
       error
     )

@@ -43,6 +43,11 @@ function AboutDialog({
           </div>
 
           <div className="about-row">
+            <strong>Version</strong>
+            <span>{estadoApp?.appVersion || '0.1.0'}</span>
+          </div>
+
+          <div className="about-row">
             <strong>Base de datos</strong>
             <small>{estadoApp?.dbPath}</small>
           </div>

@@ -1010,6 +1010,7 @@ async function configurarCarpetaBackups() {
  */
 function obtenerEstadoApp() {
   return {
+    appVersion: app.getVersion(),
     dbPath,
     configPath,
     backupsDir,
@@ -1028,7 +1029,6 @@ function obtenerHistorialIntervencion(id) {
     FROM historial_cambios
     WHERE intervencion_id = ?
     ORDER BY created_at DESC
-    LIMIT 25
   `)
 
   try {

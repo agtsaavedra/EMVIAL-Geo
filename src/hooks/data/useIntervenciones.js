@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react'
 import {
   intervencionesRepository,
 } from '@repositories/intervencionesRepository'
+import { logger } from '@services/logger'
 
 // Punto de entrada público del hook.
 export function useIntervenciones() {
@@ -33,7 +34,7 @@ export function useIntervenciones() {
 
       setIntervenciones(datos || [])
     } catch (error) {
-      console.error(
+      logger.error(
         'Error al obtener intervenciones:',
         error
       )
@@ -97,7 +98,7 @@ export function useIntervenciones() {
 
       return nueva
     } catch (error) {
-      console.error(
+      logger.error(
         'Error al guardar intervención:',
         error
       )
@@ -120,7 +121,7 @@ export function useIntervenciones() {
 
       return true
     } catch (error) {
-      console.error(
+      logger.error(
         'Error al eliminar intervención:',
         error
       )
@@ -156,7 +157,7 @@ export function useIntervenciones() {
 
       return guardadas
     } catch (error) {
-      console.error(
+      logger.error(
         'Error al guardar intervenciones masivas:',
         error
       )
@@ -205,7 +206,7 @@ export function useIntervenciones() {
 
       return restaurada
     } catch (error) {
-      console.error(
+      logger.error(
         'Error al restaurar intervención:',
         error
       )

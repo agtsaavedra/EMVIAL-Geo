@@ -13,6 +13,10 @@ export function loadPureModule(relativePath, exportNames) {
       /export function\s+([a-zA-Z0-9_]+)/g,
       'function $1'
     )
+    .replaceAll(
+      /export const\s+([a-zA-Z0-9_]+)/g,
+      'const $1'
+    )
 
   const factory = new Function(
     `${source}\nreturn { ${exportNames.join(', ')} };`

@@ -12,6 +12,7 @@ import {
 import {
   analizarCalidadIntervencionesAsync,
 } from '@services/dataQualityWorker'
+import { logger } from '@services/logger'
 
 export function useTopbarActions({
   periodoActivo,
@@ -322,7 +323,7 @@ export function useTopbarActions({
             resultado.ok ? 'success' : 'error'
           )
         } catch (error) {
-          console.error(
+          logger.error(
             'Error al exportar SHP:',
             error
           )
@@ -425,7 +426,7 @@ export function useTopbarActions({
         },
       })
     } catch (error) {
-      console.error(
+      logger.error(
         'Error al importar archivo GIS:',
         error
       )

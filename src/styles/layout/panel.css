@@ -453,6 +453,23 @@
   overflow-wrap: anywhere;
 }
 
+.card-compact-detail .card-location {
+  padding: 7px 9px;
+
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  border-radius: 10px;
+
+  background: rgba(15, 23, 42, 0.2);
+  color: var(--text);
+
+  line-height: 1.34;
+}
+
+.card-compact-detail .card-location b {
+  display: block;
+  margin-bottom: 2px;
+}
+
 .card-compact-detail b {
   color: var(--text-secondary);
   font-weight: 700;
@@ -517,6 +534,32 @@
   background: rgba(15, 23, 42, 0.18);
 }
 
+.card-detail-section {
+  display: grid;
+  gap: 6px;
+
+  padding-bottom: 8px;
+
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.card-detail-section:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.card-detail-section h4 {
+  margin: 0 0 2px;
+
+  color: #bfdbfe;
+
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
 .card-detail-row {
   display: grid;
   grid-template-columns: 92px minmax(0, 1fr);
@@ -550,25 +593,25 @@
   overflow-wrap: anywhere;
 }
 
-.card-history {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.card-history-btn {
+  width: 100%;
+  margin-top: 2px;
+  padding: 8px 10px;
 
-  margin-top: 4px;
-  padding-top: 10px;
+  border: 1px solid rgba(96, 165, 250, 0.24);
+  border-radius: 10px;
 
-  border-top: 1px solid rgba(148, 163, 184, 0.16);
-}
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--text);
 
-.card-history b {
-  color: var(--text-secondary);
-  font-size: 11px;
-}
-
-.card-history span {
-  color: var(--text-secondary);
+  cursor: pointer;
   font-size: 12px;
+  font-weight: 800;
+}
+
+.card-history-btn:hover {
+  border-color: rgba(96, 165, 250, 0.48);
+  background: rgba(37, 99, 235, 0.18);
 }
 
 .card-geometry {

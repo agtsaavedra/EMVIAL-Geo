@@ -109,6 +109,145 @@
   background: #dc2626;
 }
 
+/* ===============================
+   History dialog
+================================ */
+
+.history-dialog {
+  width: min(760px, calc(100vw - 40px));
+  max-height: calc(100vh - 48px);
+
+  display: flex;
+  flex-direction: column;
+}
+
+.history-dialog .confirm-header {
+  justify-content: flex-start;
+}
+
+.history-dialog .confirm-header small {
+  display: block;
+  margin-top: 3px;
+
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  min-height: 120px;
+  max-height: min(540px, 58vh);
+  padding: 0 24px 8px;
+
+  overflow: auto;
+}
+
+.history-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.history-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+}
+
+.history-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.52);
+}
+
+.history-item {
+  padding: 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
+
+  background: var(--surface-2);
+}
+
+.history-item-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.history-item-header strong {
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.history-item-header span {
+  flex: 0 0 auto;
+
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.history-changes {
+  display: grid;
+  gap: 8px;
+
+  margin-top: 10px;
+}
+
+.history-change {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+
+  padding-top: 8px;
+
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.history-change b {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.history-change span {
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.35;
+
+  overflow-wrap: anywhere;
+}
+
+.history-change small {
+  display: block;
+  margin: 0 0 2px;
+
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+@media (max-width: 720px) {
+  .history-dialog {
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+  }
+
+  .history-item-header,
+  .history-change {
+    grid-template-columns: 1fr;
+  }
+
+  .history-item-header {
+    display: grid;
+  }
+}
+
 
 /* ===============================
    About dialog

@@ -18,6 +18,10 @@ import {
 import {
   formatearCuadrasOperativas,
 } from '@domain/cuadras'
+import { logger } from '@services/logger'
+import {
+  calcularCuadrasPorInterferencias,
+} from '@services/streetNetwork/cuadras'
 
 const DISTANCIA_BUFFER_KM = 0.018
 const DISTANCIA_PUNTO_MEDIO_KM = 0.024
@@ -542,21 +546,6 @@ function detectarInterferenciasLinea({
   ]
 }
 
-function calcularCuadrasPorInterferencias({
-  interferencias = [],
-  fallback = 0,
-}) {
-  if (interferencias.length >= 2) {
-    return String(interferencias.length - 1)
-  }
-
-  if (interferencias.length === 1) {
-    return '1'
-  }
-
-  return String(Math.max(1, fallback))
-}
-
 function construirUbicacionLinea({
   callePrincipal,
   tramosDetectados,
@@ -1010,7 +999,7 @@ export async function calcularCuadrasLinea(
       }
     }
   } catch (error) {
-    console.warn(
+    logger.warn(
       'Fallback de cuadras por distancia:',
       error
     )
@@ -1134,7 +1123,7 @@ export async function sugerirUbicacionPunto(
         calle.distancia * 1000,
     }
   } catch (error) {
-    console.warn(
+    logger.warn(
       'No se pudo sugerir ubicacion del punto:',
       error
     )

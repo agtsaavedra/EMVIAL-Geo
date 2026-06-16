@@ -6,6 +6,54 @@ import {
   obtenerTituloIntervencion,
 } from '@domain/intervencion'
 
+const GRUPOS_DETALLE = [
+  {
+    titulo: 'Datos operativos',
+    campos: new Set([
+      'Nombre',
+      'Mes',
+      'Obra',
+      'Tipo',
+      'Inspector',
+      'Realizo',
+      'Fuente',
+    ]),
+  },
+  {
+    titulo: 'Ubicacion',
+    campos: new Set([
+      'Barrio',
+      'Ubicacion',
+      'Direccion',
+      'Coordenadas',
+      'Puntos de geometria',
+    ]),
+  },
+  {
+    titulo: 'Metricas',
+    campos: new Set([
+      'Cuadras',
+      'Metros lineales',
+      'Metros cuadrados',
+    ]),
+  },
+  {
+    titulo: 'Observaciones',
+    campos: new Set(['Observaciones']),
+  },
+]
+
+function agruparDetalle(detalle) {
+  return GRUPOS_DETALLE
+    .map((grupo) => ({
+      titulo: grupo.titulo,
+      filas: detalle.filter(([label]) =>
+        grupo.campos.has(label)
+      ),
+    }))
+    .filter((grupo) => grupo.filas.length > 0)
+}
+
 function AssetCard({
   intervencion,
   enfocado,
@@ -18,7 +66,7 @@ function AssetCard({
   onEditar,
   onDuplicar,
   onEliminar,
-  historial,
+  onVerHistorial,
   setCardRef,
 }) {
   const referencia =
@@ -32,6 +80,8 @@ function AssetCard({
       referencia,
       metricas,
     })
+  const detalleAgrupado =
+    agruparDetalle(detalle)
 
   return (
     <div
@@ -79,7 +129,7 @@ function AssetCard({
         )}
 
         {referencia && (
-          <span>
+          <span className="card-location">
             <b>Ubicacion</b> {referencia}
           </span>
         )}
@@ -109,26 +159,32 @@ function AssetCard({
             aria-hidden={!detalleAbierto}
           >
             <div className="card-detail-inner">
-              {detalle.map(([label, valor]) => (
-                <div
-                  key={`${intervencion.id}-${label}`}
-                  className="card-detail-row"
+              {detalleAgrupado.map((grupo) => (
+                <section
+                  key={`${intervencion.id}-${grupo.titulo}`}
+                  className="card-detail-section"
                 >
-                  <b>{label}</b>
-                  <span>{valor}</span>
-                </div>
+                  <h4>{grupo.titulo}</h4>
+
+                  {grupo.filas.map(([label, valor]) => (
+                    <div
+                      key={`${intervencion.id}-${label}`}
+                      className="card-detail-row"
+                    >
+                      <b>{label}</b>
+                      <span>{valor}</span>
+                    </div>
+                  ))}
+                </section>
               ))}
 
-              {historial?.length > 0 && (
-                <div className="card-history">
-                  <b>Historial</b>
-                  {historial.slice(0, 3).map((evento) => (
-                    <span key={evento.id}>
-                      {evento.accion} - {new Date(evento.fecha).toLocaleString('es-AR')}
-                    </span>
-                  ))}
-                </div>
-              )}
+              <button
+                type="button"
+                className="card-history-btn"
+                onClick={onVerHistorial}
+              >
+                Ver historial
+              </button>
             </div>
           </div>
         </>

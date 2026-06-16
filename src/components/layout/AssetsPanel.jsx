@@ -6,6 +6,7 @@ import {
 } from 'react'
 
 import AssetCard from './AssetCard'
+import HistoryDialog from './HistoryDialog'
 import {
   intervencionesRepository,
 } from '@repositories/intervencionesRepository'
@@ -28,8 +29,13 @@ function AssetsPanel({
   const abiertoRef = useRef(abierto)
   const [detalleAbiertoId, setDetalleAbiertoId] =
     useState(null)
-  const [historialPorId, setHistorialPorId] =
-    useState({})
+  const [historialModal, setHistorialModal] =
+    useState({
+      abierto: false,
+      intervencion: null,
+      historial: [],
+      cargando: false,
+    })
 
   useEffect(() => {
     abiertoRef.current = abierto
@@ -76,6 +82,22 @@ function AssetsPanel({
     }
   }, [intervencionesFiltradas.length])
 
+  async function cargarHistorial(intervencionId) {
+    if (!intervencionesRepository.obtenerHistorial) {
+      return []
+    }
+
+    try {
+      const historial =
+        await intervencionesRepository
+          .obtenerHistorial(intervencionId)
+
+      return historial || []
+    } catch {
+      return []
+    }
+  }
+
   function esPantallaChica() {
     return window.innerWidth <= 1024
   }
@@ -102,26 +124,27 @@ function AssetsPanel({
         ? null
         : intervencionId
     )
+  }
 
-    if (
-      !historialPorId[intervencionId] &&
-      intervencionesRepository.obtenerHistorial
-    ) {
-      intervencionesRepository
-        .obtenerHistorial(intervencionId)
-        .then((historial) => {
-          setHistorialPorId((actual) => ({
-            ...actual,
-            [intervencionId]: historial || [],
-          }))
-        })
-        .catch(() => {
-          setHistorialPorId((actual) => ({
-            ...actual,
-            [intervencionId]: [],
-          }))
-        })
-    }
+  async function abrirHistorial(e, intervencion) {
+    e.stopPropagation()
+
+    setHistorialModal({
+      abierto: true,
+      intervencion,
+      historial: [],
+      cargando: true,
+    })
+
+    const historial =
+      await cargarHistorial(intervencion.id)
+
+    setHistorialModal({
+      abierto: true,
+      intervencion,
+      historial,
+      cargando: false,
+    })
   }
 
   function manejarEditar(e, intervencion) {
@@ -237,10 +260,8 @@ function AssetsPanel({
                       intervencion.id
                     )
                   }
-                  historial={
-                    historialPorId[
-                      intervencion.id
-                    ]
+                  onVerHistorial={(e) =>
+                    abrirHistorial(e, intervencion)
                   }
                   onEditar={(e) =>
                     manejarEditar(e, intervencion)
@@ -262,6 +283,19 @@ function AssetsPanel({
           </div>
         )}
       </div>
+
+      <HistoryDialog
+        abierto={historialModal.abierto}
+        intervencion={historialModal.intervencion}
+        historial={historialModal.historial}
+        cargando={historialModal.cargando}
+        onCerrar={() =>
+          setHistorialModal((actual) => ({
+            ...actual,
+            abierto: false,
+          }))
+        }
+      />
     </aside>
   )
 }

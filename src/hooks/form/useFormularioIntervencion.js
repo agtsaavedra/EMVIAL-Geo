@@ -22,6 +22,15 @@ import {
 } from '@services/geometryMetrics'
 
 // Punto de entrada público del hook.
+function esGeometriaLinea(tipo) {
+  const texto = String(tipo || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+
+  return texto === 'linea' || texto.includes('nea')
+}
+
 export function useFormularioIntervencion({
   periodoActivo,
   guardarIntervencionEnDB,
@@ -44,6 +53,16 @@ export function useFormularioIntervencion({
 
   const [form, setForm] =
     useState(formInicial)
+  const [
+    ubicacionAutomaticaLinea,
+    setUbicacionAutomaticaLinea,
+  ] = useState(false)
+  const [
+    ubicacionManualLinea,
+    setUbicacionManualLinea,
+  ] = useState(false)
+  const [recalculoLineaTick, setRecalculoLineaTick] =
+    useState(0)
 
   // Copia del formulario original cuando se edita.
   // Se usa para detectar cambios sin guardar.
@@ -63,8 +82,18 @@ export function useFormularioIntervencion({
   function invalidarUbicacionAutoLinea() {
     ubicacionAutoLineaRef.current = ''
     ubicacionLineaManualRef.current = false
+    setUbicacionAutomaticaLinea(false)
+    setUbicacionManualLinea(false)
     advertenciaLineaRef.current = ''
     calculoCuadrasVersionRef.current += 1
+  }
+
+  function recalcularUbicacionLinea() {
+    ubicacionLineaManualRef.current = false
+    ubicacionAutoLineaRef.current = ''
+    setUbicacionAutomaticaLinea(false)
+    setUbicacionManualLinea(false)
+    setRecalculoLineaTick((actual) => actual + 1)
   }
 
   // =====================================================
@@ -231,6 +260,8 @@ export function useFormularioIntervencion({
         if (debeActualizarUbicacion) {
           ubicacionAutoLineaRef.current =
             resultado.ubicacion
+          setUbicacionAutomaticaLinea(true)
+          setUbicacionManualLinea(false)
         }
 
         return {
@@ -256,6 +287,7 @@ export function useFormularioIntervencion({
     form.geometria,
     form.geometriaTipo,
     mostrarToast,
+    recalculoLineaTick,
   ])
 
   // =====================================================
@@ -375,6 +407,49 @@ export function useFormularioIntervencion({
       ubicacionLineaManualRef.current =
         form.geometriaTipo === 'LÃ­nea'
       ubicacionAutoLineaRef.current = ''
+      setUbicacionAutomaticaLinea(false)
+    }
+
+    if (name === 'ubicacion') {
+      const esLinea =
+        form.geometriaTipo === 'Línea'
+
+      ubicacionLineaManualRef.current =
+        esLinea
+      ubicacionAutoLineaRef.current = ''
+
+      setUbicacionAutomaticaLinea(false)
+      setUbicacionManualLinea(
+        esLinea && String(value).trim() !== ''
+      )
+
+      setForm((prev) => ({
+        ...prev,
+        ubicacion: value,
+      }))
+
+      return
+    }
+
+    if (name === 'ubicacion') {
+      const esLinea =
+        esGeometriaLinea(form.geometriaTipo)
+
+      ubicacionLineaManualRef.current =
+        esLinea
+      ubicacionAutoLineaRef.current = ''
+
+      setUbicacionAutomaticaLinea(false)
+      setUbicacionManualLinea(
+        esLinea && String(value).trim() !== ''
+      )
+
+      setForm((prev) => ({
+        ...prev,
+        ubicacion: value,
+      }))
+
+      return
     }
 
     // ===============================
@@ -564,6 +639,16 @@ export function useFormularioIntervencion({
     invalidarUbicacionAutoLinea()
 
     if (
+      esGeometriaLinea(formEditado.geometriaTipo) &&
+      formEditado.ubicacion
+    ) {
+      ubicacionLineaManualRef.current = true
+      ubicacionAutoLineaRef.current = ''
+      setUbicacionAutomaticaLinea(false)
+      setUbicacionManualLinea(true)
+    }
+
+    if (
       intervencion.latitud &&
       intervencion.longitud
     ) {
@@ -637,6 +722,9 @@ export function useFormularioIntervencion({
   return {
     form,
     setForm,
+    ubicacionAutomaticaLinea,
+    ubicacionManualLinea,
+    recalcularUbicacionLinea,
 
     manejarCambio,
 

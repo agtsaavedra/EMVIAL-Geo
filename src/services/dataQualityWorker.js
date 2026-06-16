@@ -1,6 +1,7 @@
 import {
   analizarCalidadIntervenciones,
 } from '@services/dataQuality'
+import { logger } from '@services/logger'
 
 let worker
 let requestId = 0
@@ -87,7 +88,7 @@ export async function analizarCalidadIntervencionesAsync(
   try {
     return await analizarConWorker(intervenciones)
   } catch (error) {
-    console.warn(
+    logger.warn(
       'Fallback de calidad de datos sin worker:',
       error
     )

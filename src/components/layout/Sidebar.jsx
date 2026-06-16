@@ -6,6 +6,9 @@ function Sidebar({
   abierto,
   setAbierto,
   form,
+  ubicacionAutomaticaLinea,
+  ubicacionManualLinea,
+  recalcularUbicacionLinea,
   manejarCambio,
   guardarIntervencion,
   buscarDireccion,
@@ -68,6 +71,15 @@ function Sidebar({
 
         <InterventionForm
           form={form}
+          ubicacionAutomaticaLinea={
+            ubicacionAutomaticaLinea
+          }
+          ubicacionManualLinea={
+            ubicacionManualLinea
+          }
+          recalcularUbicacionLinea={
+            recalcularUbicacionLinea
+          }
           manejarCambio={manejarCambio}
           guardarIntervencion={guardarIntervencion}
           buscarDireccion={buscarDireccion}
