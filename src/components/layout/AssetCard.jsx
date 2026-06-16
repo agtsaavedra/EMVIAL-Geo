@@ -156,7 +156,7 @@ function AssetCard({
 
           <div
             className="card-detail"
-            inert={detalleAbierto ? undefined : ''}
+            inert={!detalleAbierto}
           >
             <div className="card-detail-inner">
               {detalleAgrupado.map((grupo) => (

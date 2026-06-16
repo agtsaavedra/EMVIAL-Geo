@@ -30,10 +30,6 @@ body,
   background: var(--bg);
   color: var(--text);
 }
-.app {
-  background: var(--bg);
-  color: var(--text);
-}
 
 .main {
   flex: 1;

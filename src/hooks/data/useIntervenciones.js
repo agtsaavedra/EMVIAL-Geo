@@ -10,6 +10,9 @@ import { useEffect, useState } from 'react'
 import {
   intervencionesRepository,
 } from '@repositories/intervencionesRepository'
+import {
+  crearDuplicadoIntervencion,
+} from '@domain/duplicarIntervencion'
 import { logger } from '@services/logger'
 
 // Punto de entrada público del hook.
@@ -219,17 +222,14 @@ export function useIntervenciones() {
     intervencion
   ) {
     const ahora = new Date().toISOString()
-    const duplicada = {
-      ...intervencion,
-      id: crypto.randomUUID(),
-      nombre: intervencion.nombre
-        ? `${intervencion.nombre} (copia)`
-        : `${intervencion.obra || 'Intervencion'} (copia)`,
-      createdAt: ahora,
-      updatedAt: ahora,
-      deletedAt: null,
-      version: 1,
-    }
+    const duplicada =
+      crearDuplicadoIntervencion(
+        intervencion,
+        {
+          id: crypto.randomUUID(),
+          ahora,
+        }
+      )
 
     const guardada =
       await intervencionesRepository.guardar(

@@ -205,7 +205,7 @@ function AssetsPanel({
       <div
         ref={panelRef}
         className="panel"
-        inert={abierto ? undefined : ''}
+        inert={!abierto}
       >
         <h3>
           Intervenciones cargadas

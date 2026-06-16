@@ -1,101 +1,9 @@
-const ETIQUETAS = {
-  nombre: 'Nombre',
-  mesTerminacion: 'Mes de terminacion',
-  obra: 'Obra',
-  ubicacion: 'Ubicacion',
-  barrio: 'Barrio',
-  fuente: 'Fuente',
-  inspector: 'Inspector',
-  realizo: 'Realizo',
-  cuadras: 'Cuadras',
-  metrosLineales: 'Metros lineales',
-  metrosCuadrados: 'Metros cuadrados',
-  descripcion: 'Observaciones',
-  direccion: 'Busqueda geografica',
-  latitud: 'Latitud',
-  longitud: 'Longitud',
-  geometriaTipo: 'Tipo de geometria',
-  geometria: 'Geometria',
-}
-
-function formatearFecha(fecha) {
-  if (!fecha) return 'Sin fecha'
-
-  return new Date(fecha).toLocaleString('es-AR', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  })
-}
-
-function formatearValor(valor) {
-  if (valor === null || valor === undefined || valor === '') {
-    return 'Sin dato'
-  }
-
-  if (Array.isArray(valor)) {
-    return `${valor.length} punto${valor.length === 1 ? '' : 's'}`
-  }
-
-  if (typeof valor === 'object') {
-    return JSON.stringify(valor)
-  }
-
-  return String(valor)
-}
-
-function obtenerCambios(evento) {
-  const cambios = evento?.cambios || {}
-
-  if (!cambios || Array.isArray(cambios)) {
-    return []
-  }
-
-  return Object.entries(cambios)
-    .filter(
-      ([campo]) =>
-        ![
-          'updatedAt',
-          'createdAt',
-          'version',
-          'syncStatus',
-          'updatedBy',
-        ].includes(campo)
-    )
-    .map(([campo, valores]) => ({
-      campo,
-      etiqueta: ETIQUETAS[campo] || campo,
-      anterior: formatearValor(valores?.anterior),
-      actual: formatearValor(valores?.actual),
-    }))
-}
-
-function describirEvento(evento) {
-  const cambios = obtenerCambios(evento)
-
-  if (evento.accion === 'crear') {
-    return 'Se creo la intervencion.'
-  }
-
-  if (evento.accion === 'eliminar') {
-    return 'Se elimino la intervencion.'
-  }
-
-  if (!cambios.length) {
-    return 'Se guardo la intervencion sin cambios relevantes.'
-  }
-
-  const campos = cambios
-    .slice(0, 3)
-    .map((cambio) => cambio.etiqueta)
-    .join(', ')
-
-  const extra =
-    cambios.length > 3
-      ? ` y ${cambios.length - 3} campo${cambios.length - 3 === 1 ? '' : 's'} mas`
-      : ''
-
-  return `Se actualizaron ${campos}${extra}.`
-}
+import {
+  describirEventoHistorial,
+  formatearFechaHistorial,
+  obtenerCambiosHistorial,
+  obtenerTituloAccionHistorial,
+} from '@services/historyFormatter'
 
 function HistoryDialog({
   abierto,
@@ -143,7 +51,8 @@ function HistoryDialog({
 
           {!cargando &&
             historial.map((evento) => {
-              const cambios = obtenerCambios(evento)
+              const cambios =
+                obtenerCambiosHistorial(evento)
 
               return (
                 <article
@@ -151,11 +60,16 @@ function HistoryDialog({
                   className="history-item"
                 >
                   <div className="history-item-header">
-                    <strong>
-                      {describirEvento(evento)}
-                    </strong>
+                    <div>
+                      <strong>
+                        {obtenerTituloAccionHistorial(evento)}
+                      </strong>
+                      <small>
+                        {describirEventoHistorial(evento)}
+                      </small>
+                    </div>
                     <span>
-                      {formatearFecha(evento.fecha)}
+                      {formatearFechaHistorial(evento.fecha)}
                     </span>
                   </div>
 

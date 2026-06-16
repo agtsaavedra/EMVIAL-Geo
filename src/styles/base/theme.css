@@ -1,8 +1,3 @@
-/* ===============================
-   Variables de tema, colores y tokens visuales globales.
-================================ */
-
-
 :root {
   --bg: #f3f4f6;
   --surface: #ffffff;
@@ -20,8 +15,6 @@
   --input-text: white;
 }
 
-/* DARK MODE */
-
 .dark {
   --bg: #0b1220;
   --surface: #111827;
@@ -37,20 +30,4 @@
 
   --input-bg: #1f2937;
   --input-text: #f8fafc;
-}
-
-:root {
-  --bg: #f3f4f6;
-  --surface: #ffffff;
-  --text: #111827;
-  --text-soft: #6b7280;
-  --border: #e5e7eb;
-}
-
-.dark {
-  --bg: #0b1220;
-  --surface: #111827;
-  --text: #f3f4f6;
-  --text-soft: #cbd5e1;
-  --border: #334155;
 }
