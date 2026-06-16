@@ -8,11 +8,13 @@ const {
   obtenerSubtituloIntervencion,
   obtenerReferenciaIntervencion,
   normalizarIntervencion,
+  normalizarGeometriaTipo,
 } = loadPureModule('src/domain/intervencion.js', [
   'obtenerMetricasIntervencion',
   'obtenerSubtituloIntervencion',
   'obtenerReferenciaIntervencion',
   'normalizarIntervencion',
+  'normalizarGeometriaTipo',
 ])
 
 test('no muestra metricas para puntos', () => {
@@ -42,6 +44,33 @@ test('resume titulo secundario y referencia', () => {
     obtenerReferenciaIntervencion(intervencion),
     'ARENales 2300'
   )
+})
+
+test('normaliza tipos externos al valor canonico de la app', () => {
+  assert.equal(normalizarGeometriaTipo('Linea'), 'Línea')
+  assert.equal(normalizarGeometriaTipo('Línea'), 'Línea')
+  assert.equal(normalizarGeometriaTipo('Poligono'), 'Polígono')
+  assert.equal(normalizarGeometriaTipo('Polígono'), 'Polígono')
+  assert.equal(normalizarGeometriaTipo('Punto'), 'Punto')
+})
+
+test('calcula metricas aunque la geometria venga sin tilde', () => {
+  const metricas = obtenerMetricasIntervencion({
+    geometriaTipo: 'Linea',
+    metrosLineales: '120.5',
+    cuadras: '1.5',
+  })
+
+  assert.deepEqual(metricas, [
+    {
+      label: 'm lineales',
+      value: '120,5',
+    },
+    {
+      label: 'cuadras',
+      value: '1,5',
+    },
+  ])
 })
 
 test('normaliza el contrato base de intervencion', () => {

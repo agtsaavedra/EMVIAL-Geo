@@ -9,6 +9,9 @@ import { useState } from 'react'
 
 import { obtenerColorIntervencion } from '@map/config/mapColors'
 import { useMapStatsDetail } from '@hooks/map/useMapStatsDetail'
+import {
+  normalizarGeometriaTipo,
+} from '@domain/intervencion'
 
 import MapStatsPanel from './MapStatsPanel'
 
@@ -55,6 +58,11 @@ function MapActions({
 
   const statsDetalle =
     useMapStatsDetail(intervenciones)
+  const geometriaNormalizada =
+    normalizarGeometriaTipo(geometriaTipo)
+  const permiteDeshacerPunto =
+    geometriaNormalizada === 'Línea' ||
+    geometriaNormalizada === 'Polígono'
 
   // =====================================================
   // RENDER
@@ -115,9 +123,7 @@ function MapActions({
           </button>
         )}
 
-        {['Línea', 'Polígono'].includes(
-          geometriaTipo
-        ) && (
+        {permiteDeshacerPunto && (
           <button
             type="button"
             className="map-action-btn"

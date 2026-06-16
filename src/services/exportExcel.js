@@ -1,13 +1,13 @@
 /**
- * Servicio de exportación Excel.
+ * Servicio de exportacion Excel.
  *
- * Genera un archivo .xlsx con dos hojas:
- * - Intervenciones: detalle completo de cada carga del período.
- * - Estadísticas: resumen por tipo de obra.
+ * Genera un archivo .xlsx con tres hojas:
+ * - Resumen: indicadores generales del periodo.
+ * - Intervenciones: detalle completo de cada carga.
+ * - Estadisticas: resumen por tipo de obra.
  *
- * Las métricas `metrosLineales` y `metrosCuadrados` ya vienen calculadas o
- * corregidas manualmente desde el formulario, por eso este servicio solo las
- * exporta tal como están guardadas.
+ * Las metricas ya vienen calculadas o corregidas desde el formulario, por eso
+ * este servicio solo las exporta tal como estan guardadas.
  */
 
 import * as XLSX from 'xlsx'
@@ -16,121 +16,20 @@ import {
   calcularStatsPorObra,
 } from '@map/data/mapStats'
 import {
+  crearFilaExcelIntervencion,
+} from '@services/exportIntervencionDTO'
+import {
   calcularStatsPeriodo,
 } from '@services/periodoStats'
 
-/**
- * Convierte la geometría de una intervención a texto JSON.
- *
- * Permite conservar puntos/líneas/polígonos dentro de una celda exportable.
- * Esto es útil para auditoría o para reconstruir geometrías si hiciera falta.
- */
-function formatearGeometria(geometria) {
-  if (
-    !Array.isArray(geometria) ||
-    geometria.length === 0
-  ) {
-    return ''
-  }
-
-  return JSON.stringify(geometria)
-}
-
-/**
- * Cuenta la cantidad de puntos asociados a la geometría de una intervención.
- */
-function contarPuntos(intervencion) {
-  return intervencion.geometria?.length || 0
-}
-
-/**
- * Normaliza valores vacíos para evitar `undefined` en Excel.
- */
 function valorExcel(valor) {
   return valor ?? ''
 }
 
-/**
- * Convierte una intervención interna de la app a una fila tabular.
- */
-function crearFilaIntervencion(
-  item,
-  periodoActivo
-) {
-  return {
-    Periodo:
-      valorExcel(item.periodo) ||
-      valorExcel(periodoActivo),
-
-    Nombre:
-      valorExcel(item.nombre),
-
-    'Mes de terminación':
-      valorExcel(item.mesTerminacion),
-
-    Obra:
-      valorExcel(item.obra),
-
-    Ubicación:
-      valorExcel(item.ubicacion),
-
-    Barrio:
-      valorExcel(item.barrio),
-
-    Estado:
-      valorExcel(item.estado),
-
-    Inspector:
-      valorExcel(item.inspector),
-
-    Realizó:
-      valorExcel(item.realizo),
-
-    Cuadras:
-      valorExcel(item.cuadras),
-
-    'Metros lineales':
-      valorExcel(item.metrosLineales),
-
-    'Metros cuadrados':
-      valorExcel(item.metrosCuadrados),
-
-    Fuente:
-      valorExcel(item.fuente),
-
-    Dirección:
-      valorExcel(item.direccion),
-
-    Latitud:
-      valorExcel(item.latitud),
-
-    Longitud:
-      valorExcel(item.longitud),
-
-    'Tipo de geometría':
-      valorExcel(item.geometriaTipo),
-
-    'Cantidad de puntos':
-      contarPuntos(item),
-
-    Observaciones:
-      valorExcel(item.descripcion),
-
-    Geometría:
-      formatearGeometria(item.geometria),
-  }
-}
-
-/**
- * Convierte una estadística por obra a una fila de Excel.
- */
 function crearFilaEstadistica(item) {
   return {
-    Obra:
-      valorExcel(item.obra),
-
-    Total:
-      valorExcel(item.total),
+    Obra: valorExcel(item.obra),
+    Total: valorExcel(item.total),
   }
 }
 
@@ -167,9 +66,9 @@ function crearFilasResumen(
 }
 
 /**
- * Exporta las intervenciones de un período a un archivo Excel.
+ * Exporta las intervenciones de un periodo a un archivo Excel.
  *
- * Devuelve true si pudo generar el archivo y false si no había datos.
+ * Devuelve true si pudo generar el archivo y false si no habia datos.
  */
 export function exportarExcelPeriodo(
   intervenciones = [],
@@ -181,19 +80,17 @@ export function exportarExcelPeriodo(
 
   const filasIntervenciones =
     intervenciones.map((item) =>
-      crearFilaIntervencion(
+      crearFilaExcelIntervencion(
         item,
         periodoActivo
       )
     )
 
-  const stats =
+  const filasStats =
     calcularStatsPorObra(
       intervenciones
-    )
+    ).map(crearFilaEstadistica)
 
-  const filasStats =
-    stats.map(crearFilaEstadistica)
   const filasResumen =
     crearFilasResumen(
       intervenciones,
@@ -203,36 +100,24 @@ export function exportarExcelPeriodo(
   const workbook =
     XLSX.utils.book_new()
 
-  const hojaIntervenciones =
-    XLSX.utils.json_to_sheet(
-      filasIntervenciones
-    )
-  const hojaResumen =
-    XLSX.utils.json_to_sheet(
-      filasResumen
-    )
-
-  const hojaStats =
-    XLSX.utils.json_to_sheet(
-      filasStats
-    )
-
   XLSX.utils.book_append_sheet(
     workbook,
-    hojaResumen,
+    XLSX.utils.json_to_sheet(filasResumen),
     'Resumen'
   )
 
   XLSX.utils.book_append_sheet(
     workbook,
-    hojaIntervenciones,
+    XLSX.utils.json_to_sheet(
+      filasIntervenciones
+    ),
     'Intervenciones'
   )
 
   XLSX.utils.book_append_sheet(
     workbook,
-    hojaStats,
-    'Estadísticas'
+    XLSX.utils.json_to_sheet(filasStats),
+    'Estadisticas'
   )
 
   const nombreArchivo =

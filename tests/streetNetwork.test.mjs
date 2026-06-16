@@ -5,9 +5,15 @@ import { loadPureModule } from './helpers/loadModule.mjs'
 
 const {
   calcularCuadrasPorInterferencias,
+  crearAdvertenciaLineaMulticalle,
+  normalizarCallesUnicas,
 } = loadPureModule(
   'src/services/streetNetwork/cuadras.js',
-  ['calcularCuadrasPorInterferencias']
+  [
+    'calcularCuadrasPorInterferencias',
+    'crearAdvertenciaLineaMulticalle',
+    'normalizarCallesUnicas',
+  ]
 )
 
 test('calcula cuadras por espacios entre interferencias', () => {
@@ -67,5 +73,63 @@ test('usa fallback cuando la red vial no aporta interferencias', () => {
       fallback: 1.5,
     }),
     '1.5'
+  )
+})
+
+test('normaliza interferencias duplicadas de una traza real', () => {
+  assert.deepEqual(
+    normalizarCallesUnicas([
+      ' BUENOS AIRES ',
+      'ARENALES',
+      'BUENOS AIRES',
+      '',
+      null,
+      'LAMADRID',
+    ]),
+    [
+      'BUENOS AIRES',
+      'ARENALES',
+      'LAMADRID',
+    ]
+  )
+
+  assert.equal(
+    calcularCuadrasPorInterferencias({
+      interferencias: [
+        'BUENOS AIRES',
+        'ARENALES',
+        'ARENALES',
+        'LAMADRID',
+      ],
+      fallback: 4,
+    }),
+    '2'
+  )
+})
+
+test('no advierte cuando todos los segmentos pertenecen a la misma calle', () => {
+  assert.equal(
+    crearAdvertenciaLineaMulticalle([
+      'AV COLON',
+      'AV COLON',
+      ' AV COLON ',
+    ]),
+    null
+  )
+})
+
+test('advierte cuando una linea dobla y recorre otra calle', () => {
+  assert.deepEqual(
+    crearAdvertenciaLineaMulticalle([
+      'AV COLON',
+      'AV COLON',
+      'BUENOS AIRES',
+    ]),
+    {
+      tipo: 'linea-multicalle',
+      mensaje:
+        'La linea dibujada recorre mas de una calle (AV COLON, BUENOS AIRES). Para mantener datos consistentes, cargue cada calle como una intervencion separada.',
+      calles: ['AV COLON', 'BUENOS AIRES'],
+    }
   )
 })

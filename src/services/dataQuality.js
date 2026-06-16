@@ -23,6 +23,20 @@ function numeroValido(valor) {
   return Number.isFinite(Number(valor))
 }
 
+function normalizarTipoGeometria(valor) {
+  const clave = String(valor || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+
+  if (!clave) return 'punto'
+  if (clave === 'linea' || /^l.+nea$/.test(clave)) return 'linea'
+  if (clave === 'poligono' || /^pol.+gono$/.test(clave)) return 'poligono'
+
+  return clave
+}
+
 function coordenadaFueraDeZona(intervencion) {
   if (
     estaVacio(intervencion.latitud) ||
@@ -77,9 +91,13 @@ function evaluarIntervencion(intervencion, index) {
   const issues = []
   const cantidadPuntos =
     intervencion.geometria?.length || 0
+  const tipoGeometria =
+    normalizarTipoGeometria(
+      intervencion.geometriaTipo
+    )
 
   if (
-    intervencion.geometriaTipo === 'Punto' &&
+    tipoGeometria === 'punto' &&
     (estaVacio(intervencion.latitud) ||
       estaVacio(intervencion.longitud))
   ) {
@@ -95,7 +113,7 @@ function evaluarIntervencion(intervencion, index) {
   }
 
   if (
-    intervencion.geometriaTipo === 'Línea' &&
+    tipoGeometria === 'linea' &&
     cantidadPuntos < 2
   ) {
     issues.push(
@@ -110,7 +128,7 @@ function evaluarIntervencion(intervencion, index) {
   }
 
   if (
-    intervencion.geometriaTipo === 'Polígono' &&
+    tipoGeometria === 'poligono' &&
     cantidadPuntos < 3
   ) {
     issues.push(
@@ -194,7 +212,7 @@ function evaluarIntervencion(intervencion, index) {
   }
 
   if (
-    intervencion.geometriaTipo === 'Línea' &&
+    tipoGeometria === 'linea' &&
     estaVacio(intervencion.metrosLineales)
   ) {
     issues.push(
@@ -209,7 +227,7 @@ function evaluarIntervencion(intervencion, index) {
   }
 
   if (
-    intervencion.geometriaTipo === 'Polígono' &&
+    tipoGeometria === 'poligono' &&
     estaVacio(intervencion.metrosCuadrados)
   ) {
     issues.push(

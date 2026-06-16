@@ -2,6 +2,9 @@ import {
   calcularStatsPeriodo,
   formatearNumeroPeriodo,
 } from './periodoStats'
+import {
+  crearIntervencionExportDTO,
+} from './exportIntervencionDTO'
 
 function escaparHtml(valor) {
   return String(valor ?? '')
@@ -86,12 +89,14 @@ function tablaIntervenciones(
     incluirCoordenadas = true,
   } = opciones
 
-  const cuerpo = intervenciones
+  const filas = intervenciones.map((item) =>
+    crearIntervencionExportDTO(item)
+  )
+
+  const cuerpo = filas
     .map((item) => {
-      const lat =
-        item.latitud || item.lat || ''
-      const lon =
-        item.longitud || item.lon || ''
+      const lat = item.latitud ?? ''
+      const lon = item.longitud ?? ''
 
       return `
         <tr>
@@ -99,9 +104,9 @@ function tablaIntervenciones(
           <td>${escaparHtml(item.barrio || 'Sin barrio')}</td>
           <td>${escaparHtml(item.ubicacion || '')}</td>
           <td>${escaparHtml(item.geometriaTipo || '')}</td>
-          <td>${escaparHtml(item.cuadras || '')}</td>
-          <td>${escaparHtml(item.metrosLineales || '')}</td>
-          <td>${escaparHtml(item.metrosCuadrados || '')}</td>
+          <td>${escaparHtml(item.cuadras ?? '')}</td>
+          <td>${escaparHtml(item.metrosLineales ?? '')}</td>
+          <td>${escaparHtml(item.metrosCuadrados ?? '')}</td>
           ${
             incluirCoordenadas
               ? `<td>${escaparHtml(lat)}${lat || lon ? ', ' : ''}${escaparHtml(lon)}</td>`
@@ -109,7 +114,7 @@ function tablaIntervenciones(
           }
           ${
             incluirObservaciones
-              ? `<td>${escaparHtml(item.observaciones || '')}</td>`
+              ? `<td>${escaparHtml(item.observaciones)}</td>`
               : ''
           }
         </tr>

@@ -14,6 +14,11 @@ import {
   OBRAS,
   FUENTES,
 } from '@constants/intervenciones'
+import {
+  esLineaIntervencion,
+  esPoligonoIntervencion,
+  esPuntoIntervencion,
+} from '@domain/intervencion'
 
 function AutoGrowTextarea({
   value,
@@ -94,18 +99,24 @@ function InterventionForm({
     : 'Guardar intervención'
 
   let guardarDeshabilitado = false
+  const esPunto =
+    esPuntoIntervencion(form)
+  const esLinea =
+    esLineaIntervencion(form)
+  const esPoligono =
+    esPoligonoIntervencion(form)
 
-  if (form.geometriaTipo === 'Punto' && cantidadPuntos < 1) {
+  if (esPunto && cantidadPuntos < 1) {
     mensajeGuardar = 'Marcá una ubicación'
     guardarDeshabilitado = true
   }
 
-  if (form.geometriaTipo === 'Línea' && cantidadPuntos < 2) {
+  if (esLinea && cantidadPuntos < 2) {
     mensajeGuardar = 'Marcá al menos 2 puntos'
     guardarDeshabilitado = true
   }
 
-  if (form.geometriaTipo === 'Polígono' && cantidadPuntos < 3) {
+  if (esPoligono && cantidadPuntos < 3) {
     mensajeGuardar = 'Marcá al menos 3 puntos'
     guardarDeshabilitado = true
   }
@@ -197,7 +208,7 @@ function InterventionForm({
           placeholder="Ej: Falucho 2400 e/ Stgo. del Estero y Santa Fe"
         />
 
-        {form.geometriaTipo === 'Línea' &&
+        {esLinea &&
           cantidadPuntos >= 2 && (
             <button
               type="button"

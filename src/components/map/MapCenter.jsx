@@ -7,13 +7,19 @@
 
 import { useEffect } from 'react'
 import { useMap } from 'react-leaflet'
+import {
+  normalizarGeometriaTipo,
+} from '@domain/intervencion'
 
 // Punto de entrada visual del componente.
 function MapCenter({ punto, geometriaTipo }) {
   const map = useMap()
 
   useEffect(() => {
-    if (punto && geometriaTipo === 'Punto') {
+    if (
+      punto &&
+      normalizarGeometriaTipo(geometriaTipo) === 'Punto'
+    ) {
       map.setView(punto, 16)
     }
   }, [map, punto, geometriaTipo])

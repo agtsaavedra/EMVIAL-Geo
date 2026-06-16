@@ -2,16 +2,20 @@ const FORMATEADOR_AR = new Intl.NumberFormat('es-AR', {
   maximumFractionDigits: 2,
 })
 
-const GEOMETRIAS_VALIDAS = new Map([
-  ['punto', 'Punto'],
-  ['linea', 'Linea'],
-  ['lÃ­nea', 'LÃ­nea'],
-  ['poligono', 'Poligono'],
-  ['polÃ­gono', 'PolÃ­gono'],
-])
+function quitarDiacriticos(valor) {
+  return String(valor ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+}
 
 function normalizarTexto(valor) {
   return String(valor || '').trim()
+}
+
+function normalizarClaveTipo(valor) {
+  return quitarDiacriticos(valor)
+    .trim()
+    .toLowerCase()
 }
 
 function normalizarFecha(valor, fallback) {
@@ -30,14 +34,46 @@ function normalizarVersion(valor) {
   return version
 }
 
-function normalizarGeometriaTipo(valor) {
-  const texto = normalizarTexto(valor)
+export function normalizarGeometriaTipo(valor) {
+  const clave = normalizarClaveTipo(valor)
 
-  if (!texto) return 'Punto'
+  if (!clave) return 'Punto'
 
-  const clave = texto.toLowerCase()
+  if (clave === 'punto') return 'Punto'
 
-  return GEOMETRIAS_VALIDAS.get(clave) || texto
+  if (
+    clave === 'linea' ||
+    /^l.+nea$/.test(clave)
+  ) {
+    return 'Línea'
+  }
+
+  if (
+    clave === 'poligono' ||
+    /^pol.+gono$/.test(clave)
+  ) {
+    return 'Polígono'
+  }
+
+  return normalizarTexto(valor)
+}
+
+export function esPuntoIntervencion(intervencion = {}) {
+  return normalizarGeometriaTipo(
+    intervencion.geometriaTipo
+  ) === 'Punto'
+}
+
+export function esLineaIntervencion(intervencion = {}) {
+  return normalizarGeometriaTipo(
+    intervencion.geometriaTipo
+  ) === 'Línea'
+}
+
+export function esPoligonoIntervencion(intervencion = {}) {
+  return normalizarGeometriaTipo(
+    intervencion.geometriaTipo
+  ) === 'Polígono'
 }
 
 function normalizarPuntoGeometria(punto) {
@@ -87,7 +123,11 @@ export function obtenerSubtituloIntervencion(intervencion = {}) {
   }
 
   if (intervencion.geometriaTipo) {
-    partes.push(intervencion.geometriaTipo)
+    partes.push(
+      normalizarGeometriaTipo(
+        intervencion.geometriaTipo
+      )
+    )
   }
 
   return partes.join(' / ')
@@ -118,7 +158,9 @@ export function formatearNumeroIntervencion(valor) {
 export function obtenerMetricasIntervencion(intervencion = {}) {
   const metricas = []
   const geometriaTipo =
-    intervencion.geometriaTipo || 'Punto'
+    normalizarGeometriaTipo(
+      intervencion.geometriaTipo
+    )
 
   if (geometriaTipo === 'Punto') {
     return metricas
@@ -131,7 +173,7 @@ export function obtenerMetricasIntervencion(intervencion = {}) {
   const cuadras =
     obtenerNumeroPositivo(intervencion.cuadras)
 
-  if (geometriaTipo === 'Linea' || geometriaTipo === 'Línea') {
+  if (geometriaTipo === 'Línea') {
     if (metrosLineales) {
       metricas.push({
         label: 'm lineales',
@@ -147,13 +189,11 @@ export function obtenerMetricasIntervencion(intervencion = {}) {
     }
   }
 
-  if (geometriaTipo === 'Poligono' || geometriaTipo === 'Polígono') {
-    if (metrosCuadrados) {
-      metricas.push({
-        label: 'm2',
-        value: formatearNumeroIntervencion(metrosCuadrados),
-      })
-    }
+  if (geometriaTipo === 'Polígono' && metrosCuadrados) {
+    metricas.push({
+      label: 'm2',
+      value: formatearNumeroIntervencion(metrosCuadrados),
+    })
   }
 
   return metricas
@@ -218,7 +258,12 @@ export function obtenerDetalleIntervencion(
     ['Nombre', intervencion.nombre],
     ['Mes', intervencion.mesTerminacion],
     ['Obra', intervencion.obra],
-    ['Tipo', intervencion.geometriaTipo],
+    [
+      'Tipo',
+      normalizarGeometriaTipo(
+        intervencion.geometriaTipo
+      ),
+    ],
     ['Barrio', intervencion.barrio],
     ['Ubicacion', intervencion.ubicacion],
     ['Direccion', intervencion.direccion],

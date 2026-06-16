@@ -17,7 +17,10 @@ test('agrupa intervenciones por obra, barrio y geometria', () => {
       geometriaTipo: 'Línea',
       cuadras: '2',
       metrosLineales: '180.5',
-      geometria: [[-38, -57], [-38.001, -57]],
+      geometria: [
+        [-38, -57],
+        [-38.001, -57],
+      ],
     },
     {
       obra: 'MICROBACHEO',
@@ -35,4 +38,36 @@ test('agrupa intervenciones por obra, barrio y geometria', () => {
   assert.deepEqual(stats.porBarrio[0], ['CENTRO', 2])
   assert.equal(stats.porObra[0].nombre, 'MICROBACHEO')
   assert.equal(stats.porObra[0].total, 2)
+})
+
+test('unifica geometria con y sin tilde en estadisticas', () => {
+  const stats = calcularStatsPeriodo([
+    {
+      geometriaTipo: 'Línea',
+      geometria: [
+        [-38, -57],
+        [-38.1, -57.1],
+      ],
+    },
+    {
+      geometriaTipo: 'Linea',
+      geometria: [
+        [-38, -57],
+        [-38.1, -57.1],
+      ],
+    },
+    {
+      geometriaTipo: 'Poligono',
+      geometria: [
+        [-38, -57],
+        [-38.1, -57.1],
+        [-38.2, -57.2],
+      ],
+    },
+  ])
+
+  assert.deepEqual(stats.porGeometria, [
+    ['Línea', 2],
+    ['Polígono', 1],
+  ])
 })

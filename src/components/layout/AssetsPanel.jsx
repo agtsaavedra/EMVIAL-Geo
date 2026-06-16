@@ -205,7 +205,7 @@ function AssetsPanel({
       <div
         ref={panelRef}
         className="panel"
-        aria-hidden={!abierto}
+        inert={abierto ? undefined : ''}
       >
         <h3>
           Intervenciones cargadas

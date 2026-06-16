@@ -4,6 +4,38 @@ function normalizarTexto(valor, fallback) {
   return texto || fallback
 }
 
+function quitarDiacriticos(valor) {
+  return String(valor ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+}
+
+function normalizarGeometria(valor) {
+  const texto = normalizarTexto(valor, '')
+  const clave = quitarDiacriticos(texto)
+    .trim()
+    .toLowerCase()
+
+  if (!clave) return 'Sin geometria'
+  if (clave === 'punto') return 'Punto'
+
+  if (
+    clave === 'linea' ||
+    /^l.+nea$/.test(clave)
+  ) {
+    return 'Línea'
+  }
+
+  if (
+    clave === 'poligono' ||
+    /^pol.+gono$/.test(clave)
+  ) {
+    return 'Polígono'
+  }
+
+  return texto
+}
+
 function numero(valor) {
   if (valor === null || valor === undefined || valor === '') {
     return 0
@@ -77,9 +109,8 @@ export function calcularStatsPeriodo(
       intervencion.estado,
       'Sin estado'
     )
-    const geometria = normalizarTexto(
-      intervencion.geometriaTipo,
-      'Sin geometria'
+    const geometria = normalizarGeometria(
+      intervencion.geometriaTipo
     )
     const barrio = normalizarTexto(
       intervencion.barrio,

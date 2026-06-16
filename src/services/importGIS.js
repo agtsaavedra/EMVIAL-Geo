@@ -5,32 +5,9 @@
  */
 
 import { formInicial } from '@constants/formInicial'
-
-function valor(...valores) {
-  const encontrado = valores.find(
-    (item) =>
-      item !== undefined &&
-      item !== null &&
-      String(item).trim() !== ''
-  )
-
-  return encontrado ?? ''
-}
-
-function numeroATexto(valorEntrada) {
-  if (
-    valorEntrada === null ||
-    valorEntrada === undefined ||
-    valorEntrada === ''
-  ) {
-    return ''
-  }
-
-  const numero = Number(valorEntrada)
-  return Number.isFinite(numero)
-    ? String(valorEntrada)
-    : ''
-}
+import {
+  crearImportIntervencionDTO,
+} from '@services/importIntervencionDTO'
 
 function puntoGeoJSONALatLng(coordenadas) {
   if (
@@ -121,34 +98,6 @@ function geometriaDesdeGeoJSON(geometry) {
   return null
 }
 
-function propiedadesNormalizadas(properties = {}) {
-  const p = properties || {}
-
-  return {
-    nombre: valor(p.nombre, p.name, p.Name, p.NOMBRE),
-    mesTerminacion:
-      valor(p.mesTerminacion, p.mes_term, p.fecha, p.FECHA),
-    obra: valor(p.obra, p.OBRA, formInicial.obra),
-    ubicacion:
-      valor(p.ubicacion, p.Ubicacion, p.UBICACION, p.location),
-    barrio: valor(p.barrio, p.BARRIO),
-    estado: 'Finalizada',
-    inspector:
-      valor(p.inspector, p.inspect, p.INSPECTOR),
-    realizo: valor(p.realizo, p.REALIZO),
-    cuadras: numeroATexto(p.cuadras),
-    metrosLineales:
-      numeroATexto(valor(p.metrosLineales, p.m_lineal)),
-    metrosCuadrados:
-      numeroATexto(valor(p.metrosCuadrados, p.m2)),
-    fuente: valor(p.fuente, p.FUENTE),
-    direccion:
-      valor(p.direccion, p.DIRECCION, p.address),
-    descripcion:
-      valor(p.observaciones, p.obs, p.descripcion, p.description),
-  }
-}
-
 function featureAIntervencion(
   feature,
   periodoActivo,
@@ -160,7 +109,12 @@ function featureAIntervencion(
   if (!geometria) return null
 
   const props =
-    propiedadesNormalizadas(feature.properties)
+    crearImportIntervencionDTO(
+      feature.properties,
+      {
+        obraDefault: formInicial.obra,
+      }
+    )
 
   return {
     ...formInicial,
@@ -200,6 +154,50 @@ function textoNodo(nodo, selector) {
     .querySelector(selector)
     ?.textContent
     ?.trim() || ''
+}
+
+function extraerPropiedadesDescripcion(descripcion) {
+  if (!descripcion) return {}
+
+  const doc = new DOMParser()
+    .parseFromString(
+      descripcion,
+      'text/html'
+    )
+
+  const propiedades = {}
+
+  doc.querySelectorAll('tr').forEach((fila) => {
+    const celdas = [
+      ...fila.querySelectorAll('td'),
+    ]
+
+    if (celdas.length < 2) return
+
+    const clave = celdas[0]
+      .textContent
+      ?.trim()
+    const valor = celdas[1]
+      .textContent
+      ?.trim()
+
+    if (clave && valor) {
+      propiedades[clave] = valor
+    }
+  })
+
+  if (!Object.keys(propiedades).length) {
+    propiedades.descripcion = descripcion
+  }
+
+  return propiedades
+}
+
+function propiedadesKml(nombre, descripcion) {
+  return {
+    nombre,
+    ...extraerPropiedadesDescripcion(descripcion),
+  }
 }
 
 function coordenadasKml(texto) {
@@ -248,10 +246,8 @@ function leerKml(file) {
           if (punto) {
             return {
               type: 'Feature',
-              properties: {
-                nombre,
-                descripcion,
-              },
+              properties:
+                propiedadesKml(nombre, descripcion),
               geometry: {
                 type: 'Point',
                 coordinates:
@@ -266,10 +262,8 @@ function leerKml(file) {
           if (linea) {
             return {
               type: 'Feature',
-              properties: {
-                nombre,
-                descripcion,
-              },
+              properties:
+                propiedadesKml(nombre, descripcion),
               geometry: {
                 type: 'LineString',
                 coordinates:
@@ -284,10 +278,8 @@ function leerKml(file) {
           if (poligono) {
             return {
               type: 'Feature',
-              properties: {
-                nombre,
-                descripcion,
-              },
+              properties:
+                propiedadesKml(nombre, descripcion),
               geometry: {
                 type: 'Polygon',
                 coordinates: [

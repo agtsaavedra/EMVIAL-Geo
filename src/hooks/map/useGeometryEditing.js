@@ -6,6 +6,9 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
+import {
+  esPoligonoIntervencion,
+} from '@domain/intervencion'
 
 // Punto de entrada público del hook.
 export function useGeometryEditing({
@@ -244,7 +247,7 @@ export function useGeometryEditing({
 
     if (
       editando &&
-      form.geometriaTipo === 'Polígono'
+      esPoligonoIntervencion(form)
     ) {
       setForm((prev) => ({
         ...prev,

@@ -38,6 +38,10 @@ import { useGeometryEditing } from '@hooks/map/useGeometryEditing'
 
 import { crearIconoColor } from '@map/config/mapIcons'
 import { obtenerColorIntervencion } from '@map/config/mapColors'
+import {
+  esPoligonoIntervencion,
+  esPuntoIntervencion,
+} from '@domain/intervencion'
 
 import {
   centroMarDelPlata,
@@ -152,7 +156,7 @@ function MapView({
       !modoConsulta &&
       modoDibujo &&
       intervencionEditandoId &&
-      form.geometriaTipo === 'Polígono'
+      esPoligonoIntervencion(form)
     )
 
   const intervencionesMapa =
@@ -216,7 +220,7 @@ function MapView({
             <strong>✏️ Dibujo</strong>
 
             <span>
-              {form.geometriaTipo === 'Punto'
+              {esPuntoIntervencion(form)
                 ? 'Seleccionar ubicación'
                 : `${form.geometriaTipo} · ${form.geometria?.length || 0
                 } pts`}
@@ -349,7 +353,7 @@ function MapView({
               mientras se carga/edita ubicación. */}
           {!modoConsulta &&
             puntoSeleccionado &&
-            form.geometriaTipo === 'Punto' && (
+            esPuntoIntervencion(form) && (
               <Marker
                 position={puntoSeleccionado}
                 icon={crearIconoColor(

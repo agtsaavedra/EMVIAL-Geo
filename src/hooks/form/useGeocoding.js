@@ -5,6 +5,10 @@
  * dirección inversa desde coordenadas usando la API de Electron.
  */
 
+import {
+  esPuntoIntervencion,
+} from '@domain/intervencion'
+
 // Punto de entrada público del hook.
 export function useGeocoding({
   form,
@@ -70,7 +74,7 @@ export function useGeocoding({
         latitud: resultado.latitud.toFixed(6),
         longitud: resultado.longitud.toFixed(6),
         geometria:
-          prev.geometriaTipo === 'Punto'
+          esPuntoIntervencion(prev)
             ? [[resultado.latitud, resultado.longitud]]
             : prev.geometria,
       }))

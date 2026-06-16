@@ -9,6 +9,10 @@ import {
   Polyline,
   Polygon,
 } from 'react-leaflet'
+import {
+  esLineaIntervencion,
+  esPoligonoIntervencion,
+} from '@domain/intervencion'
 
 // Punto de entrada visual del componente.
 function GeometryPreview({
@@ -21,10 +25,10 @@ function GeometryPreview({
   // =====================================================
 
   const esLinea =
-    form.geometriaTipo === 'Línea'
+    esLineaIntervencion(form)
 
   const esPoligono =
-    form.geometriaTipo === 'Polígono'
+    esPoligonoIntervencion(form)
 
   const geometria =
     form.geometria || []
@@ -39,9 +43,7 @@ function GeometryPreview({
   // último punto marcado -> cursor actual
 
   const previewLinea =
-    ['Línea', 'Polígono'].includes(
-      form.geometriaTipo
-    ) &&
+    (esLinea || esPoligono) &&
     cantidadPuntos > 0 &&
     cursorLinea
       ? [

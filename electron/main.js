@@ -419,7 +419,7 @@ ipcMain.handle(
   }
 )
 
-// Lee archivos GeoJSON estÃ¡ticos incluidos con la aplicaciÃ³n.
+// Lee archivos GeoJSON estáticos incluidos con la aplicación.
 ipcMain.handle(
   'leer-archivo-datos',
   async (event, nombreArchivo) => {

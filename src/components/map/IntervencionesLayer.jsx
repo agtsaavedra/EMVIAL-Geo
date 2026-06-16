@@ -18,6 +18,10 @@ import PopupIntervencion from './PopupIntervencion'
 
 import { crearIconoColor } from '@map/config/mapIcons'
 import { obtenerColorIntervencion } from '@map/config/mapColors'
+import {
+  esLineaIntervencion,
+  esPoligonoIntervencion,
+} from '@domain/intervencion'
 
 // Punto de entrada visual del componente.
 function IntervencionesLayer({
@@ -195,8 +199,7 @@ function obtenerOpcionesPoligono(
           )
 
         if (
-          intervencion.geometriaTipo ===
-            'Línea' &&
+          esLineaIntervencion(intervencion) &&
           intervencion.geometria?.length > 1
         ) {
           return (
@@ -224,8 +227,7 @@ function obtenerOpcionesPoligono(
         }
 
         if (
-          intervencion.geometriaTipo ===
-            'Polígono' &&
+          esPoligonoIntervencion(intervencion) &&
           intervencion.geometria?.length > 2
         ) {
           return (

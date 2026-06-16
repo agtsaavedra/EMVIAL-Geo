@@ -8,6 +8,9 @@
 import { useEffect } from 'react'
 import { useMap } from 'react-leaflet'
 import L from 'leaflet'
+import {
+  esPuntoIntervencion,
+} from '@domain/intervencion'
 
 function obtenerBoundsIntervencion(intervencion) {
   if (intervencion?.geometria?.length) {
@@ -39,7 +42,7 @@ function MapFocus({ intervencion }) {
     map.closePopup()
 
     if (
-      intervencion.geometriaTipo === 'Punto' ||
+      esPuntoIntervencion(intervencion) ||
       bounds.getNorthEast().equals(bounds.getSouthWest())
     ) {
       map.setView(bounds.getCenter(), 17)

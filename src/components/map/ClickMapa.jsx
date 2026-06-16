@@ -8,6 +8,10 @@
 import { useMapEvents } from 'react-leaflet'
 
 import { detectarBarrio } from '@map/data/barrios'
+import {
+  esLineaIntervencion,
+  esPoligonoIntervencion,
+} from '@domain/intervencion'
 
 // Punto de entrada visual del componente.
 function ClickMapa({
@@ -24,8 +28,9 @@ function ClickMapa({
   // =====================================================
 
   function esLineaOPoligono() {
-    return ['Línea', 'Polígono'].includes(
-      form.geometriaTipo
+    return (
+      esLineaIntervencion(form) ||
+      esPoligonoIntervencion(form)
     )
   }
 

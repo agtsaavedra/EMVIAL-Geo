@@ -31,6 +31,19 @@ function esGeometriaLinea(tipo) {
   return texto === 'linea' || texto.includes('nea')
 }
 
+function esGeometriaPoligono(tipo) {
+  const texto = String(tipo || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+
+  return texto === 'poligono'
+}
+
+function esGeometriaPunto(tipo) {
+  return String(tipo || '').trim() === 'Punto'
+}
+
 export function useFormularioIntervencion({
   periodoActivo,
   guardarIntervencionEnDB,
@@ -142,7 +155,7 @@ export function useFormularioIntervencion({
   // pisa hasta que vuelva a cambiar la geometría.
 
   useEffect(() => {
-    if (form.geometriaTipo !== 'Línea') {
+    if (!esGeometriaLinea(form.geometriaTipo)) {
       return
     }
 
@@ -190,7 +203,7 @@ export function useFormularioIntervencion({
 
     async function calcularCuadras() {
       if (
-        form.geometriaTipo !== 'Línea' ||
+        !esGeometriaLinea(form.geometriaTipo) ||
         !Array.isArray(form.geometria) ||
         form.geometria.length < 2
       ) {
@@ -404,34 +417,6 @@ export function useFormularioIntervencion({
     }
 
     if (name === 'ubicacion') {
-      ubicacionLineaManualRef.current =
-        form.geometriaTipo === 'LÃ­nea'
-      ubicacionAutoLineaRef.current = ''
-      setUbicacionAutomaticaLinea(false)
-    }
-
-    if (name === 'ubicacion') {
-      const esLinea =
-        form.geometriaTipo === 'Línea'
-
-      ubicacionLineaManualRef.current =
-        esLinea
-      ubicacionAutoLineaRef.current = ''
-
-      setUbicacionAutomaticaLinea(false)
-      setUbicacionManualLinea(
-        esLinea && String(value).trim() !== ''
-      )
-
-      setForm((prev) => ({
-        ...prev,
-        ubicacion: value,
-      }))
-
-      return
-    }
-
-    if (name === 'ubicacion') {
       const esLinea =
         esGeometriaLinea(form.geometriaTipo)
 
@@ -472,7 +457,7 @@ export function useFormularioIntervencion({
       form.geometria?.length || 0
 
     if (
-      form.geometriaTipo === 'Punto' &&
+      esGeometriaPunto(form.geometriaTipo) &&
       (!form.latitud ||
         !form.longitud)
     ) {
@@ -485,7 +470,7 @@ export function useFormularioIntervencion({
     }
 
     if (
-      form.geometriaTipo === 'Línea' &&
+      esGeometriaLinea(form.geometriaTipo) &&
       cantidadPuntos < 2
     ) {
       mostrarToast(
@@ -497,8 +482,7 @@ export function useFormularioIntervencion({
     }
 
     if (
-      form.geometriaTipo ===
-        'Polígono' &&
+      esGeometriaPoligono(form.geometriaTipo) &&
       cantidadPuntos < 3
     ) {
       mostrarToast(

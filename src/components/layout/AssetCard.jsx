@@ -156,7 +156,7 @@ function AssetCard({
 
           <div
             className="card-detail"
-            aria-hidden={!detalleAbierto}
+            inert={detalleAbierto ? undefined : ''}
           >
             <div className="card-detail-inner">
               {detalleAgrupado.map((grupo) => (
