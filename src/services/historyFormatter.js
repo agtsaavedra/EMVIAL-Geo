@@ -32,6 +32,7 @@ const CAMPOS_IGNORADOS = new Set([
 
 const ACCIONES = {
   crear: 'Se creo la intervencion.',
+  duplicar: 'Se duplico la intervencion.',
   editar: 'Se edito la intervencion.',
   eliminar: 'Se elimino la intervencion.',
   restaurar: 'Se restauro la intervencion.',
@@ -114,6 +115,10 @@ export function describirEventoHistorial(evento = {}) {
 
   if (evento.accion === 'crear') {
     return 'Se creo la intervencion.'
+  }
+
+  if (evento.accion === 'duplicar') {
+    return 'Se creo una copia independiente de otra intervencion.'
   }
 
   if (evento.accion === 'eliminar') {

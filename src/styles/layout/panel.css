@@ -294,21 +294,21 @@
 }
 
 .edit-btn {
-  background: #2563eb;
+  background: var(--action-primary);
   color: white;
 }
 
 .edit-btn:hover {
-  background: #1d4ed8;
+  background: var(--action-primary-hover);
 }
 
 .delete-btn {
-  background: #dc2626;
+  background: var(--action-danger);
   color: white;
 }
 
 .delete-btn:hover {
-  background: #b91c1c;
+  background: var(--action-danger-hover);
 }
 
 /* ===============================
@@ -359,12 +359,12 @@
 }
 
 .duplicate-btn {
-  background: #0f766e;
+  background: var(--action-duplicate);
   color: white;
 }
 
 .duplicate-btn:hover {
-  background: #0d9488;
+  background: var(--action-duplicate-hover);
 }
 
 .panel-toggle:hover {

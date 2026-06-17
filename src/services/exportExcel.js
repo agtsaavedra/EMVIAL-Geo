@@ -10,8 +10,6 @@
  * este servicio solo las exporta tal como estan guardadas.
  */
 
-import * as XLSX from 'xlsx'
-
 import {
   calcularStatsPorObra,
 } from '@map/data/mapStats'
@@ -21,6 +19,11 @@ import {
 import {
   calcularStatsPeriodo,
 } from '@services/periodoStats'
+import xlsxWriter from './xlsxWriter.cjs'
+
+const {
+  crearXlsxBlob,
+} = xlsxWriter
 
 function valorExcel(valor) {
   return valor ?? ''
@@ -70,7 +73,18 @@ function crearFilasResumen(
  *
  * Devuelve true si pudo generar el archivo y false si no habia datos.
  */
-export function exportarExcelPeriodo(
+function descargarBlob(blob, nombreArchivo) {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+
+  link.href = url
+  link.download = nombreArchivo
+  link.click()
+
+  URL.revokeObjectURL(url)
+}
+
+export async function exportarExcelPeriodo(
   intervenciones = [],
   periodoActivo
 ) {
@@ -97,34 +111,26 @@ export function exportarExcelPeriodo(
       periodoActivo
     )
 
-  const workbook =
-    XLSX.utils.book_new()
-
-  XLSX.utils.book_append_sheet(
-    workbook,
-    XLSX.utils.json_to_sheet(filasResumen),
-    'Resumen'
-  )
-
-  XLSX.utils.book_append_sheet(
-    workbook,
-    XLSX.utils.json_to_sheet(
-      filasIntervenciones
-    ),
-    'Intervenciones'
-  )
-
-  XLSX.utils.book_append_sheet(
-    workbook,
-    XLSX.utils.json_to_sheet(filasStats),
-    'Estadisticas'
-  )
-
   const nombreArchivo =
     `EMVIAL_${periodoActivo || 'sin_periodo'}.xlsx`
 
-  XLSX.writeFile(
-    workbook,
+  const blob = await crearXlsxBlob([
+    {
+      nombre: 'Resumen',
+      filas: filasResumen,
+    },
+    {
+      nombre: 'Intervenciones',
+      filas: filasIntervenciones,
+    },
+    {
+      nombre: 'Estadisticas',
+      filas: filasStats,
+    },
+  ])
+
+  descargarBlob(
+    blob,
     nombreArchivo
   )
 

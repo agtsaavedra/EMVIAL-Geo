@@ -1,0 +1,46 @@
+const IPC_CHANNELS = {
+  CONFIRMAR_CIERRE_APP: 'confirmar-cierre-app',
+  BUSCAR_DIRECCION: 'buscar-direccion',
+  OBTENER_DIRECCION: 'obtener-direccion',
+  OBTENER_ESTADO_GEOCODING: 'obtener-estado-geocoding',
+  LIMPIAR_CACHE_GEOCODING: 'limpiar-cache-geocoding',
+  OBTENER_INTERVENCIONES: 'obtener-intervenciones',
+  GUARDAR_INTERVENCION: 'guardar-intervencion',
+  GUARDAR_INTERVENCIONES_MASIVO: 'guardar-intervenciones-masivo',
+  ELIMINAR_INTERVENCION: 'eliminar-intervencion',
+  OBTENER_HISTORIAL_INTERVENCION: 'obtener-historial-intervencion',
+  CREAR_BACKUP_MANUAL: 'crear-backup-manual',
+  CREAR_BACKUP_PREVENTIVO: 'crear-backup-preventivo',
+  RESTAURAR_BACKUP_MANUAL: 'restaurar-backup-manual',
+  ABRIR_CARPETA_BACKUPS: 'abrir-carpeta-backups',
+  RESTAURAR_PERIODO_MANUAL: 'restaurar-periodo-manual',
+  CONFIGURAR_CARPETA_BACKUPS: 'configurar-carpeta-backups',
+  OBTENER_ESTADO_APP: 'obtener-estado-app',
+  LEER_ARCHIVO_DATOS: 'leer-archivo-datos',
+}
+
+const PRELOAD_API_CHANNELS = {
+  buscarDireccion: IPC_CHANNELS.BUSCAR_DIRECCION,
+  obtenerDireccion: IPC_CHANNELS.OBTENER_DIRECCION,
+  obtenerEstadoGeocoding: IPC_CHANNELS.OBTENER_ESTADO_GEOCODING,
+  limpiarCacheGeocoding: IPC_CHANNELS.LIMPIAR_CACHE_GEOCODING,
+  obtenerIntervenciones: IPC_CHANNELS.OBTENER_INTERVENCIONES,
+  guardarIntervencion: IPC_CHANNELS.GUARDAR_INTERVENCION,
+  guardarIntervencionesMasivo: IPC_CHANNELS.GUARDAR_INTERVENCIONES_MASIVO,
+  eliminarIntervencion: IPC_CHANNELS.ELIMINAR_INTERVENCION,
+  obtenerHistorialIntervencion: IPC_CHANNELS.OBTENER_HISTORIAL_INTERVENCION,
+  crearBackupManual: IPC_CHANNELS.CREAR_BACKUP_MANUAL,
+  crearBackupPreventivo: IPC_CHANNELS.CREAR_BACKUP_PREVENTIVO,
+  restaurarBackupManual: IPC_CHANNELS.RESTAURAR_BACKUP_MANUAL,
+  abrirCarpetaBackups: IPC_CHANNELS.ABRIR_CARPETA_BACKUPS,
+  restaurarPeriodoManual: IPC_CHANNELS.RESTAURAR_PERIODO_MANUAL,
+  obtenerEstadoApp: IPC_CHANNELS.OBTENER_ESTADO_APP,
+  leerArchivoDatos: IPC_CHANNELS.LEER_ARCHIVO_DATOS,
+  configurarCarpetaBackups: IPC_CHANNELS.CONFIGURAR_CARPETA_BACKUPS,
+  confirmarCierreApp: IPC_CHANNELS.CONFIRMAR_CIERRE_APP,
+}
+
+module.exports = {
+  IPC_CHANNELS,
+  PRELOAD_API_CHANNELS,
+}

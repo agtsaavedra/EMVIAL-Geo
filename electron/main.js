@@ -20,6 +20,9 @@ const fs = require('fs')
 const {
   crearNominatimClient,
 } = require('./geocoding/nominatimClient')
+const {
+  IPC_CHANNELS,
+} = require('./ipc/channels')
 const logger = require('./logger')
 const {
   validarArchivoDatos,
@@ -260,7 +263,7 @@ function createWindow() {
 //
 
 // Confirma desde el renderer que el usuario aceptó cerrar la app.
-ipcMain.handle('confirmar-cierre-app', () => {
+ipcMain.handle(IPC_CHANNELS.CONFIRMAR_CIERRE_APP, () => {
   app.isQuiting = true
   app.quit()
 })
@@ -268,7 +271,7 @@ ipcMain.handle('confirmar-cierre-app', () => {
 
 // Busca direcciones usando Nominatim con consultas progresivas para Mar del Plata.
 ipcMain.handle(
-  'buscar-direccion',
+  IPC_CHANNELS.BUSCAR_DIRECCION,
   async (event, direccion) => {
     try {
       return await obtenerNominatimClient()
@@ -286,7 +289,7 @@ ipcMain.handle(
 
 // Obtiene una dirección legible a partir de coordenadas lat/lon.
 ipcMain.handle(
-  'obtener-direccion',
+  IPC_CHANNELS.OBTENER_DIRECCION,
   async (event, lat, lon) => {
     try {
       return await obtenerNominatimClient()
@@ -310,7 +313,7 @@ ipcMain.handle(
 
 // Devuelve al renderer todas las intervenciones persistidas.
 ipcMain.handle(
-  'obtener-intervenciones',
+  IPC_CHANNELS.OBTENER_INTERVENCIONES,
   async () => {
     return await obtenerIntervenciones()
   }
@@ -318,7 +321,7 @@ ipcMain.handle(
 
 // Inserta o actualiza una intervención recibida desde el renderer.
 ipcMain.handle(
-  'guardar-intervencion',
+  IPC_CHANNELS.GUARDAR_INTERVENCION,
   async (event, intervencion) => {
     return await guardarIntervencion(
       validarIntervencion(intervencion)
@@ -327,7 +330,7 @@ ipcMain.handle(
 )
 
 ipcMain.handle(
-  'guardar-intervenciones-masivo',
+  IPC_CHANNELS.GUARDAR_INTERVENCIONES_MASIVO,
   async (event, intervenciones) => {
     return await guardarIntervencionesMasivo(
       validarIntervencionesMasivo(intervenciones)
@@ -337,7 +340,7 @@ ipcMain.handle(
 
 // Elimina una intervención por id.
 ipcMain.handle(
-  'eliminar-intervencion',
+  IPC_CHANNELS.ELIMINAR_INTERVENCION,
   async (event, id) => {
     return await eliminarIntervencion(
       validarId(id)
@@ -346,7 +349,7 @@ ipcMain.handle(
 )
 
 ipcMain.handle(
-  'obtener-historial-intervencion',
+  IPC_CHANNELS.OBTENER_HISTORIAL_INTERVENCION,
   async (event, id) => {
     return obtenerHistorialIntervencion(
       validarId(id)
@@ -362,7 +365,7 @@ ipcMain.handle(
 
 // Crea un backup manual elegido por el usuario.
 ipcMain.handle(
-  'crear-backup-manual',
+  IPC_CHANNELS.CREAR_BACKUP_MANUAL,
   async (event, periodo) => {
     return await crearBackupManual(
       validarPeriodo(periodo)
@@ -371,7 +374,7 @@ ipcMain.handle(
 )
 
 ipcMain.handle(
-  'crear-backup-preventivo',
+  IPC_CHANNELS.CREAR_BACKUP_PREVENTIVO,
   async (event, motivo) => {
     return await crearBackupPreventivo(motivo)
   }
@@ -379,7 +382,7 @@ ipcMain.handle(
 
 // Restaura una base completa desde un backup manual.
 ipcMain.handle(
-  'restaurar-backup-manual',
+  IPC_CHANNELS.RESTAURAR_BACKUP_MANUAL,
   async () => {
     return await restaurarBackupManual()
   }
@@ -387,7 +390,7 @@ ipcMain.handle(
 
 // Abre la carpeta de backups en el explorador del sistema.
 ipcMain.handle(
-  'abrir-carpeta-backups',
+  IPC_CHANNELS.ABRIR_CARPETA_BACKUPS,
   async () => {
     return await abrirCarpetaBackups()
   }
@@ -395,7 +398,7 @@ ipcMain.handle(
 
 // Restaura únicamente las intervenciones de un período.
 ipcMain.handle(
-  'restaurar-periodo-manual',
+  IPC_CHANNELS.RESTAURAR_PERIODO_MANUAL,
   async (event, periodo) => {
     return await restaurarPeriodoManual(
       validarPeriodo(periodo)
@@ -405,7 +408,7 @@ ipcMain.handle(
 
 // Permite elegir una nueva carpeta de backups.
 ipcMain.handle(
-  'configurar-carpeta-backups',
+  IPC_CHANNELS.CONFIGURAR_CARPETA_BACKUPS,
   async () => {
     return await configurarCarpetaBackups()
   }
@@ -413,7 +416,7 @@ ipcMain.handle(
 
 // Devuelve información de rutas internas para diagnóstico.
 ipcMain.handle(
-  'obtener-estado-app',
+  IPC_CHANNELS.OBTENER_ESTADO_APP,
   async () => {
     return obtenerEstadoApp()
   }
@@ -421,7 +424,7 @@ ipcMain.handle(
 
 // Lee archivos GeoJSON estáticos incluidos con la aplicación.
 ipcMain.handle(
-  'leer-archivo-datos',
+  IPC_CHANNELS.LEER_ARCHIVO_DATOS,
   async (event, nombreArchivo) => {
     const ruta =
       obtenerRutaArchivoDatos(
@@ -436,7 +439,7 @@ ipcMain.handle(
 )
 
 ipcMain.handle(
-  'obtener-estado-geocoding',
+  IPC_CHANNELS.OBTENER_ESTADO_GEOCODING,
   async () => {
     return obtenerNominatimClient()
       .obtenerEstadoCache()
@@ -444,7 +447,7 @@ ipcMain.handle(
 )
 
 ipcMain.handle(
-  'limpiar-cache-geocoding',
+  IPC_CHANNELS.LIMPIAR_CACHE_GEOCODING,
   async () => {
     return obtenerNominatimClient()
       .limpiarCache()

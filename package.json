@@ -4,11 +4,13 @@
   "version": "0.1.0",
   "productName": "EMVIAL Geo",
   "description": "Gestión operativa territorial con mapa de intervenciones",
+  "author": "EMVIAL",
   "main": "electron/main.js",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "electron": "electron .",
-    "start": "concurrently \"npm run dev\" \"npm run electron\"",
+    "start": "node scripts/start-dev.cjs",
+    "postinstall": "electron-builder install-app-deps",
     "test": "node --test tests/*.test.mjs",
     "lint": "eslint .",
     "check": "npm run test && npm run lint && npm run build",
@@ -27,16 +29,13 @@
     "react-dom": "^19.2.6",
     "react-leaflet": "^5.0.0",
     "shpjs": "^6.2.0",
-    "sql.js": "^1.14.1",
-    "xlsx": "^0.18.5"
+    "sql.js": "^1.14.1"
   },
   "devDependencies": {
-    "@electron/rebuild": "^4.0.4",
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "concurrently": "^9.2.1",
     "electron": "^42.2.0",
     "electron-builder": "^26.8.1",
     "eslint": "^10.3.0",
@@ -48,6 +47,7 @@
   "build": {
     "appId": "com.emvial.geo",
     "productName": "EMVIAL Geo",
+    "artifactName": "EMVIAL-Geo-Setup-${version}.${ext}",
     "directories": {
       "output": "release"
     },

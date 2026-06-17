@@ -90,7 +90,7 @@
 .confirm-btn {
   border: none;
 
-  background: #2563eb;
+  background: var(--action-primary);
   color: white;
 
   border-radius: 12px;
@@ -106,7 +106,7 @@
 }
 
 .confirm-btn.danger {
-  background: #dc2626;
+  background: var(--action-danger);
 }
 
 /* ===============================

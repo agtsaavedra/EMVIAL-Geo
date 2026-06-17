@@ -8,6 +8,20 @@ function AboutDialog({
 }) {
   if (!abierto) return null
 
+  const ultimoBackup = estadoApp?.ultimoBackupAutomatico
+    ? new Date(
+        estadoApp.ultimoBackupAutomatico
+      ).toLocaleString('es-AR', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      })
+    : 'Sin backups automaticos en esta sesion'
+
+  const backupsPendientes =
+    estadoApp?.backupPendiente
+      ? `Si (${estadoApp.periodosBackupPendiente?.join(', ') || 'general'})`
+      : 'No'
+
   return (
     <div
       className="confirm-overlay"
@@ -48,6 +62,11 @@ function AboutDialog({
           </div>
 
           <div className="about-row">
+            <strong>Base activa</strong>
+            <span>{estadoApp?.dbExiste ? 'Disponible' : 'No encontrada'}</span>
+          </div>
+
+          <div className="about-row">
             <strong>Base de datos</strong>
             <small>{estadoApp?.dbPath}</small>
           </div>
@@ -55,6 +74,16 @@ function AboutDialog({
           <div className="about-row">
             <strong>Backups</strong>
             <small>{estadoApp?.backupsDir}</small>
+          </div>
+
+          <div className="about-row">
+            <strong>Backup pendiente</strong>
+            <span>{backupsPendientes}</span>
+          </div>
+
+          <div className="about-row">
+            <strong>Ultimo backup automatico</strong>
+            <small>{ultimoBackup}</small>
           </div>
 
           {estadoGeocoding && (

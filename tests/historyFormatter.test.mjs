@@ -141,4 +141,16 @@ test('describe acciones principales sin cambios visibles', () => {
     }),
     'Se elimino la intervencion.'
   )
+  assert.equal(
+    describirEventoHistorial({
+      accion: 'duplicar',
+    }),
+    'Se creo una copia independiente de otra intervencion.'
+  )
+  assert.equal(
+    obtenerTituloAccionHistorial({
+      accion: 'duplicar',
+    }),
+    'Se duplico la intervencion.'
+  )
 })

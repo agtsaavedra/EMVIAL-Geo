@@ -8,7 +8,7 @@
   border: none;
   border-radius: 8px;
 
-  background: #2563eb;
+  background: var(--action-primary);
   color: white;
 
   padding: 6px 10px;
@@ -18,5 +18,5 @@
 }
 
 .popup-edit-btn:hover {
-  background: #1d4ed8;
+  background: var(--action-primary-hover);
 }

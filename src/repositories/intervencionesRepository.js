@@ -1,8 +1,13 @@
 import {
   normalizarIntervencion,
 } from '@domain/intervencion'
+import repositoryContract from './intervencionesRepositoryContract.cjs'
 
-function obtenerApi() {
+const {
+  validarIntervencionesRepository,
+} = repositoryContract
+
+function obtenerApiElectron() {
   if (!window.api) {
     throw new Error(
       'La API de Electron no esta disponible.'
@@ -12,48 +17,59 @@ function obtenerApi() {
   return window.api
 }
 
-function normalizarLista(intervenciones = []) {
-  return intervenciones.map((intervencion) =>
-    normalizarIntervencion(intervencion)
-  )
+export function crearIntervencionesRepositoryLocal({
+  obtenerApi = obtenerApiElectron,
+  normalizar = normalizarIntervencion,
+} = {}) {
+  function normalizarListaLocal(intervenciones = []) {
+    return intervenciones.map((intervencion) =>
+      normalizar(intervencion)
+    )
+  }
+
+  return validarIntervencionesRepository({
+    proveedor: 'local-electron',
+
+    async obtenerTodas() {
+      const datos =
+        await obtenerApi().obtenerIntervenciones()
+
+      return normalizarListaLocal(datos || [])
+    },
+
+    async guardar(intervencion) {
+      const guardada =
+        await obtenerApi().guardarIntervencion(
+          normalizar(intervencion)
+        )
+
+      return normalizar(guardada)
+    },
+
+    async guardarMasivo(intervenciones = []) {
+      const guardadas =
+        await obtenerApi().guardarIntervencionesMasivo(
+          normalizarListaLocal(intervenciones)
+        )
+
+      return normalizarListaLocal(guardadas || [])
+    },
+
+    async eliminar(id) {
+      return await obtenerApi().eliminarIntervencion(id)
+    },
+
+    async obtenerHistorial(id) {
+      const api = obtenerApi()
+
+      if (!api.obtenerHistorialIntervencion) {
+        return []
+      }
+
+      return await api.obtenerHistorialIntervencion(id)
+    },
+  })
 }
 
-export const intervencionesRepository = {
-  async obtenerTodas() {
-    const datos =
-      await obtenerApi().obtenerIntervenciones()
-
-    return normalizarLista(datos || [])
-  },
-
-  async guardar(intervencion) {
-    const guardada =
-      await obtenerApi().guardarIntervencion(
-        normalizarIntervencion(intervencion)
-      )
-
-    return normalizarIntervencion(guardada)
-  },
-
-  async guardarMasivo(intervenciones = []) {
-    const guardadas =
-      await obtenerApi().guardarIntervencionesMasivo(
-        normalizarLista(intervenciones)
-      )
-
-    return normalizarLista(guardadas || [])
-  },
-
-  async eliminar(id) {
-    return await obtenerApi().eliminarIntervencion(id)
-  },
-
-  async obtenerHistorial(id) {
-    if (!obtenerApi().obtenerHistorialIntervencion) {
-      return []
-    }
-
-    return await obtenerApi()
-      .obtenerHistorialIntervencion(id)
-  },
-}
+export const intervencionesRepository =
+  crearIntervencionesRepositoryLocal()

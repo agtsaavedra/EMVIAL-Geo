@@ -233,7 +233,11 @@ export function useIntervenciones() {
 
     const guardada =
       await intervencionesRepository.guardar(
-        duplicada
+        {
+          ...duplicada,
+          __historialAccion: 'duplicar',
+          __historialOrigenId: intervencion.id,
+        }
       )
 
     setIntervenciones((prev) => [

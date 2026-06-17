@@ -8,6 +8,14 @@
 
   --border: #e5e7eb;
 
+  --action-primary: #2563eb;
+  --action-primary-hover: #1d4ed8;
+  --action-danger: #dc2626;
+  --action-danger-hover: #b91c1c;
+  --action-duplicate: #0f766e;
+  --action-duplicate-hover: #0d9488;
+  --action-success: #22c55e;
+
   --sidebar: #071225;
   --sidebar-2: #0c1730;
 
@@ -24,6 +32,14 @@
   --text-soft: #cbd5e1;
 
   --border: #2d3748;
+
+  --action-primary: #2563eb;
+  --action-primary-hover: #1d4ed8;
+  --action-danger: #dc2626;
+  --action-danger-hover: #b91c1c;
+  --action-duplicate: #0f766e;
+  --action-duplicate-hover: #0d9488;
+  --action-success: #22c55e;
 
   --sidebar: #020617;
   --sidebar-2: #111827;

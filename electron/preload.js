@@ -5,6 +5,9 @@
  * Mantiene contextIsolation activado y evita exponer ipcRenderer completo al frontend.
  */
 const { contextBridge, ipcRenderer } = require('electron')
+const {
+  IPC_CHANNELS,
+} = require('./ipc/channels')
 
 // API pública disponible en el renderer como window.api.
 contextBridge.exposeInMainWorld('api', {
@@ -12,78 +15,78 @@ contextBridge.exposeInMainWorld('api', {
 
   // Geocoding directo: busca posibles direcciones para un texto.
   buscarDireccion: (direccion) =>
-    ipcRenderer.invoke('buscar-direccion', direccion),
+    ipcRenderer.invoke(IPC_CHANNELS.BUSCAR_DIRECCION, direccion),
 
   // Reverse geocoding: obtiene dirección desde coordenadas.
   obtenerDireccion: (lat, lon) =>
-    ipcRenderer.invoke('obtener-direccion', lat, lon),
+    ipcRenderer.invoke(IPC_CHANNELS.OBTENER_DIRECCION, lat, lon),
 
   obtenerEstadoGeocoding: () =>
-    ipcRenderer.invoke('obtener-estado-geocoding'),
+    ipcRenderer.invoke(IPC_CHANNELS.OBTENER_ESTADO_GEOCODING),
 
   limpiarCacheGeocoding: () =>
-    ipcRenderer.invoke('limpiar-cache-geocoding'),
+    ipcRenderer.invoke(IPC_CHANNELS.LIMPIAR_CACHE_GEOCODING),
 
   // Carga todas las intervenciones guardadas.
   obtenerIntervenciones: () =>
-    ipcRenderer.invoke('obtener-intervenciones'),
+    ipcRenderer.invoke(IPC_CHANNELS.OBTENER_INTERVENCIONES),
 
   // Inserta o actualiza una intervención.
   guardarIntervencion: (intervencion) =>
-    ipcRenderer.invoke('guardar-intervencion', intervencion),
+    ipcRenderer.invoke(IPC_CHANNELS.GUARDAR_INTERVENCION, intervencion),
 
   guardarIntervencionesMasivo: (intervenciones) =>
     ipcRenderer.invoke(
-      'guardar-intervenciones-masivo',
+      IPC_CHANNELS.GUARDAR_INTERVENCIONES_MASIVO,
       intervenciones
     ),
 
   // Elimina una intervención por id.
   eliminarIntervencion: (id) =>
-    ipcRenderer.invoke('eliminar-intervencion', id),
+    ipcRenderer.invoke(IPC_CHANNELS.ELIMINAR_INTERVENCION, id),
 
   obtenerHistorialIntervencion: (id) =>
     ipcRenderer.invoke(
-      'obtener-historial-intervencion',
+      IPC_CHANNELS.OBTENER_HISTORIAL_INTERVENCION,
       id
     ),
 
   // Crea un backup manual para el período activo.
   crearBackupManual: (periodo) =>
-    ipcRenderer.invoke('crear-backup-manual', periodo),
+    ipcRenderer.invoke(IPC_CHANNELS.CREAR_BACKUP_MANUAL, periodo),
 
   crearBackupPreventivo: (motivo) =>
     ipcRenderer.invoke(
-      'crear-backup-preventivo',
+      IPC_CHANNELS.CREAR_BACKUP_PREVENTIVO,
       motivo
     ),
 
   // Restaura una base completa desde un backup.
   restaurarBackupManual: () =>
-    ipcRenderer.invoke('restaurar-backup-manual'),
+    ipcRenderer.invoke(IPC_CHANNELS.RESTAURAR_BACKUP_MANUAL),
 
   // Abre la carpeta activa de backups.
   abrirCarpetaBackups: () =>
-    ipcRenderer.invoke('abrir-carpeta-backups'),
+    ipcRenderer.invoke(IPC_CHANNELS.ABRIR_CARPETA_BACKUPS),
 
   // Restaura solo un período desde un backup.
   restaurarPeriodoManual: (periodo) =>
-    ipcRenderer.invoke('restaurar-periodo-manual', periodo),
+    ipcRenderer.invoke(IPC_CHANNELS.RESTAURAR_PERIODO_MANUAL, periodo),
 
   // Devuelve rutas internas y estado técnico de la app.
   obtenerEstadoApp: () =>
-    ipcRenderer.invoke('obtener-estado-app'),
+    ipcRenderer.invoke(IPC_CHANNELS.OBTENER_ESTADO_APP),
 
   leerArchivoDatos: (nombreArchivo) =>
     ipcRenderer.invoke(
-      'leer-archivo-datos',
+      IPC_CHANNELS.LEER_ARCHIVO_DATOS,
       nombreArchivo
     ),
 
   // Permite seleccionar una nueva carpeta de backups.
   configurarCarpetaBackups: () =>
     ipcRenderer.invoke(
-      'configurar-carpeta-backups'
+      IPC_CHANNELS.CONFIGURAR_CARPETA_BACKUPS
     ),
 
   // Suscribe al renderer al pedido de cierre emitido por el proceso principal.
@@ -105,7 +108,7 @@ contextBridge.exposeInMainWorld('api', {
 
   // Confirma al proceso principal que puede cerrar la aplicación.
   confirmarCierreApp: () =>
-    ipcRenderer.invoke('confirmar-cierre-app'),
+    ipcRenderer.invoke(IPC_CHANNELS.CONFIRMAR_CIERRE_APP),
 })
 
 
