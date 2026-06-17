@@ -3,7 +3,7 @@ import {
 } from '@domain/intervencion'
 import {
   validarIntervencionesRepository,
-} from './intervencionesRepositoryContract.cjs'
+} from './intervencionesRepositoryContract.mjs'
 
 function obtenerApiElectron() {
   if (!window.api) {

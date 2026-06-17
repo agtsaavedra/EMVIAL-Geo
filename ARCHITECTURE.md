@@ -403,7 +403,7 @@ Electron -> filesystem, DB, IPC y sistema operativo
 ```
 
 El renderer consume intervenciones mediante `src/repositories`. El contrato
-minimo esta en `intervencionesRepositoryContract.cjs`, lo que permite reemplazar
+minimo esta en `intervencionesRepositoryContract.mjs`, lo que permite reemplazar
 la implementacion local por un repositorio remoto manteniendo los hooks de UI.
 
 ## Proximos refactors recomendados

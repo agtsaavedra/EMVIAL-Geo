@@ -58,7 +58,7 @@ La app ya guarda campos compatibles con sincronizacion:
 
 La persistencia del renderer ya esta encapsulada detras de un contrato:
 
-- `src/repositories/intervencionesRepositoryContract.cjs` define los metodos
+- `src/repositories/intervencionesRepositoryContract.mjs` define los metodos
   obligatorios.
 - `src/repositories/intervencionesRepository.js` expone una factory local
   `crearIntervencionesRepositoryLocal`.

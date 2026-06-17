@@ -1,13 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createRequire } from 'node:module'
-
-const require = createRequire(import.meta.url)
 
 const {
   METODOS_REPOSITORIO_INTERVENCIONES,
   validarIntervencionesRepository,
-} = require('../src/repositories/intervencionesRepositoryContract.cjs')
+} = await import('../src/repositories/intervencionesRepositoryContract.mjs')
 
 test('define el contrato minimo del repositorio de intervenciones', () => {
   assert.deepEqual(

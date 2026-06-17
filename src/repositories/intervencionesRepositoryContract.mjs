@@ -1,4 +1,4 @@
-const METODOS_REPOSITORIO_INTERVENCIONES = [
+export const METODOS_REPOSITORIO_INTERVENCIONES = [
   'obtenerTodas',
   'guardar',
   'guardarMasivo',
@@ -6,7 +6,7 @@ const METODOS_REPOSITORIO_INTERVENCIONES = [
   'obtenerHistorial',
 ]
 
-function validarIntervencionesRepository(repository) {
+export function validarIntervencionesRepository(repository) {
   if (!repository || typeof repository !== 'object') {
     throw new Error(
       'El repositorio de intervenciones debe ser un objeto.'
@@ -26,9 +26,4 @@ function validarIntervencionesRepository(repository) {
   }
 
   return repository
-}
-
-module.exports = {
-  METODOS_REPOSITORIO_INTERVENCIONES,
-  validarIntervencionesRepository,
 }
