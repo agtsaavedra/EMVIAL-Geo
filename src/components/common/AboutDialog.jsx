@@ -22,6 +22,10 @@ function AboutDialog({
       ? `Si (${estadoApp.periodosBackupPendiente?.join(', ') || 'general'})`
       : 'No'
 
+  const estadoBase = estadoApp?.dbExiste
+    ? 'Disponible'
+    : 'No encontrada'
+
   return (
     <div
       className="confirm-overlay"
@@ -45,62 +49,95 @@ function AboutDialog({
           </div>
         </div>
 
-        <div className="confirm-body">
-          <div className="about-row">
-            <strong>Periodo activo</strong>
-            <span>{periodoActivo}</span>
-          </div>
+        <div className="confirm-body about-body">
+          <section className="about-summary">
+            <div>
+              <span>Periodo</span>
+              <strong>{periodoActivo}</strong>
+            </div>
 
-          <div className="about-row">
-            <strong>Modo</strong>
-            <span>Local (SQLite)</span>
-          </div>
+            <div>
+              <span>Modo</span>
+              <strong>Local</strong>
+            </div>
 
-          <div className="about-row">
-            <strong>Version</strong>
-            <span>{estadoApp?.appVersion || '0.1.0'}</span>
-          </div>
+            <div>
+              <span>Version</span>
+              <strong>{estadoApp?.appVersion || '0.1.0'}</strong>
+            </div>
 
-          <div className="about-row">
-            <strong>Base activa</strong>
-            <span>{estadoApp?.dbExiste ? 'Disponible' : 'No encontrada'}</span>
-          </div>
+            <div>
+              <span>Base</span>
+              <strong className={estadoApp?.dbExiste ? 'about-ok' : 'about-warn'}>
+                {estadoBase}
+              </strong>
+            </div>
+          </section>
 
-          <div className="about-row">
-            <strong>Base de datos</strong>
-            <small>{estadoApp?.dbPath}</small>
-          </div>
+          <section className="about-section">
+            <div className="about-section-title">
+              <h4>Almacenamiento</h4>
+              <span>Datos locales de la aplicacion</span>
+            </div>
 
-          <div className="about-row">
-            <strong>Backups</strong>
-            <small>{estadoApp?.backupsDir}</small>
-          </div>
+            <div className="about-path-card">
+              <strong>Base de datos</strong>
+              <code>{estadoApp?.dbPath || 'No disponible'}</code>
+            </div>
 
-          <div className="about-row">
-            <strong>Backup pendiente</strong>
-            <span>{backupsPendientes}</span>
-          </div>
+            <div className="about-path-card">
+              <strong>Carpeta de backups</strong>
+              <code>{estadoApp?.backupsDir || 'No disponible'}</code>
+            </div>
+          </section>
 
-          <div className="about-row">
-            <strong>Ultimo backup automatico</strong>
-            <small>{ultimoBackup}</small>
-          </div>
+          <section className="about-section">
+            <div className="about-section-title">
+              <h4>Backups</h4>
+              <span>Estado de resguardo automatico</span>
+            </div>
+
+            <div className="about-two-col">
+              <div className="about-info-card">
+                <span>Backup pendiente</span>
+                <strong>{backupsPendientes}</strong>
+              </div>
+
+              <div className="about-info-card">
+                <span>Ultimo automatico</span>
+                <strong>{ultimoBackup}</strong>
+              </div>
+            </div>
+          </section>
 
           {estadoGeocoding && (
-            <>
-              <div className="about-row">
-                <strong>Geocoding cache</strong>
-                <small>
-                  {estadoGeocoding.vigentes} consultas vigentes de {estadoGeocoding.total}.
-                  {' '}Limite: 1 consulta cada {estadoGeocoding.intervaloMs} ms.
-                </small>
+            <section className="about-section">
+              <div className="about-section-title">
+                <h4>Geocoding</h4>
+                <span>Cache y limite de consultas</span>
               </div>
 
-              <div className="about-row">
-                <strong>Archivo cache</strong>
-                <small>{estadoGeocoding.cachePath}</small>
+              <div className="about-two-col">
+                <div className="about-info-card">
+                  <span>Consultas vigentes</span>
+                  <strong>
+                    {estadoGeocoding.vigentes} de {estadoGeocoding.total}
+                  </strong>
+                </div>
+
+                <div className="about-info-card">
+                  <span>Limite</span>
+                  <strong>
+                    1 cada {estadoGeocoding.intervaloMs} ms
+                  </strong>
+                </div>
               </div>
-            </>
+
+              <div className="about-path-card">
+                <strong>Archivo cache</strong>
+                <code>{estadoGeocoding.cachePath}</code>
+              </div>
+            </section>
           )}
         </div>
 
