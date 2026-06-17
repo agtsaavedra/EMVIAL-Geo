@@ -1,4 +1,4 @@
-function mensajeExportacion(
+export function mensajeExportacion(
   formato,
   resultado
 ) {
@@ -13,7 +13,7 @@ function mensajeExportacion(
   return `${formato} exportado correctamente.`
 }
 
-function contarPorGeometria(intervenciones = []) {
+export function contarPorGeometria(intervenciones = []) {
   return intervenciones.reduce(
     (acumulado, intervencion) => {
       const tipo =
@@ -28,13 +28,13 @@ function contarPorGeometria(intervenciones = []) {
   )
 }
 
-function formatearConteoGeometrias(conteo) {
+export function formatearConteoGeometrias(conteo) {
   return Object.entries(conteo)
     .map(([tipo, total]) => `${tipo}: ${total}`)
     .join(' | ')
 }
 
-function primerasIntervencionesPreview(
+export function primerasIntervencionesPreview(
   intervenciones = []
 ) {
   return intervenciones
@@ -53,7 +53,7 @@ function primerasIntervencionesPreview(
     .join('\n')
 }
 
-function detalleImportacionGIS({
+export function detalleImportacionGIS({
   periodoActivo,
   resultado,
 }) {
@@ -84,12 +84,4 @@ function detalleImportacionGIS({
   ]
     .filter(Boolean)
     .join('\n\n')
-}
-
-module.exports = {
-  mensajeExportacion,
-  contarPorGeometria,
-  formatearConteoGeometrias,
-  primerasIntervencionesPreview,
-  detalleImportacionGIS,
 }

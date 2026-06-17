@@ -5,7 +5,7 @@ import {
   crearFormularioEdicionDesdeBase,
   obtenerPuntoSeleccionadoDesdeFormulario,
   tieneCambiosSinGuardar,
-} from '../src/hooks/form/formStateCore.cjs'
+} from '../src/hooks/form/formStateCore.mjs'
 
 const formBase = {
   nombre: '',

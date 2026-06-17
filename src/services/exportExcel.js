@@ -19,11 +19,9 @@ import {
 import {
   calcularStatsPeriodo,
 } from '@services/periodoStats'
-import xlsxWriter from './xlsxWriter.cjs'
-
-const {
+import {
   crearXlsxBlob,
-} = xlsxWriter
+} from './xlsxWriter.mjs'
 
 function valorExcel(valor) {
   return valor ?? ''

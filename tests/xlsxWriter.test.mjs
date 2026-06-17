@@ -1,15 +1,12 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createRequire } from 'node:module'
 
-const require = createRequire(import.meta.url)
-
-const {
+import {
   columnaExcel,
   crearHojaXml,
   escapeXml,
   sanitizarNombreHoja,
-} = require('../src/services/xlsxWriter.cjs')
+} from '../src/services/xlsxWriter.mjs'
 
 test('escapa XML para valores de celdas', () => {
   assert.equal(

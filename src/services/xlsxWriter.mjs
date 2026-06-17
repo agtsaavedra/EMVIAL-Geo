@@ -1,4 +1,4 @@
-const JSZip = require('jszip')
+import JSZip from 'jszip'
 
 const CONTENT_TYPES_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -22,7 +22,7 @@ const STYLES_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>
 </styleSheet>`
 
-function escapeXml(valor) {
+export function escapeXml(valor) {
   return String(valor ?? '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -31,7 +31,7 @@ function escapeXml(valor) {
     .replace(/'/g, '&apos;')
 }
 
-function columnaExcel(index) {
+export function columnaExcel(index) {
   let numero = index + 1
   let columna = ''
 
@@ -104,14 +104,14 @@ function crearFilasXml(filas = []) {
     .join('')
 }
 
-function crearHojaXml(filas = []) {
+export function crearHojaXml(filas = []) {
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
 <sheetData>${crearFilasXml(filas)}</sheetData>
 </worksheet>`
 }
 
-function sanitizarNombreHoja(nombre) {
+export function sanitizarNombreHoja(nombre) {
   const nombreLimpio = String(nombre || 'Hoja')
     .replace(/[\\/?*[\]:]/g, ' ')
     .trim()
@@ -149,7 +149,7 @@ ${relaciones}
 </Relationships>`
 }
 
-async function crearXlsxBlob(hojas = []) {
+export async function crearXlsxBlob(hojas = []) {
   const zip = new JSZip()
 
   zip.file('[Content_Types].xml', CONTENT_TYPES_XML)
@@ -169,12 +169,4 @@ async function crearXlsxBlob(hojas = []) {
     type: 'blob',
     compression: 'DEFLATE',
   })
-}
-
-module.exports = {
-  escapeXml,
-  columnaExcel,
-  crearHojaXml,
-  sanitizarNombreHoja,
-  crearXlsxBlob,
 }

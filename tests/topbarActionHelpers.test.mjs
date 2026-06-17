@@ -1,16 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createRequire } from 'node:module'
 
-const require = createRequire(import.meta.url)
-
-const {
+import {
   mensajeExportacion,
   contarPorGeometria,
   formatearConteoGeometrias,
   primerasIntervencionesPreview,
   detalleImportacionGIS,
-} = require('../src/hooks/app/actions/topbarActionHelpers.cjs')
+} from '../src/hooks/app/actions/topbarActionHelpers.mjs'
 
 test('formatea mensajes de exportacion segun resultado', () => {
   assert.equal(

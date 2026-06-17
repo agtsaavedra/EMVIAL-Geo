@@ -1,9 +1,7 @@
 import { logger } from '@services/logger'
-import topbarActionHelpers from './topbarActionHelpers.cjs'
-
-const {
+import {
   detalleImportacionGIS,
-} = topbarActionHelpers
+} from './topbarActionHelpers.mjs'
 
 export function useImportActions({
   periodoActivo,

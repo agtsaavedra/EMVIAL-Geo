@@ -1,4 +1,4 @@
-function crearFormularioEdicionDesdeBase(
+export function crearFormularioEdicionDesdeBase(
   formBase,
   intervencion = {}
 ) {
@@ -75,7 +75,7 @@ function crearFormularioEdicionDesdeBase(
   }
 }
 
-function obtenerPuntoSeleccionadoDesdeFormulario(form) {
+export function obtenerPuntoSeleccionadoDesdeFormulario(form) {
   if (!form?.latitud || !form?.longitud) {
     return null
   }
@@ -86,7 +86,7 @@ function obtenerPuntoSeleccionadoDesdeFormulario(form) {
   ]
 }
 
-function tieneCambiosSinGuardar(form, formOriginal) {
+export function tieneCambiosSinGuardar(form, formOriginal) {
   const hayGeometria =
     Array.isArray(form.geometria) &&
     form.geometria.length > 0
@@ -104,10 +104,4 @@ function tieneCambiosSinGuardar(form, formOriginal) {
       form.longitud ||
       hayGeometria
   )
-}
-
-module.exports = {
-  crearFormularioEdicionDesdeBase,
-  obtenerPuntoSeleccionadoDesdeFormulario,
-  tieneCambiosSinGuardar,
 }

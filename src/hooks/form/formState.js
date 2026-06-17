@@ -1,11 +1,9 @@
 import { formInicial } from '@constants/formInicial'
-import formStateCore from './formStateCore.cjs'
-
-const {
+import {
   crearFormularioEdicionDesdeBase,
   obtenerPuntoSeleccionadoDesdeFormulario,
   tieneCambiosSinGuardar,
-} = formStateCore
+} from './formStateCore.mjs'
 
 export function crearFormularioEdicion(intervencion = {}) {
   return crearFormularioEdicionDesdeBase(

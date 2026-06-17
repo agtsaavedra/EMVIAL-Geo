@@ -5,11 +5,9 @@ import {
   analizarCalidadIntervencionesAsync,
 } from '@services/dataQualityWorker'
 import { logger } from '@services/logger'
-import topbarActionHelpers from './topbarActionHelpers.cjs'
-
-const {
+import {
   mensajeExportacion,
-} = topbarActionHelpers
+} from './topbarActionHelpers.mjs'
 
 export function useExportActions({
   periodoActivo,
