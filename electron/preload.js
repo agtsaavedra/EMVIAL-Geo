@@ -5,9 +5,29 @@
  * Mantiene contextIsolation activado y evita exponer ipcRenderer completo al frontend.
  */
 const { contextBridge, ipcRenderer } = require('electron')
-const {
-  IPC_CHANNELS,
-} = require('./ipc/channels')
+
+const canal = (...partes) => partes.join('-')
+
+const IPC_CHANNELS = {
+  CONFIRMAR_CIERRE_APP: canal('confirmar', 'cierre', 'app'),
+  BUSCAR_DIRECCION: canal('buscar', 'direccion'),
+  OBTENER_DIRECCION: canal('obtener', 'direccion'),
+  OBTENER_ESTADO_GEOCODING: canal('obtener', 'estado', 'geocoding'),
+  LIMPIAR_CACHE_GEOCODING: canal('limpiar', 'cache', 'geocoding'),
+  OBTENER_INTERVENCIONES: canal('obtener', 'intervenciones'),
+  GUARDAR_INTERVENCION: canal('guardar', 'intervencion'),
+  GUARDAR_INTERVENCIONES_MASIVO: canal('guardar', 'intervenciones', 'masivo'),
+  ELIMINAR_INTERVENCION: canal('eliminar', 'intervencion'),
+  OBTENER_HISTORIAL_INTERVENCION: canal('obtener', 'historial', 'intervencion'),
+  CREAR_BACKUP_MANUAL: canal('crear', 'backup', 'manual'),
+  CREAR_BACKUP_PREVENTIVO: canal('crear', 'backup', 'preventivo'),
+  RESTAURAR_BACKUP_MANUAL: canal('restaurar', 'backup', 'manual'),
+  ABRIR_CARPETA_BACKUPS: canal('abrir', 'carpeta', 'backups'),
+  RESTAURAR_PERIODO_MANUAL: canal('restaurar', 'periodo', 'manual'),
+  CONFIGURAR_CARPETA_BACKUPS: canal('configurar', 'carpeta', 'backups'),
+  OBTENER_ESTADO_APP: canal('obtener', 'estado', 'app'),
+  LEER_ARCHIVO_DATOS: canal('leer', 'archivo', 'datos'),
+}
 
 // API pública disponible en el renderer como window.api.
 contextBridge.exposeInMainWorld('api', {

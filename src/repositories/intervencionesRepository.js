@@ -1,11 +1,9 @@
 import {
   normalizarIntervencion,
 } from '@domain/intervencion'
-import repositoryContract from './intervencionesRepositoryContract.cjs'
-
-const {
+import {
   validarIntervencionesRepository,
-} = repositoryContract
+} from './intervencionesRepositoryContract.cjs'
 
 function obtenerApiElectron() {
   if (!window.api) {
