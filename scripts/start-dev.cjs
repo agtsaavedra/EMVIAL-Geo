@@ -1,13 +1,32 @@
 const { spawn } = require('node:child_process')
 
 const isWindows = process.platform === 'win32'
-const npmCommand = isWindows ? 'npm.cmd' : 'npm'
 
 const processes = []
 let shuttingDown = false
 
+function buildCommand(args) {
+  if (!isWindows) {
+    return {
+      command: 'npm',
+      args,
+    }
+  }
+
+  return {
+    command: 'cmd.exe',
+    args: [
+      '/d',
+      '/s',
+      '/c',
+      ['npm', ...args].join(' '),
+    ],
+  }
+}
+
 function start(name, args) {
-  const child = spawn(npmCommand, args, {
+  const command = buildCommand(args)
+  const child = spawn(command.command, command.args, {
     stdio: 'inherit',
     shell: false,
     env: {
