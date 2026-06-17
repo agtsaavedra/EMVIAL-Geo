@@ -262,6 +262,49 @@
    About dialog
 ================================ */
 
+.about-dialog {
+  width: min(620px, calc(100vw - 32px));
+  max-height: calc(100vh - 56px);
+
+  display: flex;
+  flex-direction: column;
+}
+
+.about-dialog .confirm-header,
+.about-dialog .confirm-actions {
+  flex: 0 0 auto;
+}
+
+.about-dialog .confirm-body {
+  min-height: 0;
+  padding-bottom: 14px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.about-dialog .confirm-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.about-dialog .confirm-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.about-dialog .confirm-body::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+}
+
+.about-dialog .confirm-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.52);
+}
+
+.about-dialog .confirm-actions {
+  flex-wrap: wrap;
+  padding-top: 14px;
+}
+
 .about-row {
   display: flex;
   flex-direction: column;
@@ -279,6 +322,18 @@
   color: var(--text-secondary);
 
   word-break: break-word;
+}
+
+@media (max-width: 720px) {
+  .about-dialog {
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+  }
+
+  .about-dialog .confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ===============================

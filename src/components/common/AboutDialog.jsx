@@ -28,7 +28,7 @@ function AboutDialog({
       onClick={onCerrar}
     >
       <div
-        className="confirm-dialog"
+        className="confirm-dialog about-dialog"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="confirm-header">
