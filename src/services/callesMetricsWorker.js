@@ -5,6 +5,7 @@ import { logger } from '@services/logger'
 
 let worker
 let requestId = 0
+const WORKER_TIMEOUT_MS = 15000
 
 function obtenerWorker() {
   if (worker) return worker
@@ -26,8 +27,17 @@ function calcularConWorker(geometria) {
   return new Promise((resolve, reject) => {
     const id = `${Date.now()}-${requestId += 1}`
     const workerActual = obtenerWorker()
+    const timeout = globalThis.setTimeout(() => {
+      limpiar()
+      reject(
+        new Error(
+          'El calculo de red vial excedio el tiempo esperado.'
+        )
+      )
+    }, WORKER_TIMEOUT_MS)
 
     function limpiar() {
+      globalThis.clearTimeout(timeout)
       workerActual.removeEventListener(
         'message',
         manejarMensaje

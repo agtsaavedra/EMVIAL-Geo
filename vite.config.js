@@ -21,7 +21,7 @@ export default defineConfig({
             },
             {
               name: 'vendor-export',
-              test: /node_modules[\\/](xlsx|jszip|@mapbox[\\/]shp-write|shpjs)[\\/]/,
+              test: /node_modules[\\/](jszip|@mapbox[\\/]shp-write|shpjs)[\\/]/,
             },
             {
               name: 'vendor-geo',
