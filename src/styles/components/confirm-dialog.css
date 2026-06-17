@@ -301,14 +301,16 @@
 }
 
 .about-dialog .confirm-actions {
-  align-items: center;
-  justify-content: flex-end;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
   padding-top: 14px;
 }
 
 .about-dialog .confirm-actions button {
-  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .about-row {
@@ -337,12 +339,7 @@
   }
 
   .about-dialog .confirm-actions {
-    display: grid;
     grid-template-columns: 1fr;
-  }
-
-  .about-dialog .confirm-actions button {
-    width: 100%;
   }
 }
 
