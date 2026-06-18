@@ -248,7 +248,8 @@ function InterventionForm({
       <label>Cuadras</label>
       <input
         type="number"
-        step="0.01"
+        step="0.25"
+        min="0"
         name="cuadras"
         value={form.cuadras}
         onChange={manejarCambio}

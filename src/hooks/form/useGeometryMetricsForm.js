@@ -15,6 +15,7 @@ import {
 export function useGeometryMetricsForm({
   form,
   setForm,
+  onAutoMetricsUpdate,
 }) {
   useEffect(() => {
     if (!esGeometriaLinea(form.geometriaTipo)) {
@@ -39,6 +40,12 @@ export function useGeometryMetricsForm({
         return prev
       }
 
+      queueMicrotask(() => {
+        onAutoMetricsUpdate?.({
+          metrosLineales: metrosFormateados,
+        })
+      })
+
       return {
         ...prev,
         metrosLineales:
@@ -48,6 +55,7 @@ export function useGeometryMetricsForm({
   }, [
     form.geometria,
     form.geometriaTipo,
+    onAutoMetricsUpdate,
     setForm,
   ])
 
@@ -74,6 +82,12 @@ export function useGeometryMetricsForm({
         return prev
       }
 
+      queueMicrotask(() => {
+        onAutoMetricsUpdate?.({
+          metrosCuadrados: areaFormateada,
+        })
+      })
+
       return {
         ...prev,
         metrosCuadrados:
@@ -83,6 +97,7 @@ export function useGeometryMetricsForm({
   }, [
     form.geometria,
     form.geometriaTipo,
+    onAutoMetricsUpdate,
     setForm,
   ])
 }

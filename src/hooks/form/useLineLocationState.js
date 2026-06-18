@@ -20,6 +20,8 @@ export function useLineLocationState() {
     useRef('')
   const ubicacionLineaManualRef =
     useRef(false)
+  const cuadrasManualRef =
+    useRef(false)
   const calculoCuadrasVersionRef =
     useRef(0)
   const advertenciaLineaRef =
@@ -28,6 +30,7 @@ export function useLineLocationState() {
   const invalidarUbicacionAutoLinea = useCallback(() => {
     ubicacionAutoLineaRef.current = ''
     ubicacionLineaManualRef.current = false
+    cuadrasManualRef.current = false
     setUbicacionAutomaticaLinea(false)
     setUbicacionManualLinea(false)
     advertenciaLineaRef.current = ''
@@ -36,6 +39,7 @@ export function useLineLocationState() {
 
   const recalcularUbicacionLinea = useCallback(() => {
     ubicacionLineaManualRef.current = false
+    cuadrasManualRef.current = false
     ubicacionAutoLineaRef.current = ''
     setUbicacionAutomaticaLinea(false)
     setUbicacionManualLinea(false)
@@ -58,6 +62,10 @@ export function useLineLocationState() {
     setUbicacionManualLinea(true)
   }, [])
 
+  const marcarCuadrasManual = useCallback(() => {
+    cuadrasManualRef.current = true
+  }, [])
+
   return {
     ubicacionAutomaticaLinea,
     ubicacionManualLinea,
@@ -66,11 +74,13 @@ export function useLineLocationState() {
     setUbicacionManualLinea,
     ubicacionAutoLineaRef,
     ubicacionLineaManualRef,
+    cuadrasManualRef,
     calculoCuadrasVersionRef,
     advertenciaLineaRef,
     invalidarUbicacionAutoLinea,
     recalcularUbicacionLinea,
     marcarUbicacionLineaManual,
     restaurarUbicacionLineaManual,
+    marcarCuadrasManual,
   }
 }

@@ -90,6 +90,10 @@ function normalizarCambios(cambios) {
 }
 
 export function obtenerCambiosHistorial(evento = {}) {
+  if (evento.accion === 'crear') {
+    return []
+  }
+
   const cambios = normalizarCambios(evento.cambios)
 
   return Object.entries(cambios)

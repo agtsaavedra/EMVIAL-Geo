@@ -7,6 +7,7 @@
  */
 
 import {
+  useCallback,
   useEffect,
   useState,
 } from 'react'
@@ -71,17 +72,33 @@ export function useFormularioIntervencion({
     setUbicacionManualLinea,
     ubicacionAutoLineaRef,
     ubicacionLineaManualRef,
+    cuadrasManualRef,
     calculoCuadrasVersionRef,
     advertenciaLineaRef,
     invalidarUbicacionAutoLinea,
     recalcularUbicacionLinea,
     marcarUbicacionLineaManual,
     restaurarUbicacionLineaManual,
+    marcarCuadrasManual,
   } = useLineLocationState()
+
+  const sincronizarOriginalAutomatico =
+    useCallback((cambiosAutomaticos) => {
+      setFormOriginal((prev) => {
+        if (!prev?.id) return prev
+
+        return {
+          ...prev,
+          ...cambiosAutomaticos,
+        }
+      })
+    }, [])
 
   useGeometryMetricsForm({
     form,
     setForm,
+    onAutoMetricsUpdate:
+      sincronizarOriginalAutomatico,
   })
 
   useStreetAutoLocation({
@@ -93,8 +110,11 @@ export function useFormularioIntervencion({
     setUbicacionManualLinea,
     ubicacionAutoLineaRef,
     ubicacionLineaManualRef,
+    cuadrasManualRef,
     calculoCuadrasVersionRef,
     advertenciaLineaRef,
+    onAutoStreetUpdate:
+      sincronizarOriginalAutomatico,
   })
 
   const {
@@ -234,6 +254,17 @@ export function useFormularioIntervencion({
       setForm((prev) => ({
         ...prev,
         ubicacion: value,
+      }))
+
+      return
+    }
+
+    if (name === 'cuadras') {
+      marcarCuadrasManual()
+
+      setForm((prev) => ({
+        ...prev,
+        cuadras: value,
       }))
 
       return

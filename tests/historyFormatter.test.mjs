@@ -129,6 +129,17 @@ test('formatea valores vacios y fechas invalidas', () => {
 })
 
 test('describe acciones principales sin cambios visibles', () => {
+  assert.deepEqual(
+    obtenerCambiosHistorial({
+      accion: 'crear',
+      cambios: {
+        nombre: 'Linea',
+        ubicacion: 'COLON 2100',
+      },
+    }),
+    []
+  )
+
   assert.equal(
     describirEventoHistorial({
       accion: 'crear',

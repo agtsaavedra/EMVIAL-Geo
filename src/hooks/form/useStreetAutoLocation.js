@@ -11,8 +11,10 @@ export function useStreetAutoLocation({
   setUbicacionManualLinea,
   ubicacionAutoLineaRef,
   ubicacionLineaManualRef,
+  cuadrasManualRef,
   calculoCuadrasVersionRef,
   advertenciaLineaRef,
+  onAutoStreetUpdate,
 }) {
   useEffect(() => {
     let activo = true
@@ -81,25 +83,57 @@ export function useStreetAutoLocation({
         const debeActualizarUbicacion =
           resultado.ubicacion &&
           !ubicacionLineaManualRef.current
+        const debeActualizarCuadras =
+          !cuadrasManualRef.current
+        const cuadrasSinCambios =
+          !debeActualizarCuadras ||
+          prev.cuadras === resultado.cuadras
+        const ubicacionSinCambios =
+          !debeActualizarUbicacion ||
+          prev.ubicacion === resultado.ubicacion
 
         if (
-          prev.cuadras ===
-            resultado.cuadras &&
-          !debeActualizarUbicacion
+          cuadrasSinCambios &&
+          ubicacionSinCambios
         ) {
           return prev
         }
 
-        if (debeActualizarUbicacion) {
+        const cambiosAutomaticos = {}
+
+        if (
+          debeActualizarUbicacion &&
+          !ubicacionSinCambios
+        ) {
           ubicacionAutoLineaRef.current =
             resultado.ubicacion
           setUbicacionAutomaticaLinea(true)
           setUbicacionManualLinea(false)
+          cambiosAutomaticos.ubicacion =
+            resultado.ubicacion
+        }
+
+        if (
+          debeActualizarCuadras &&
+          !cuadrasSinCambios
+        ) {
+          cambiosAutomaticos.cuadras =
+            resultado.cuadras
+        }
+
+        if (Object.keys(cambiosAutomaticos).length) {
+          queueMicrotask(() => {
+            onAutoStreetUpdate?.(
+              cambiosAutomaticos
+            )
+          })
         }
 
         return {
           ...prev,
-          cuadras: resultado.cuadras,
+          cuadras: debeActualizarCuadras
+            ? resultado.cuadras
+            : prev.cuadras,
           ubicacion: debeActualizarUbicacion
             ? resultado.ubicacion
             : prev.ubicacion,
@@ -126,7 +160,9 @@ export function useStreetAutoLocation({
     setUbicacionManualLinea,
     ubicacionAutoLineaRef,
     ubicacionLineaManualRef,
+    cuadrasManualRef,
     calculoCuadrasVersionRef,
     advertenciaLineaRef,
+    onAutoStreetUpdate,
   ])
 }
